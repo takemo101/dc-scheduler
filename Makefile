@@ -1,0 +1,39 @@
+#### diagram ####
+
+PLANTUML_JAR_URL = https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+DIAGRAM_DIRECTORY = diagram
+DIAGRAM_EXTENSION = .puml
+DIAGRAM_SRC := $(wildcard ./$(DIAGRAM_DIRECTORY)/*/*$(DIAGRAM_EXTENSION))
+DIAGRAM_FULL_SRC := $(basename $(DIAGRAM_SRC))
+DIAGRAM_UML := $(addsuffix ${DIAGRAM_EXTENSION}, $(DIAGRAM_FULL_SRC))
+DIAGRAM_PNG := $(addsuffix .png, $(DIAGRAM_FULL_SRC))
+DIAGRAM_SVG := $(addsuffix .svg, $(DIAGRAM_FULL_SRC))
+
+# download jar
+download-jar:
+	curl -sSfL $(PLANTUML_JAR_URL) -o plantuml.jar
+
+# create png
+png:
+	java -jar plantuml.jar -tpng $(DIAGRAM_UML)
+
+# create svg
+svg:
+	java -jar plantuml.jar -tsvg $(DIAGRAM_UML)
+
+# clear
+clear:
+	make clear-resource
+	rm -f plantuml.jar
+
+# clear-resource
+clear-resource:
+	rm -f $(DIAGRAM_PNG) $(DIAGRAM_SVG)
+
+# output png
+png/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
+	java -jar plantuml.jar -tpng $^
+
+# output svg
+svg/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
+	java -jar plantuml.jar -tsvg $^
