@@ -3,7 +3,7 @@
 分析では、この README の機能や用語集のほかに以下の plantUML で作成した図が含まれます。
 
 - 概念モデル図
-- ユースケース図
+- ユースケース図（ユースケース記述は大事だが今回は書かない）
 - ロバストネス図
 
 ※ ドメインを明らかにしていく過程で図などは修正・変更されていきます。  
@@ -73,8 +73,16 @@ Discord のウェブフック情報を設定してボットを追加できます
 
 ## 4. ユースケース
 
-![model diagram](usecase.png)
+![usecase diagram](usecase.png)
 
 ※ 2021/10/08 更新
 
 ## 5. ロバストネス分析
+
+### ボットを追加する
+
+![robustness diagram](robustness-bot-create.png)
+
+### 配信メッセージを追加する
+
+![robustness diagram](robustness-post_message-create.png)
