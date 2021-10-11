@@ -3,6 +3,7 @@
 left to right direction
 
 :管理者:
+:定期処理システム:
 
 rectangle メッセージスケジュール {
   usecase ボットを管理する
@@ -26,6 +27,8 @@ rectangle メッセージスケジュール {
   usecase 定期タイミングを追加する
 
   usecase 配信履歴を見る
+
+  usecase メッセージ配信をする
 }
 
 rectangle アカウント管理 {
@@ -74,5 +77,8 @@ rectangle アカウント管理 {
 ログインする .> 配信メッセージを管理する #gray :precedes
 ログインする .> 配信履歴を見る #gray :precedes
 ログインする .> 管理者を管理する #gray :precedes
+
+即時配信メッセージを追加する -- メッセージ配信をする
+メッセージ配信をする -- 定期処理システム
 
 @enduml
