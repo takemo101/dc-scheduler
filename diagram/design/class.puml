@@ -6,8 +6,11 @@ package domain {
             id: BotID
             title: Title
             webhook: DiscordWebbook
-            + {static} NewBot(id: int, title: string, webhook: string): Bot
+            active : boolean
+            + {static} NewBot(id: int, title: string, webhook: string, active: boolean): Bot
             + ChangeTitle(title: string)
+            + ChangeActive(active: boolean)
+            + IsActive(): boolean
         }
 
         abstract PostMessage {
@@ -18,6 +21,7 @@ package domain {
             sentMessages: SentMessage[]
             + Send()
             + ChangeMessage(message: string)
+            + IsSent(): boolean
         }
 
         enum MessageType {

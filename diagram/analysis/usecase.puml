@@ -6,38 +6,40 @@ left to right direction
 :定期処理システム:
 
 rectangle メッセージスケジュール {
-  usecase ボットを管理する
-  usecase ボットを更新する
-  usecase ボットを追加する
-  usecase ボットを削除する
-  usecase ボット一覧を見る
-  usecase タイトルを入力する
-  usecase ウェブフックURLを設定する
+    usecase ボットを管理する
+    usecase ボットを更新する
+    usecase ボットを追加する
+    usecase ボットを削除する
+    usecase ボットのアクティブ状態を変更する
+    usecase ボット一覧を見る
+    usecase タイトルを入力する
+    usecase ウェブフックURLを設定する
+    usecase アクティブ状態を設定する
 
-  usecase 配信メッセージを管理する
-  usecase 配信メッセージを追加する
-  usecase 即時配信メッセージを追加する
-  usecase 定期配信メッセージを追加する
-  usecase 予約配信メッセージを追加する
-  usecase 配信メッセージを更新する
-  usecase 配信メッセージを削除する
-  usecase 配信メッセージ一覧を見る
-  usecase メッセージ内容を入力する
-  usecase 配信日時を選択する
-  usecase 定期タイミングを追加する
+    usecase 配信メッセージを管理する
+    usecase 配信メッセージを追加する
+    usecase 即時配信メッセージを追加する
+    usecase 定期配信メッセージを追加する
+    usecase 予約配信メッセージを追加する
+    usecase 配信メッセージを更新する
+    usecase 配信メッセージを削除する
+    usecase 配信メッセージ一覧を見る
+    usecase メッセージ内容を入力する
+    usecase 配信日時を選択する
+    usecase 定期タイミングを追加する
 
-  usecase 配信履歴を見る
+    usecase 配信履歴を見る
 
-  usecase メッセージ配信をする
+    usecase メッセージ配信をする
 }
 
 rectangle アカウント管理 {
-  usecase ログインする
-  usecase 管理者を管理する
-  usecase 管理者を追加する
-  usecase 管理者を削除する
-  usecase アカウント情報を入力する
-  usecase ロールを設定する
+    usecase ログインする
+    usecase 管理者を管理する
+    usecase 管理者を追加する
+    usecase 管理者を削除する
+    usecase アカウント情報を入力する
+    usecase ロールを設定する
 }
 
 管理者 -- ボットを管理する
@@ -45,9 +47,12 @@ rectangle アカウント管理 {
 ボットを管理する --> ボットを更新する
 ボットを管理する --> ボットを削除する
 ボットを管理する --> ボット一覧を見る
+ボットを管理する --> ボットのアクティブ状態を変更する
 ボットを追加する ..> タイトルを入力する #blue :invokes
 ボットを追加する ..> ウェブフックURLを設定する #blue : invokes
 ボットを更新する ..> タイトルを入力する #blue :invokes
+ボットを更新する ..> アクティブ状態を設定する #blue :invokes
+ボットのアクティブ状態を変更する ..> アクティブ状態を設定する #blue :invokes
 
 管理者 -- 配信メッセージを管理する
 配信メッセージを管理する --> 配信メッセージを追加する

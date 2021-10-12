@@ -5,6 +5,7 @@ object bots {
     --
     * title : string
     * webhook : text
+    * active : bool
     * created_at : datetime
     * updated_at : datetime
 }
