@@ -1,2 +1,52 @@
 @startuml er
+
+object bots {
+    + id : pk <<auto_increment>>
+    --
+    * title : string
+    * webhook : text
+    * created_at : datetime
+    * updated_at : datetime
+}
+
+object post_messages {
+    + id : pk <<auto_increment>>
+    --
+    # bot_id : fk
+    * message : text
+    * message_type : enum/string
+    * created_at
+    * updated_at
+}
+
+object sent_messages {
+    + id : pk <<auto_increment>>
+    --
+    # post_message_id : fk
+    * message : text
+    * sended_at
+}
+
+object regular_timings {
+    + id : pk <<auto_increment>>
+    --
+    # post_message_id : fk
+    * day_of_week : enum/string
+    * time : time
+}
+
+object admins {
+    + id : pk <<auto_increment>>
+    --
+    * name : string
+    * email : string
+    * password : bytes
+    * role : enum/string
+    * created_at
+    * updated_at
+}
+
+bots ||--o{ post_messages
+post_messages ||--o{ regular_timings
+post_messages ||--o{ sent_messages
 @enduml

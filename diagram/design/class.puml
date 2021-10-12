@@ -1,2 +1,129 @@
 @startuml class
+
+package domain {
+    package message {
+        class Bot {
+            id: BotID
+            title: Title
+            webhook: DiscordWebbook
+            + {static} NewBot(id: int, title: string, webhook: string): Bot
+            + ChangeTitle(title: string)
+        }
+
+        abstract PostMessage {
+            id: PostMessageID
+            bot: Bot
+            message: Message
+            messageType: MessageType
+            sentMessages: SentMessage[]
+            + Send()
+            + ChangeMessage(message: string)
+        }
+
+        enum MessageType {
+            SchedulePost
+            ImmediatePost
+            RegularPost
+            + String(): string
+        }
+
+        class SchedulePost {
+            reservationAt: ReservationAt
+            + {static} NewSchedulePost(id: int, message: string, reservationAt: Datetime, bot: Bot)
+        }
+
+        class RegularPost {
+            timings: RegularTiming[]
+            + {static} NewRegularPost(id: int, message: string, bot: Bot): PostMessage
+            + AddTiming(dayOfWeek: string, time: Time)
+        }
+
+        class ImmediatePost {
+            + {static} NewImmediatePost(id: int, message: string, bot: Bot): PostMessage
+        }
+
+        class RegularTiming {
+            dayOfWeek: DayOfWeek
+            time: Time
+            + {static} NewRegularTiming(messageID: int, dayOfWeek: string, time: Time): RegularTiming
+        }
+
+        enum DayOfWeek {
+            Sunday
+            Monday
+            Tuesday
+            Wednesday
+            Thursday
+            Friday
+            Saturday
+            + String(): string
+        }
+
+        class SentMessage {
+            message: Message
+            sendedAt: SendedAt
+            + {static} NewSentMessage(message: string, sendedAt: Datetime): SendMessage
+        }
+
+        interface BotRepository {
+            + FindByID(id: BotID): Bot
+            + Store(bot: Bot): BotID
+            + Update(bot: Bot)
+            + Delete(id: BotID)
+            + NextIdentity(): BotID
+        }
+
+        interface PostMessageRepository {
+            + FindByID(id: PostMessageID): PostMessage
+            + SendRegularList(now: Datetime): PostMessage[]
+            + SendScheduleList(now: Datetime): PostMessage[]
+            + Store(postMessage PostMessage): PostMessageID
+            + Update(postMessage PostMessage)
+            + Delete(id: PostMessageID)
+            + NextIdentity(): PostMessageID
+        }
+    }
+
+    package admin {
+        class Admin {
+            id: AdminID
+            name: Name
+            email: Email
+            hashPassword: HashPassword
+            role: AdminRole
+            + {static} NewAdmin(id: int, name: string, email: string, password string, role: string): Admin
+            + Update(name: string, email: string, password string, role: string)
+        }
+
+        enum AdminRole {
+            System
+            Normal
+            + String(): string
+        }
+
+        interface AdminRepository {
+            + Store(admin: Admin): AdminID
+            + Update(admin: Admin)
+            + FindByID(id: AdminID): Admin
+            + Delete(id: AdminID)
+            + ExistsByEmail(email: Email): bool
+            + NextIdentity(): AdminID
+        }
+    }
+}
+
+Bot -o PostMessage
+PostMessage - MessageType
+SentMessage --* PostMessage
+PostMessage <|-- ImmediatePost
+PostMessage <|-- SchedulePost
+PostMessage <|-- RegularPost
+RegularPost *-- RegularTiming
+RegularTiming - DayOfWeek
+Admin - AdminRole
+
+BotRepository -- Bot
+PostMessageRepository -- PostMessage
+AdminRepository -- Admin
+
 @enduml
