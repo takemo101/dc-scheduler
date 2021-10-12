@@ -4,13 +4,21 @@ package domain {
     package message {
         class Bot {
             id: BotID
-            title: Title
+            label: BotLabel
+            name: BotName
+            avator: BotAvator
             webhook: DiscordWebbook
             active : boolean
-            + {static} NewBot(id: int, title: string, webhook: string, active: boolean): Bot
-            + ChangeTitle(title: string)
+            + {static} NewBot(id: int, label: string, name: string, avator: string, webhook: string, active: boolean): Bot
+            + Update(label: string, name: string, avator: string, active: boolean)
             + ChangeActive(active: boolean)
             + IsActive(): boolean
+        }
+
+        class BotAvatorImage {
+            header: multipart.FileHeader
+            path: string
+            + {static} NewBotAvatorImage(header :FileHeader, path string)
         }
 
         abstract PostMessage {
@@ -77,6 +85,11 @@ package domain {
             + NextIdentity(): BotID
         }
 
+        interface BotAvatorImageRepository {
+            + put(avator: BotAvator)
+            + toURL(path: string)
+        }
+
         interface PostMessageRepository {
             + FindByID(id: PostMessageID): PostMessage
             + SendRegularList(now: Datetime): PostMessage[]
@@ -85,6 +98,10 @@ package domain {
             + Update(postMessage PostMessage)
             + Delete(id: PostMessageID)
             + NextIdentity(): PostMessageID
+        }
+
+        interface DiscordMessageAdapter {
+            + SendMessage(bot: Bot, message: Message)
         }
     }
 
@@ -113,6 +130,10 @@ package domain {
             + ExistsByEmail(email: Email): bool
             + NextIdentity(): AdminID
         }
+
+        interface AdminContext {
+            + AdminID(): AdminID
+        }
     }
 }
 
@@ -127,7 +148,13 @@ RegularTiming - DayOfWeek
 Admin - AdminRole
 
 BotRepository -- Bot
+BotAvatorImageRepository -- BotAvatorImage
+BotAvatorImage -- Bot
+DiscordMessageAdapter -- Bot
+DiscordMessageAdapter -- PostMessage
 PostMessageRepository -- PostMessage
 AdminRepository -- Admin
+
+AdminContext -- Admin
 
 @enduml
