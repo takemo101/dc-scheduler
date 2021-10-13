@@ -4,6 +4,8 @@ object bots {
     + id : pk <<auto_increment>>
     --
     * title : string
+    * name : string
+    * avator : text
     * webhook : text
     * active : bool
     * created_at : datetime

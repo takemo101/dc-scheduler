@@ -70,13 +70,13 @@ Discord のウェブフック情報を設定してボットを追加できます
 
 ![model diagram](model.png)
 
-※ 2021/10/08 更新
+※ 2021/10/13 更新
 
 ## 4. ユースケース
 
 ![usecase diagram](usecase.png)
 
-※ 2021/10/08 更新
+※ 2021/10/13 更新
 
 ## 5. ロバストネス分析
 
@@ -91,3 +91,9 @@ Discord のウェブフック情報を設定してボットを追加できます
 ### メッセージ配信する
 
 ![robustness diagram](robustness-sent_message.png)
+
+### ログインする
+
+![robustness diagram](robustness-login.png)
+
+※ 2021/10/13 更新

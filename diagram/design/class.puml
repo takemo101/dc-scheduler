@@ -77,11 +77,16 @@ package domain {
             + {static} NewSentMessage(message: string, sendedAt: Datetime): SendMessage
         }
 
+        class BotService {
+            + IsDuplicate(bot: Bot): boolean
+        }
+
         interface BotRepository {
             + FindByID(id: BotID): Bot
             + Store(bot: Bot): BotID
             + Update(bot: Bot)
             + Delete(id: BotID)
+            + ExistsByWebhook(webhook: DiscordWebbook)
             + NextIdentity(): BotID
         }
 
@@ -122,6 +127,10 @@ package domain {
             + String(): string
         }
 
+        class AdminService {
+            + IsDuplicate(admin: Admin): boolean
+        }
+
         interface AdminRepository {
             + Store(admin: Admin): AdminID
             + Update(admin: Admin)
@@ -131,8 +140,12 @@ package domain {
             + NextIdentity(): AdminID
         }
 
-        interface AdminContext {
+        interface AdminAuthContext {
+            + Login(admin: Admin)
+            + Logout()
             + AdminID(): AdminID
+            + AdminRole(): AdminRole
+            + IsLogin(): boolean
         }
     }
 }
@@ -150,11 +163,15 @@ Admin - AdminRole
 BotRepository -- Bot
 BotAvatorImageRepository -- BotAvatorImage
 BotAvatorImage -- Bot
+BotService -- BotRepository
+BotService -- Bot
 DiscordMessageAdapter -- Bot
 DiscordMessageAdapter -- PostMessage
 PostMessageRepository -- PostMessage
 AdminRepository -- Admin
+AdminService -- AdminRepository
+AdminService -- Admin
 
-AdminContext -- Admin
+AdminAuthContext -- Admin
 
 @enduml
