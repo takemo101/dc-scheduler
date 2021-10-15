@@ -1,0 +1,119 @@
+{% extends 'layout/default.html' %}
+{% block title %}ダッシュボード｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='ダッシュボード' %}
+{% endblock %}
+{% block content %}
+<div class="card-columns card-columns--many" id="panel">
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">メール情報</h5>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <th>
+                            Host
+                        </th>
+                        <td>
+                            {{ config.SMTP.Host }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Port
+                        </th>
+                        <td>
+                            {{ config.SMTP.Port }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            User
+                        </th>
+                        <td>
+                            {{ config.SMTP.User }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Encryption
+                        </th>
+                        <td>
+                            {{ config.SMTP.Encryption }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">システム情報</h5>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <th>
+                            Go Version
+                        </th>
+                        <td>
+                            {{ config.GoVersion }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            App Version
+                        </th>
+                        <td>
+                            {{ config.App.Version }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            App Name
+                        </th>
+                        <td>
+                            {{ config.App.Name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            URL
+                        </th>
+                        <td>
+                            {{ config.App.URL }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Environment
+                        </th>
+                        <td>
+                            {{ config.App.Env }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

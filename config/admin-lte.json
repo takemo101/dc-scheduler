@@ -1,0 +1,99 @@
+{
+    "menus": [{
+            "is_header": true,
+            "name": "USER",
+            "role": "system"
+        },
+        {
+            "key": ":admin",
+            "name": "管理者",
+            "icon": "fas fa-users",
+            "path": "#",
+            "role": "system",
+            "menus": [{
+                    "key": ":admin.index",
+                    "name": "検索",
+                    "path": "system/admin"
+                },
+                {
+                    "key": ":admin.create",
+                    "name": "追加",
+                    "path": "system/admin/create"
+                }
+            ]
+        },
+        {
+            "is_header": true,
+            "name": "FUNCTION"
+        }
+    ],
+    "plugins": {
+        "header_css": [{
+                "file": "css/app.css"
+            },
+            {
+                "file": "plugins/fontawesome-free/css/all.min.css"
+            },
+            {
+                "file": "plugins/overlayScrollbars/css/OverlayScrollbars.min.css"
+            },
+            {
+                "file": "plugins/icheck-bootstrap/icheck-bootstrap.min.css"
+            },
+            {
+                "file": "plugins/toastr/toastr.min.css"
+            },
+            {
+                "file": "plugins/daterangepicker/daterangepicker.css"
+            },
+            {
+                "file": "plugins/select2/css/select2.min.css"
+            },
+            {
+                "file": "plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css"
+            },
+            {
+                "file": "plugins/summernote/summernote-bs4.css"
+            }
+        ],
+        "header_js": [{
+                "file": "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js",
+                "defer": true
+            },
+            {
+                "file": "plugins/jquery/jquery.min.js"
+            },
+            {
+                "file": "plugins/bootstrap/js/bootstrap.bundle.min.js"
+            },
+            {
+                "file": "plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"
+            },
+            {
+                "file": "plugins/toastr/toastr.min.js"
+            },
+            {
+                "file": "plugins/daterangepicker/moment.min.js"
+            },
+            {
+                "file": "plugins/daterangepicker/daterangepicker.js"
+            },
+            {
+                "file": "plugins/select2/js/select2.full.min.js"
+            },
+            {
+                "file": "plugins/summernote/summernote-bs4.min.js"
+            },
+            {
+                "file": "plugins/summernote/lang/summernote-ja-JP.min.js"
+            }
+        ],
+        "footer_js": [{
+                "file": "js/app.js"
+            },
+            {
+                "file": "plugins/bs-custom-file-input/bs-custom-file-input.min.js"
+            }
+        ]
+    }
+}

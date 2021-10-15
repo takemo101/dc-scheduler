@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="content-style-type" content="text/css">
+    <meta http-equiv="content-script-type" content="text/javascript">
+    <meta name="csrf_token" content="{{ csrf_token }}">
+    <title>{% block title %}{% endblock %}{{ admin_meta.title }}</title>
+    <meta content="{% block description %}{{ admin_meta.description }}{% endblock %}" name="description">
+    <meta property="robots" content="{{ admin_meta.robots }}" >
+    <link rel="shortcut icon" href="{{ static(admin_meta.favicon) }}">
+    {% for link in adminlte_plugins.header_css %}
+        <link rel="stylesheet" media="all" href="{{ static(link.file) }}">
+    {% endfor %}
+    {% block header_style %}
+    {% endblock %}
+
+    {% for link in adminlte_plugins.header_js %}
+        <script src="{{ static(link.file) }}" {% if link.defer %}defer{% endif %}></script>
+    {% endfor %}
+    {% block header_script %}
+    {% endblock %}
+
+    <script>
+        window.AppData = {% if js|length > 0 %}{{ js|safe }}{% else %}{}{% endif %};
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}" style="{% block body_style %}{% endblock %}">
+{% block body %}
+{% endblock %}
+{% for link in adminlte_plugins.footer_js %}
+    <script src="{{ static(link.file) }}" {% if link.defer %}defer{% endif %}></script>
+{% endfor %}
+{% block footer_script %}
+{% endblock %}
+</body>
+</html>

@@ -1,3 +1,15 @@
+# diagram
 plantuml.jar
 /diagram/*/*.svg
+
+# application
+config.yml
+config.testing.yml
+*.sqlite
+*.log
+/node_modules/*
+/static/plugins/*
+package-lock.json
+
+# other
 memo.txt

@@ -1,0 +1,6 @@
+{
+    "test": {
+        "subject": "test message {{ message }}",
+        "path": "mail/test"
+    }
+}

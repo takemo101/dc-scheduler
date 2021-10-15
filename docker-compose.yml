@@ -1,0 +1,51 @@
+version: "3"
+
+networks:
+  fiber:
+
+services:
+  # DB Server
+  mysql:
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=fiber
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=user
+      - TZ=Asia/Tokyo
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+      - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - fiber
+  # PHPMyAdmin
+  pma:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8888:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PORT=3306
+      - PMA_PASSWORD=root
+    networks:
+      - fiber
+  # Redis
+  redis:
+    image: redis:3.0
+    networks:
+      - fiber
+  # Mailhog
+  mailhog:
+    image: "mailhog/mailhog:latest"
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - fiber

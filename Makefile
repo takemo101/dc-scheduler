@@ -1,7 +1,7 @@
 #### diagram ####
 
 PLANTUML_JAR_URL = https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-DIAGRAM_DIRECTORY = diagram
+DIAGRAM_DIRECTORY = document
 DIAGRAM_EXTENSION = .puml
 DIAGRAM_SRC := $(wildcard ./$(DIAGRAM_DIRECTORY)/*/*$(DIAGRAM_EXTENSION))
 DIAGRAM_FULL_SRC := $(basename $(DIAGRAM_SRC))
@@ -37,3 +37,34 @@ png/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
 # output svg
 svg/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
 	java -jar plantuml.jar -tsvg $^
+
+
+#### docker ####
+
+# app resource setup
+app-setup:
+	cp config.example.yml config.yml
+	cp config.testing.example.yml config.testing.yml
+	npm run prod
+
+# container build
+docker-build:
+	docker-compose build --no-cache mysql pma redis mailhog
+
+# container start
+docker-start:
+	docker-compose up -d mysql pma redis mailhog
+
+# container stop
+docker-stop:
+	docker-compose stop
+
+# app test
+app-testing:
+	rm -f fiber.testing.sqlite
+	go test -v ./test
+
+# app build
+app-build:
+	go build -o ./go-app ./main.go
+	go build -o ./go-app-cli ./cli/main.go

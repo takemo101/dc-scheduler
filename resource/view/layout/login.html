@@ -1,0 +1,11 @@
+{% extends 'layout/master.html' %}
+{% block body_class %}hold-transition login-page{% endblock %}
+{% block body %}
+<div class="login-box">
+    <div class="login-logo">
+        <a href="javascript:void(0)"><b>{{ admin_meta.title }}</b></a>
+    </div>
+    {% block content %}
+    {% endblock %}
+</div>
+{% endblock %}

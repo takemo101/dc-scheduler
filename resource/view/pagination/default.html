@@ -1,0 +1,52 @@
+<div class="card-footer clearfix">
+    <div class="dataTables_wrapper">
+        <div class="row">
+            <div class="col-12">
+                <div class="dataTables_info">
+                    {{ paginator.TotalCount }}&nbsp;件中&nbsp;{{ paginator.FirstCount }} - {{ paginator.LastCount }}&nbsp;件を表示
+                </div>
+            </div>
+            <div class="col-12 mt-2">
+                <div class="dataTables_paginate paging_simple_numbers">
+                    <ul class="pagination mb-0">
+                        {% if paginator.PrevURL %}
+                            <li class="paginate_button page-item ">
+                                <a class="page-link" href="{{ paginator.PrevURL }}" rel="prev">&lsaquo;</a>
+                            </li>
+                        {% else %}
+                            <li class="paginate_button page-item disabled" aria-disabled="true">
+                                <a class="page-link">&lsaquo;</a>
+                            </li>
+                        {% endif %}
+
+                        {% for element in paginator.Elements %}
+                            {% if element.Page == paginator.CurrentPage %}
+                            <li class="paginate_button page-item active" aria-current="page">
+                                <a class="page-link">
+                                    {{ element.Page }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="paginate_button page-item">
+                                <a class="page-link" href="{{ element.URL }}">
+                                    {{ element.Page }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if paginator.NextURL %}
+                            <li class="paginate_button page-item next">
+                                <a class="page-link" href="{{ paginator.NextURL }}" rel="next">&rsaquo;</a>
+                            </li>
+                        {% else %}
+                            <li class="paginate_button page-item next disabled" aria-disabled="true">
+                                <a class="page-link" >&rsaquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

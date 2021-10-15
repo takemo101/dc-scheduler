@@ -1,0 +1,44 @@
+<div class="row mb-2">
+    <div class="col-sm-6">
+        {% if title %}
+        <h1>
+            {{ title }}
+            <span class="h6 ml-1">{{ function }}</span>
+            {% if hint %}
+            <a href="javascript:void(0)" class="h5 ml-1" data-toggle="hint-popover" title="Hint" data-content="{{ hint }}">
+                <i class="fas fa-question-circle"></i>
+            </a>
+            {% endif %}
+        </h1>
+        {% endif %}
+
+    </div>
+    <!-- /.col -->
+
+    <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item">
+                <a href="{{ url('/') }}">
+                    Home
+                </a>
+            </li>
+            {% if first_label %}
+            <li class="breadcrumb-item {% if !first_link %}active{% endif %}">
+                {% if first_link %}
+                    <a href="{{ first_link }}">
+                        {{ first_label }}
+                    </a>
+                {% else %}
+                    {{ first_label }}
+                {% endif %}
+            </li>
+            {% endif %}
+            {% if second_label %}
+            <li class="breadcrumb-item active">
+                {{ second_label }}
+            </li>
+            {% endif %}
+        </ol>
+    </div>
+    <!-- /.col -->
+</div>

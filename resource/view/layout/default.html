@@ -1,0 +1,65 @@
+{% extends 'layout/master.html' %}
+{% block body_class %}hold-transition sidebar-mini layout-fixed layout-footer-fixed{% endblock %}
+{% block body_style %}height: auto;{% endblock %}
+{% block body %}
+<div class="wrapper">
+    {% include 'include/topbar.html' %}
+    {% block content_side %}
+    {% endblock %}
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                {% block content_header %}
+                {% endblock %}
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </section>
+    </div>
+
+    {% if content_footer %}
+    <footer class="main-footer">
+        <div id="cms__content-footer">
+            <div class="row">
+                <div class="col-6">
+                    <div class="text-left">
+                        {% block content_footer_left %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-right">
+                        {% block content_footer_right %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $('.content-wrapper').css('padding-bottom', $('footer').outerHeight() + 'px');
+        </script>
+    </footer>
+    {% endif %}
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+
+    {% if messages.toastr_type %}
+    <script>
+        {% if messages.toastr_type == 'error' %}
+            toastr.error('{{ messages.message }}');
+        {% else %}
+            toastr.success('{{ messages.message }}');
+        {% endif %}
+    </script>
+    {% endif %}
+</div>
+{% endblock %}
