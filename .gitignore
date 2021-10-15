@@ -9,6 +9,7 @@ config.testing.yml
 *.log
 /node_modules/*
 /static/plugins/*
+/static/public
 package-lock.json
 
 # other
