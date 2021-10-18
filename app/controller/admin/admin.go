@@ -91,6 +91,10 @@ func (ctl AdminController) Store(c *fiber.Ctx) (err error) {
 		return response.Error(err)
 	}
 
+	if err := form.Sanitize(); err != nil {
+		return response.Error(err)
+	}
+
 	if err := form.Validate(); err != nil {
 		ctl.sessionStore.SetErrorResource(
 			c,
@@ -160,6 +164,10 @@ func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
 	}
 
 	if err := c.BodyParser(&form); err != nil {
+		return response.Error(err)
+	}
+
+	if err := form.Sanitize(); err != nil {
 		return response.Error(err)
 	}
 

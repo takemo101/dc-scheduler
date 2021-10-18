@@ -78,6 +78,10 @@ func (ctl AccountController) Update(c *fiber.Ctx) error {
 		return response.Error(err)
 	}
 
+	if err := form.Sanitize(); err != nil {
+		return response.Error(err)
+	}
+
 	if err := form.Validate(); err != nil {
 		ctl.sessionStore.SetErrorResource(
 			c,
