@@ -10,13 +10,13 @@ import (
 // ViewRender is struct
 type ViewRender struct {
 	logger core.Logger
-	value  support.RequestValue
+	value  support.ContextValue
 }
 
 // NewViewRender is create middleware
 func NewViewRender(
 	logger core.Logger,
-	value support.RequestValue,
+	value support.ContextValue,
 ) ViewRender {
 	return ViewRender{
 		logger: logger,
@@ -24,7 +24,7 @@ func NewViewRender(
 	}
 }
 
-func (v ViewRender) CreateHandler(handler func(*fiber.Ctx, *helper.ViewRender)) fiber.Handler {
+func (v ViewRender) CreateHandler(handler func(*fiber.Ctx, *helper.ViewRender) error) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		render := v.value.GetViewRender(c)
 		return render.HandleRender(c, handler)

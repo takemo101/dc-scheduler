@@ -1,12 +1,27 @@
-package controller
+package support
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/imdario/mergo"
-	"github.com/takemo101/dc-scheduler/app/middleware"
+	"github.com/takemo101/dc-scheduler/core"
 )
 
-type Toastr string
+type ToastrMessage struct {
+	sessionStore core.SessionStore
+}
+
+func NewToastrMessage(
+	sessionStore core.SessionStore,
+) ToastrMessage {
+	return ToastrMessage{
+		sessionStore,
+	}
+}
+
+type (
+	Toastr   string
+	Messages core.SessionMessages
+)
 
 const (
 	ToastrError   Toastr = "error"
@@ -34,9 +49,12 @@ func (t Toastr) Message() string {
 	return ""
 }
 
-type Messages middleware.SessionMessages
-
-func SetToastr(c *fiber.Ctx, ttype Toastr, message string, data Messages) error {
+func (tm *ToastrMessage) SetToastr(
+	c *fiber.Ctx,
+	ttype Toastr,
+	message string,
+	data Messages,
+) error {
 	messages := Messages{
 		"toastr_type": string(ttype),
 		"message":     message,
@@ -50,9 +68,15 @@ func SetToastr(c *fiber.Ctx, ttype Toastr, message string, data Messages) error 
 		return err
 	}
 
-	return SetMessages(c, messages)
+	return tm.SetMessages(c, messages)
 }
 
-func SetMessages(c *fiber.Ctx, messages Messages) error {
-	return middleware.SetSessionMessages(c, middleware.SessionMessages(messages))
+func (tm *ToastrMessage) SetMessages(
+	c *fiber.Ctx,
+	messages Messages,
+) error {
+	return tm.sessionStore.SetSessionMessages(
+		c,
+		core.SessionMessages(messages),
+	)
 }

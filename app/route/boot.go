@@ -6,17 +6,17 @@ import (
 	"go.uber.org/fx"
 )
 
-// Module export
+// Module ルーティングモジュールDI
 var Module = fx.Options(
 	fx.Provide(NewApiRoute),
 	fx.Provide(NewAdminRoute),
 	fx.Provide(NewRoute),
 )
 
-// Routes is slice
+// Routes ルーティングコレクション
 type Routes []contract.Route
 
-// NewRoute is setup routes
+// NewRoute ルーティング 初期化処理
 func NewRoute(
 	config core.Config,
 	api ApiRoute,
@@ -28,7 +28,7 @@ func NewRoute(
 	}
 }
 
-// Setup all the route
+// Setup ルーティングコレクションの初期化処理実行
 func (routes Routes) Setup() {
 	for _, route := range routes {
 		route.Setup()

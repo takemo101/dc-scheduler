@@ -11,4 +11,5 @@ var Module = fx.Options(
 	fx.Provide(NewPath),
 	fx.Provide(NewMailFactory),
 	fx.Provide(NewApplication),
+	fx.Provide(NewSessionStore),
 )

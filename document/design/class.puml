@@ -4,13 +4,12 @@ package domain {
     package message {
         class Bot {
             id: BotID
-            label: BotLabel
             name: BotName
             avator: BotAvator
             webhook: DiscordWebbook
             active : boolean
-            + {static} NewBot(id: int, label: string, name: string, avator: string, webhook: string, active: boolean): Bot
-            + Update(label: string, name: string, avator: string, active: boolean)
+            + {static} NewBot(id: int, name: string, avator: string, webhook: string, active: boolean): Bot
+            + Update(name: string, avator: string, active: boolean)
             + ChangeActive(active: boolean)
             + IsActive(): boolean
         }
@@ -144,7 +143,6 @@ package domain {
             + Login(admin: Admin)
             + Logout()
             + AdminID(): AdminID
-            + AdminRole(): AdminRole
             + IsLogin(): boolean
         }
     }

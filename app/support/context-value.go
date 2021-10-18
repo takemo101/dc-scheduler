@@ -10,18 +10,20 @@ const (
 	ResponseHelperKey string = "response-helper"
 )
 
-// RequestValue
-type RequestValue struct {
+// ContextValue
+type ContextValue struct {
 	//
 }
 
-// NewRequestValue
-func NewRequestValue() RequestValue {
-	return RequestValue{}
+// NewContextValue
+func NewContextValue() ContextValue {
+	return ContextValue{}
 }
 
+// --- ViewRender Context ---
+
 // GetViewRender
-func (r RequestValue) GetViewRender(c *fiber.Ctx) *helper.ViewRender {
+func (r ContextValue) GetViewRender(c *fiber.Ctx) *helper.ViewRender {
 	if render, ok := c.Locals(ViewRenderKey).(*helper.ViewRender); ok {
 		return render
 	}
@@ -29,12 +31,14 @@ func (r RequestValue) GetViewRender(c *fiber.Ctx) *helper.ViewRender {
 }
 
 // SetViewRender
-func (r RequestValue) SetViewRender(c *fiber.Ctx, render *helper.ViewRender) {
+func (r ContextValue) SetViewRender(c *fiber.Ctx, render *helper.ViewRender) {
 	c.Locals(ViewRenderKey, render)
 }
 
+// --- ResponseHelper Context ---
+
 // GetResponseHelper
-func (r RequestValue) GetResponseHelper(c *fiber.Ctx) *helper.ResponseHelper {
+func (r ContextValue) GetResponseHelper(c *fiber.Ctx) *helper.ResponseHelper {
 	if response, ok := c.Locals(ResponseHelperKey).(*helper.ResponseHelper); ok {
 		return response
 	}
@@ -42,6 +46,6 @@ func (r RequestValue) GetResponseHelper(c *fiber.Ctx) *helper.ResponseHelper {
 }
 
 // SetResponseHelper
-func (r RequestValue) SetResponseHelper(c *fiber.Ctx, response *helper.ResponseHelper) {
+func (r ContextValue) SetResponseHelper(c *fiber.Ctx, response *helper.ResponseHelper) {
 	c.Locals(ResponseHelperKey, response)
 }

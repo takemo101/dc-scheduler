@@ -6,6 +6,7 @@ import (
 	"github.com/takemo101/dc-scheduler/app/route"
 	"github.com/takemo101/dc-scheduler/boot"
 	"github.com/takemo101/dc-scheduler/core/contract"
+	"github.com/takemo101/dc-scheduler/pkg"
 	"go.uber.org/fx"
 )
 
@@ -41,6 +42,7 @@ func main() {
 			AppBooterConstructor: NewAppBooter,
 			FXOption: fx.Options(
 				app.Module,
+				pkg.Module,
 			),
 		},
 	)

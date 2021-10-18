@@ -6,6 +6,7 @@ import (
 	"github.com/takemo101/dc-scheduler/cli/kernel"
 	"github.com/takemo101/dc-scheduler/core/contract"
 	"github.com/takemo101/dc-scheduler/database"
+	"github.com/takemo101/dc-scheduler/pkg"
 	"go.uber.org/fx"
 )
 
@@ -40,6 +41,7 @@ func main() {
 			CLIBooterConstructor: NewCLIBooter,
 			FXOption: fx.Options(
 				app.Module,
+				pkg.Module,
 				cmd.Module,
 			),
 		},

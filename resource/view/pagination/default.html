@@ -3,15 +3,15 @@
         <div class="row">
             <div class="col-12">
                 <div class="dataTables_info">
-                    {{ paginator.TotalCount }}&nbsp;件中&nbsp;{{ paginator.FirstCount }} - {{ paginator.LastCount }}&nbsp;件を表示
+                    {{ pagination.total_count }}&nbsp;件中&nbsp;{{ pagination.first_count }} - {{ pagination.last_count }}&nbsp;件を表示
                 </div>
             </div>
             <div class="col-12 mt-2">
                 <div class="dataTables_paginate paging_simple_numbers">
                     <ul class="pagination mb-0">
-                        {% if paginator.PrevURL %}
+                        {% if pagination.prev_url %}
                             <li class="paginate_button page-item ">
-                                <a class="page-link" href="{{ paginator.PrevURL }}" rel="prev">&lsaquo;</a>
+                                <a class="page-link" href="{{ pagination.pref_url }}" rel="prev">&lsaquo;</a>
                             </li>
                         {% else %}
                             <li class="paginate_button page-item disabled" aria-disabled="true">
@@ -19,25 +19,27 @@
                             </li>
                         {% endif %}
 
-                        {% for element in paginator.Elements %}
-                            {% if element.Page == paginator.CurrentPage %}
-                            <li class="paginate_button page-item active" aria-current="page">
-                                <a class="page-link">
-                                    {{ element.Page }}
-                                </a>
-                            </li>
-                            {% else %}
-                            <li class="paginate_button page-item">
-                                <a class="page-link" href="{{ element.URL }}">
-                                    {{ element.Page }}
-                                </a>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
+                        {% if pagination.elements|length > 1 %}
+                            {% for element in pagination.elements %}
+                                {% if element.page == pagination.current_page %}
+                                <li class="paginate_button page-item active" aria-current="page">
+                                    <a class="page-link">
+                                        {{ element.page }}
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="paginate_button page-item">
+                                    <a class="page-link" href="{{ element.url }}">
+                                        {{ element.page }}
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
 
-                        {% if paginator.NextURL %}
+                        {% if pagination.next_url %}
                             <li class="paginate_button page-item next">
-                                <a class="page-link" href="{{ paginator.NextURL }}" rel="next">&rsaquo;</a>
+                                <a class="page-link" href="{{ pagination.next_url }}" rel="next">&rsaquo;</a>
                             </li>
                         {% else %}
                             <li class="paginate_button page-item next disabled" aria-disabled="true">

@@ -1,0 +1,71 @@
+{% extends 'layout/default.html' %}
+{% block title %}アカウント｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':account' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='アカウント' first_label='アカウント' %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+
+        <form method="post" action="{{ url('system/account/update') }}" id="update">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% include 'form/csrf.html' %}
+                    {% include 'form/method.html' with method='put' %}
+                    {% include 'form/input.html' with name='name' value=admin.name type='text' id="name" label='名前' input=inputs.name error=errors.name required=true %}
+                    {% include 'form/input.html' with name='email' value=admin.email type='email' id="email" label='メールアドレス' input=inputs.email error=errors.email required=true %}
+                    {% include 'form/input.html' with name='password' type='password' id="password" label='パスワード' error=errors.password %}
+                    {% include 'form/input.html' with name='password_confirm' type='password' id="password_confirm" label='パスワード（確認）' error=errors.password_confirm %}
+                </div>
+            </div>
+         </form>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">日付情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ admin.created_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ admin.updated_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block content_footer_right %}
+<button class="btn btn-primary px-5 " type="submit" data-class="js-dialog" data-form="#update" data-type="update">
+	更新
+</button>
+{% endblock %}

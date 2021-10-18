@@ -1,0 +1,16 @@
+<div class="form-group">
+    {% if label %}
+        <label for="{{ id }}" class="{% if required %}required{% endif %}">{{ label }}</label>
+    {% endif %}
+    <input type="{{ type }}" name="{{ name }}" value="{% if !notbind and input %}{{ input }}{% else %}{{ value }}{% endif %}" class="form-control {% if !notbind and error %}is-invalid{% endif %}" id="{{ id }}" {% if required %}required{% endif %} {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}>
+    {% if hint %}
+    <small class="form-text text-muted">
+        {{ hint }}
+    </small>
+    {% endif %}
+    {% if !notbind and error %}
+        <div class="invalid-feedback d-block">
+            {{ error }}
+        </div>
+    {% endif %}
+</div>

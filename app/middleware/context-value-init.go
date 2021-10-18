@@ -7,25 +7,25 @@ import (
 	"github.com/takemo101/dc-scheduler/core"
 )
 
-// RequestValue is struct
-type RequestValueInit struct {
+// ContextValue is struct
+type ContextValueInit struct {
 	logger core.Logger
 	app    core.Application
-	value  support.RequestValue
+	value  support.ContextValue
 	// value dependency
 	config core.Config
 	path   core.Path
 }
 
-// NewRequestValueInit is create middleware
-func NewRequestValueInit(
+// NewContextValueInit is create middleware
+func NewContextValueInit(
 	logger core.Logger,
 	app core.Application,
 	// value dependency
 	config core.Config,
 	path core.Path,
-) RequestValueInit {
-	return RequestValueInit{
+) ContextValueInit {
+	return ContextValueInit{
 		logger: logger,
 		app:    app,
 		// value dependency
@@ -35,17 +35,18 @@ func NewRequestValueInit(
 }
 
 // Setup user-value control middleware
-func (m RequestValueInit) Setup() {
-	m.logger.Info("setup request-value init")
+func (m ContextValueInit) Setup() {
+	m.logger.Info("setup context-value")
 	m.app.App.Use(m.CreateHandler())
 }
 
 // CreateHandler is create middleware handler
-func (m RequestValueInit) CreateHandler() fiber.Handler {
+func (m ContextValueInit) CreateHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// set ViewRender
 		render := helper.NewViewRender()
 		m.value.SetViewRender(c, render)
+
 		// set ResponseHelper
 		m.value.SetResponseHelper(c, helper.NewResponseHelper(
 			m.logger,

@@ -1,6 +1,10 @@
 package database
 
-// Models is slice interface{}
+import (
+	"github.com/takemo101/dc-scheduler/pkg/infrastructure"
+)
+
+// Models gorm model list
 var Models = []interface{}{
-	// gorm models
+	&infrastructure.AdminModel{},
 }
