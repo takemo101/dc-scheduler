@@ -6,5 +6,9 @@ import (
 
 // Models gorm model list
 var Models = []interface{}{
-	&infrastructure.AdminModel{},
+	&infrastructure.Admin{},
+	&infrastructure.Bot{},
+	&infrastructure.PostMessage{},
+	&infrastructure.SentMessage{},
+	&infrastructure.ScheduleTiming{},
 }

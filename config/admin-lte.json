@@ -25,6 +25,23 @@
         {
             "is_header": true,
             "name": "FUNCTION"
+        },
+        {
+            "key": ":bot",
+            "name": "ボット",
+            "icon": "fas fa-robot",
+            "path": "#",
+            "menus": [{
+                    "key": ":bot.index",
+                    "name": "検索",
+                    "path": "system/bot"
+                },
+                {
+                    "key": ":bot.create",
+                    "name": "追加",
+                    "path": "system/bot/create"
+                }
+            ]
         }
     ],
     "plugins": {

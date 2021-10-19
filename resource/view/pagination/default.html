@@ -6,9 +6,18 @@
                     {{ pagination.total_count }}&nbsp;件中&nbsp;{{ pagination.first_count }} - {{ pagination.last_count }}&nbsp;件を表示
                 </div>
             </div>
+
             <div class="col-12 mt-2">
                 <div class="dataTables_paginate paging_simple_numbers">
                     <ul class="pagination mb-0">
+                    {% if pagination.total_count == 0 %}
+                        <li class="paginate_button page-item disabled" aria-disabled="true">
+                            <a class="page-link">&lsaquo;</a>
+                        </li>
+                        <li class="paginate_button page-item next disabled" aria-disabled="true">
+                            <a class="page-link" >&rsaquo;</a>
+                        </li>
+                    {% else %}
                         {% if pagination.prev_url %}
                             <li class="paginate_button page-item ">
                                 <a class="page-link" href="{{ pagination.pref_url }}" rel="prev">&lsaquo;</a>
@@ -46,6 +55,7 @@
                                 <a class="page-link" >&rsaquo;</a>
                             </li>
                         {% endif %}
+                    {% endif %}
                     </ul>
                 </div>
             </div>

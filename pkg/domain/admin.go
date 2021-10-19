@@ -188,7 +188,7 @@ func (vo HashPassword) Value() []byte {
 	return []byte(vo)
 }
 
-// Equals パスワードが一致するか
+// Compare パスワードが一致するか
 func (vo HashPassword) Compare(plainPass string) bool {
 	return CompareHashPassword(vo.Value(), plainPass)
 }

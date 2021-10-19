@@ -160,19 +160,24 @@ func (context *InMemoryAdminAuthContext) IsLogin() bool {
 
 // NewAdminRepository domain.AdminRepositoryの実装
 type AdminRepository struct {
-	db core.Database
+	db     core.Database
+	config core.Config
 }
 
 // NewAdminRepository コンストラクタ
-func NewAdminRepository(db core.Database) domain.AdminRepository {
+func NewAdminRepository(
+	db core.Database,
+	config core.Config,
+) domain.AdminRepository {
 	return AdminRepository{
 		db,
+		config,
 	}
 }
 
 // Store Adminの追加
 func (repo AdminRepository) Store(entity domain.Admin) (vo domain.AdminID, err error) {
-	model := AdminModel{}
+	model := Admin{}
 
 	model.Name = entity.Name().Value()
 	model.Email = entity.Email().Value()
@@ -188,7 +193,7 @@ func (repo AdminRepository) Store(entity domain.Admin) (vo domain.AdminID, err e
 
 // Update Adminの更新
 func (repo AdminRepository) Update(entity domain.Admin) error {
-	model := AdminModel{}
+	model := Admin{}
 
 	model.ID = entity.ID().Value()
 	model.Name = entity.Name().Value()
@@ -201,35 +206,35 @@ func (repo AdminRepository) Update(entity domain.Admin) error {
 
 // FindByID AdminIDからAdminを取得する
 func (repo AdminRepository) FindByID(id domain.AdminID) (entity domain.Admin, err error) {
-	model := AdminModel{}
+	model := Admin{}
 
 	if err = repo.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
 		return entity, err
 	}
 
-	return repo.createEntityFromModel(model), err
+	return CreateAdminEntityFromModel(model), err
 }
 
 // FindByEmail AdminEmailからAdminを取得する
 func (repo AdminRepository) FindByEmail(email domain.AdminEmail) (entity domain.Admin, err error) {
-	model := AdminModel{}
+	model := Admin{}
 
 	if err = repo.db.GormDB.Where("email = ?", email.Value()).First(&model).Error; err != nil {
 		return entity, err
 	}
 
-	return repo.createEntityFromModel(model), err
+	return CreateAdminEntityFromModel(model), err
 }
 
 // Delete AdminIDからAdminを削除する
 func (repo AdminRepository) Delete(id domain.AdminID) error {
-	return repo.db.GormDB.Where("id = ?", id).Delete(&AdminModel{}).Error
+	return repo.db.GormDB.Where("id = ?", id.Value()).Delete(&Admin{}).Error
 }
 
 // ExistsByEmail AdminEmailが重複しているAdminがあるか
 func (repo AdminRepository) ExistsByEmail(email domain.AdminEmail) (bool, error) {
 	count := int64(0)
-	err := repo.db.GormDB.Model(&AdminModel{}).
+	err := repo.db.GormDB.Model(&Admin{}).
 		Where("email = ?", email.Value()).
 		Count(&count).
 		Error
@@ -240,7 +245,7 @@ func (repo AdminRepository) ExistsByEmail(email domain.AdminEmail) (bool, error)
 // ExistsByIDEmail 指定したAdminIDを除きAdminEmailが重複しているAdminがあるか
 func (repo AdminRepository) ExistsByIDEmail(id domain.AdminID, email domain.AdminEmail) (bool, error) {
 	count := int64(0)
-	err := repo.db.GormDB.Model(&AdminModel{}).
+	err := repo.db.GormDB.Model(&Admin{}).
 		Where("id <> ? AND email = ?", id.Value(), email.Value()).
 		Count(&count).
 		Error
@@ -251,13 +256,15 @@ func (repo AdminRepository) ExistsByIDEmail(id domain.AdminID, email domain.Admi
 // NextIdentity 次のIDを取得する
 func (repo AdminRepository) NextIdentity() (domain.AdminID, error) {
 	var max uint
-	repo.db.GormDB.Model(&AdminModel{}).Select("max(id)").Scan(&max)
+
+	sql := GetNextIdentitySelectSQL(repo.config.DB.Type)
+	repo.db.GormDB.Model(&Admin{}).Select(sql).Scan(&max)
 
 	return domain.NewAdminID(max + 1)
 }
 
-// createEntityFromModel AdminModelからEntityを生成する
-func (repo AdminRepository) createEntityFromModel(model AdminModel) domain.Admin {
+// CreateAdminEntityFromModel AdminからEntityを生成する
+func CreateAdminEntityFromModel(model Admin) domain.Admin {
 	return domain.NewAdmin(
 		model.ID,
 		model.Name,
@@ -267,10 +274,10 @@ func (repo AdminRepository) createEntityFromModel(model AdminModel) domain.Admin
 	)
 }
 
-// --- AdminModel ---
+// --- Admin ---
 
 // Admin Gormモデル
-type AdminModel struct {
+type Admin struct {
 	gorm.Model
 	Name     string `gorm:"type:varchar(191);index;not null"`
 	Email    string `gorm:"type:varchar(191);uniqueIndex;not null"`

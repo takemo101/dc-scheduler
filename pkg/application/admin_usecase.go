@@ -40,7 +40,7 @@ func (uc AdminSearchUseCase) Execute(
 	parameter := AdminSearchParameterDTO{
 		Page:    input.Page,
 		Limit:   input.Limit,
-		OrderBy: "id",
+		OrderBy: "id DESC",
 	}
 
 	paginator, e := uc.query.Search(parameter)
@@ -76,7 +76,7 @@ func (uc AdminDetailUseCase) Execute(id uint) (detail AdminDetailDTO, err AppErr
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, NewError(NotFoundDataError)
 	}
 
 	return detail, err
@@ -128,7 +128,6 @@ func (uc AdminStoreUseCase) Execute(
 		input.Password,
 		input.Role,
 	)
-
 	if e != nil {
 		return id, NewByError(e)
 	}
@@ -143,7 +142,6 @@ func (uc AdminStoreUseCase) Execute(
 	}
 
 	storeID, e := uc.repository.Store(entity)
-
 	if e != nil {
 		return id, NewByError(e)
 	}

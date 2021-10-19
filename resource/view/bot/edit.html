@@ -1,16 +1,16 @@
 {% extends 'layout/default.html' %}
-{% block title %}管理者｜{% endblock %}
+{% block title %}ボット｜{% endblock %}
 {% block content_side %}
-    {% include 'include/sidebar.html' with active_key=':admin.index' %}
+    {% include 'include/sidebar.html' with active_key=':bot.index' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='管理者' function='USER' first_label='管理者' first_link=url('system/admin') second_label='編集:ID '|add:admin.id %}
+    {% include 'include/header.html' with title='ボット' function='USER' first_label='ボット' first_link=url('system/bot') second_label='編集:ID '|add:bot.id %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-8">
 
-        <form method="post" action="{{ url('system/admin/%d/update', admin.id) }}" id="update">
+        <form method="post" action="{{ url('system/bot/%d/update', bot.id) }}" id="update" enctype="multipart/form-data">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">基本設定</h3>
@@ -24,11 +24,10 @@
                 <div class="card-body">
                     {% include 'form/csrf.html' %}
                     {% include 'form/method.html' with method='put' %}
-                    {% include 'form/input.html' with name='name' value=admin.name type='text' id="name" label='名前' input=inputs.name error=errors.name required=true %}
-                    {% include 'form/input.html' with name='email' value=admin.email type='email' id="email" label='メールアドレス' input=inputs.email error=errors.email placeholder='xxx@xxx.com' required=true %}
-                    {% include 'form/input.html' with name='password' type='password' id="password" label='パスワード' error=errors.password %}
-                    {% include 'form/input.html' with name='password_confirm' type='password' id="password_confirm" label='パスワード（確認）' error=errors.password_confirm %}
-                    {% include 'form/select.html' with name='role' id="role" label='権限' empty='--' value=admin.role_type list=roles input=inputs.role error=errors.role required=true %}
+                    {% include 'form/input.html' with name='name' value=bot.name  type='text' id="name" label='ボット名' input=inputs.name error=errors.name required=true %}
+                    {% include 'form/file.html' with name='avator' value=bot.avator_path  type='text' id="avator" label='アバター' input=inputs.avator error=errors.avator accept='image/*' required=false %}
+                    {% include 'form/input.html' with name='webhook' value=bot.webhook type='text' id="webhook" label='DiscordウェブフックURL' input=inputs.webhook error=errors.webhook hint='※ ウェブフックURLはDiscordにログインして作成してください' placeholder='https://discord.com/api/webhooks/xxx/xxx' required=true %}
+                    {% include 'form/check.html' with name='active' id="active" label='ボットをアクティブにする' value='1' checked=bot.active input=inputs.active error=errors.active %}
                 </div>
             </div>
          </form>
@@ -50,13 +49,13 @@
                 <div class="row border-bottom pb-3">
                     <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
                     <div class="col-12 col-sm-9">
-                        {{ admin.created_at|date:'2006.01.02 15:04:05' }}
+                        {{ bot.created_at|date:'2006.01.02 15:04:05' }}
                     </div>
                 </div>
                 <div class="row border-bottom py-3">
                     <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
                     <div class="col-12 col-sm-9">
-                        {{ admin.updated_at|date:'2006.01.02 15:04:05' }}
+                        {{ bot.updated_at|date:'2006.01.02 15:04:05' }}
                     </div>
                 </div>
             </div>
@@ -66,7 +65,7 @@
 </div>
 {% endblock %}
 {% block content_footer_left %}
-<form action="{{ url('system/admin/%d/delete', admin.id) }}" method="post" id="delete">
+<form action="{{ url('system/bot/%d/delete', bot.id) }}" method="post" id="delete">
     {% include 'form/csrf.html' %}
     {% include 'form/method.html' with method='delete' %}
     <button class="btn btn-primary px-5  btn-warning" type="submit" data-class="js-dialog" data-form="#delete" data-type="delete">

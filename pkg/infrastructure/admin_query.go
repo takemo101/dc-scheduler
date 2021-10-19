@@ -22,7 +22,7 @@ func NewAdminQuery(db core.Database) application.AdminQuery {
 
 // Search Adminの一覧取得
 func (query AdminQuery) Search(parameter application.AdminSearchParameterDTO) (dto application.AdminSearchPaginatorDTO, err error) {
-	var models []AdminModel
+	var models []Admin
 
 	paging := NewGormPaging(
 		query.db.GormDB,
@@ -40,7 +40,7 @@ func (query AdminQuery) Search(parameter application.AdminSearchParameterDTO) (d
 
 	admins := make([]application.AdminDetailDTO, len(models))
 	for i, m := range models {
-		admins[i] = query.createDetailDTOFromModel(m)
+		admins[i] = CreateAdminDetailDTOFromModel(m)
 	}
 
 	dto.Admins = admins
@@ -50,17 +50,17 @@ func (query AdminQuery) Search(parameter application.AdminSearchParameterDTO) (d
 
 // FindByID Adminの詳細取得
 func (query AdminQuery) FindByID(id domain.AdminID) (dto application.AdminDetailDTO, err error) {
-	model := AdminModel{}
+	model := Admin{}
 
 	if err = query.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
 		return dto, err
 	}
 
-	return query.createDetailDTOFromModel(model), err
+	return CreateAdminDetailDTOFromModel(model), err
 }
 
-// createDetailDTOFromModel AdminModelからAdminDetailDTOを生成する
-func (query AdminQuery) createDetailDTOFromModel(model AdminModel) application.AdminDetailDTO {
+// CreateAdminDetailDTOFromModel AdminからAdminDetailDTOを生成する
+func CreateAdminDetailDTOFromModel(model Admin) application.AdminDetailDTO {
 	return application.AdminDetailDTO{
 		ID:        model.ID,
 		Name:      model.Name,

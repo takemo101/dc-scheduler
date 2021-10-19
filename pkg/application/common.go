@@ -13,6 +13,7 @@ type AppErrorType string
 
 // AppByError エラーからのエラー
 const AppByError AppErrorType = "error by error"
+const NotFoundDataError AppErrorType = "not found data"
 
 // String 文字列変換
 func (errType AppErrorType) String() string {

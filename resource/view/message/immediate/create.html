@@ -1,16 +1,16 @@
 {% extends 'layout/default.html' %}
-{% block title %}アカウント｜{% endblock %}
+{% block title %}ボット｜{% endblock %}
 {% block content_side %}
-    {% include 'include/sidebar.html' with active_key=':account' %}
+    {% include 'include/sidebar.html' with active_key=':bot.create' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='アカウント' first_label='アカウント' %}
+    {% include 'include/header.html' with title='ボット' function='FUNCTION' first_label='ボット' first_link=url('system/bot') second_label='追加' %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-8">
 
-        <form method="post" action="{{ url('system/account/update') }}" id="update">
+        <form method="post" action="{{ url('system/bot/store') }}" id="store" enctype="multipart/form-data">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">基本設定</h3>
@@ -23,14 +23,10 @@
 
                 <div class="card-body">
                     {% include 'form/csrf.html' %}
-                    {% include 'form/method.html' with method='put' %}
-                    {% include 'form/input.html' with name='name' value=admin.name type='text' id="name" label='名前' input=inputs.name error=errors.name required=true %}
-                    {% include 'form/input.html' with name='email' value=admin.email type='email' id="email" label='メールアドレス' input=inputs.email error=errors.email placeholder='xxx@xxx.com' required=true %}
-                    {% include 'form/input.html' with name='password' type='password' id="password" label='パスワード' error=errors.password %}
-                    {% include 'form/input.html' with name='password_confirm' type='password' id="password_confirm" label='パスワード（確認）' error=errors.password_confirm %}
+                    {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="10" input=inputs.message error=errors.message required=true %}
                 </div>
             </div>
-         </form>
+        </form>
 
     </div>
 
@@ -38,7 +34,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">日付情報</h3>
+                <h3 class="card-title">対象ボット情報</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>
@@ -49,23 +45,24 @@
                 <div class="row border-bottom pb-3">
                     <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
                     <div class="col-12 col-sm-9">
-                        {{ admin.created_at|date:'2006.01.02 15:04:05' }}
+                        {{ bot.created_at|date:'2006.01.02 15:04:05' }}
                     </div>
                 </div>
                 <div class="row border-bottom py-3">
                     <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
                     <div class="col-12 col-sm-9">
-                        {{ admin.updated_at|date:'2006.01.02 15:04:05' }}
+                        {{ bot.updated_at|date:'2006.01.02 15:04:05' }}
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>
 {% endblock %}
 {% block content_footer_right %}
-<button class="btn btn-primary px-5 " type="submit" data-class="js-dialog" data-form="#update" data-type="update">
-	更新
+<button class="btn btn-primary px-5 " data-aire-component="button" type="submit" data-class="js-dialog" data-form="#store" data-type="store">
+	追加
 </button>
 {% endblock %}

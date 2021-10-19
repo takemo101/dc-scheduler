@@ -10,35 +10,37 @@ import (
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
 	"github.com/takemo101/dc-scheduler/pkg/application"
-	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// AdminController 管理者コントローラ
-type AdminController struct {
+// BotController ボットコントローラ
+type BotController struct {
 	value         support.ContextValue
 	toastr        support.ToastrMessage
+	config        core.Config
 	sessionStore  core.SessionStore
-	searchUseCase application.AdminSearchUseCase
-	detailUseCase application.AdminDetailUseCase
-	storeUseCase  application.AdminStoreUseCase
-	updateUseCase application.AdminUpdateUseCase
-	deleteUseCase application.AdminDeleteUseCase
+	searchUseCase application.BotSearchUseCase
+	detailUseCase application.BotDetailUseCase
+	storeUseCase  application.BotStoreUseCase
+	updateUseCase application.BotUpdateUseCase
+	deleteUseCase application.BotDeleteUseCase
 }
 
-// NewAdminController コンストラクタ
-func NewAdminController(
+// NewBotController コンストラクタ
+func NewBotController(
 	value support.ContextValue,
 	toastr support.ToastrMessage,
+	config core.Config,
 	sessionStore core.SessionStore,
-	searchUseCase application.AdminSearchUseCase,
-	detailUseCase application.AdminDetailUseCase,
-	storeUseCase application.AdminStoreUseCase,
-	updateUseCase application.AdminUpdateUseCase,
-	deleteUseCase application.AdminDeleteUseCase,
-) AdminController {
-	return AdminController{
+	searchUseCase application.BotSearchUseCase,
+	detailUseCase application.BotDetailUseCase,
+	storeUseCase application.BotStoreUseCase,
+	updateUseCase application.BotUpdateUseCase,
+	deleteUseCase application.BotDeleteUseCase,
+) BotController {
+	return BotController{
 		value,
 		toastr,
+		config,
 		sessionStore,
 		searchUseCase,
 		detailUseCase,
@@ -49,8 +51,8 @@ func NewAdminController(
 }
 
 // Index 一覧表示
-func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
-	var form form.AdminSearch
+func (ctl BotController) Index(c *fiber.Ctx) (err error) {
+	var form form.BotSearch
 	response := ctl.value.GetResponseHelper(c)
 
 	if err := c.QueryParser(&form); err != nil {
@@ -58,7 +60,7 @@ func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
 	}
 
 	dto, appError := ctl.searchUseCase.Execute(
-		application.AdminSearchInput{
+		application.BotSearchInput{
 			Page:  form.Page,
 			Limit: 20,
 		},
@@ -69,71 +71,11 @@ func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/index", helper.DataMap(vm.ToAdminIndexMap(dto)))
+	return response.View("bot/index", helper.DataMap(vm.ToBotIndexMap(dto)))
 }
 
-// Create 追加フォーム
-func (ctl AdminController) Create(c *fiber.Ctx) error {
-	response := ctl.value.GetResponseHelper(c)
-
-	return response.View("admin/create", helper.DataMap{
-		"content_footer": true,
-		"roles":          vm.ToKeyValueMap(domain.AdminRoleToArray()),
-	})
-}
-
-// Store 追加処理
-func (ctl AdminController) Store(c *fiber.Ctx) (err error) {
-	var form form.AdminCreate
-	response := ctl.value.GetResponseHelper(c)
-
-	if err := c.BodyParser(&form); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Sanitize(); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Validate(); err != nil {
-		ctl.sessionStore.SetErrorResource(
-			c,
-			helper.ErrorsToMap(err),
-			helper.StructToFormMap(&form),
-		)
-		return response.Back(c)
-	}
-
-	_, appError := ctl.storeUseCase.Execute(application.AdminStoreInput{
-		Name:     form.Name,
-		Email:    form.Email,
-		Role:     form.Role,
-		Password: form.Password,
-	})
-	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.AdminDuplicateError) {
-			ctl.sessionStore.SetErrorResource(
-				c,
-				helper.ErrorToMap("email", appError),
-				helper.StructToFormMap(&form),
-			)
-			return response.Back(c)
-		}
-
-		return response.Error(appError)
-	}
-
-	ctl.toastr.SetToastr(
-		c,
-		support.ToastrStore,
-		support.ToastrStore.Message(),
-		support.Messages{},
-	)
-	return response.Redirect(c, "system/admin")
-}
-
-// Edit 編集フォーム
-func (ctl AdminController) Edit(c *fiber.Ctx) (err error) {
+// Detail 詳細
+func (ctl BotController) Detail(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -149,16 +91,107 @@ func (ctl AdminController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("admin/edit", helper.DataMap{
+	return response.View("bot/detail", helper.DataMap{
+		"bot": vm.ToBotDetailMap(dto),
+	})
+}
+
+// Create 追加フォーム
+func (ctl BotController) Create(c *fiber.Ctx) error {
+	response := ctl.value.GetResponseHelper(c)
+
+	return response.View("bot/create", helper.DataMap{
 		"content_footer": true,
-		"admin":          vm.ToAdminDetailMap(dto),
-		"roles":          vm.ToKeyValueMap(domain.AdminRoleToArray()),
+	})
+}
+
+// Store 追加処理
+func (ctl BotController) Store(c *fiber.Ctx) (err error) {
+	var form form.BotCreateAndUpdate
+	response := ctl.value.GetResponseHelper(c)
+
+	if err := c.BodyParser(&form); err != nil {
+		return response.Error(err)
+	}
+
+	if err := form.Sanitize(); err != nil {
+		return response.Error(err)
+	}
+
+	if err := form.Validate(c); err != nil {
+		ctl.sessionStore.SetErrorResource(
+			c,
+			helper.ErrorsToMap(err),
+			helper.StructToFormMap(&form),
+		)
+		return response.Back(c)
+	}
+
+	// アバターファイル取得
+	file, _ := c.FormFile("avator")
+
+	// ディレクトリー設定取得
+	directory := ctl.config.LoadToValueString(
+		"setting",
+		"directory.bot_avator",
+		"",
+	)
+
+	_, appError := ctl.storeUseCase.Execute(application.BotStoreInput{
+		Name:            form.Name,
+		AvatorFile:      file,
+		AvatorDirectory: directory,
+		Webhook:         form.Webhook,
+		Active:          form.ActiveToBool(),
+	})
+	if appError != nil && appError.HasError() {
+		if appError.HaveType(application.BotDuplicateError) {
+			ctl.sessionStore.SetErrorResource(
+				c,
+				helper.ErrorToMap("webhook", appError),
+				helper.StructToFormMap(&form),
+			)
+			return response.Back(c)
+		}
+
+		return response.Error(appError)
+	}
+
+	ctl.toastr.SetToastr(
+		c,
+		support.ToastrStore,
+		support.ToastrStore.Message(),
+		support.Messages{},
+	)
+	return response.Redirect(c, "system/bot")
+}
+
+// Edit 編集フォーム
+func (ctl BotController) Edit(c *fiber.Ctx) (err error) {
+	response := ctl.value.GetResponseHelper(c)
+
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return response.Error(err)
+	}
+
+	dto, appError := ctl.detailUseCase.Execute(uint(id))
+	if appError != nil {
+		if appError.HaveType(application.NotFoundDataError) {
+			return response.Error(appError, fiber.StatusNotFound)
+		}
+		return response.Error(appError)
+	}
+
+	return response.View("bot/edit", helper.DataMap{
+		"content_footer": true,
+		"bot":            vm.ToBotDetailMap(dto),
 	})
 }
 
 // Update 更新処理
-func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
-	var form form.AdminUpdate
+func (ctl BotController) Update(c *fiber.Ctx) (err error) {
+	var form form.BotCreateAndUpdate
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -174,7 +207,7 @@ func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
 		return response.Error(err)
 	}
 
-	if err := form.Validate(); err != nil {
+	if err := form.Validate(c); err != nil {
 		ctl.sessionStore.SetErrorResource(
 			c,
 			helper.ErrorsToMap(err),
@@ -183,21 +216,23 @@ func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
 		return response.Back(c)
 	}
 
-	if appError := ctl.updateUseCase.Execute(uint(id), application.AdminUpdateInput{
-		Name:     form.Name,
-		Email:    form.Email,
-		Role:     form.Role,
-		Password: form.Password,
-	}); appError != nil && appError.HasError() {
-		if appError.HaveType(application.AdminDuplicateError) {
-			ctl.sessionStore.SetErrorResource(
-				c,
-				helper.ErrorToMap("email", appError),
-				helper.StructToFormMap(&form),
-			)
-			return response.Back(c)
-		}
+	// アバターファイル取得
+	file, _ := c.FormFile("avator")
 
+	// ディレクトリー設定取得
+	directory := ctl.config.LoadToValueString(
+		"setting",
+		"directory.bot_avator",
+		"",
+	)
+
+	if appError := ctl.updateUseCase.Execute(uint(id), application.BotUpdateInput{
+		Name:            form.Name,
+		AvatorFile:      file,
+		AvatorDirectory: directory,
+		Webhook:         form.Webhook,
+		Active:          form.ActiveToBool(),
+	}); appError != nil && appError.HasError() {
 		return response.Error(appError)
 	}
 
@@ -211,7 +246,7 @@ func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
 }
 
 // Delete 削除処理
-func (ctl AdminController) Delete(c *fiber.Ctx) (err error) {
+func (ctl BotController) Delete(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -229,5 +264,5 @@ func (ctl AdminController) Delete(c *fiber.Ctx) (err error) {
 		support.ToastrDelete.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/admin")
+	return response.Redirect(c, "system/bot")
 }

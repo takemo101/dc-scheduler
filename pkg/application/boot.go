@@ -16,5 +16,13 @@ var Module = fx.Options(
 	fx.Provide(NewAdminLoginUseCase),
 	fx.Provide(NewAdminLogoutUseCase),
 	// --- Bot UseCase ---
+	fx.Provide(NewBotStoreUseCase),
+	fx.Provide(NewBotUpdateUseCase),
+	fx.Provide(NewBotDeleteUseCase),
+	fx.Provide(NewBotDetailUseCase),
+	fx.Provide(NewBotSearchUseCase),
 	// --- Message UseCase ---
+	fx.Provide(NewPostMessageSearchUseCase),
+	fx.Provide(NewPostMessageDeleteUseCase),
+	fx.Provide(NewImmediatePostStoreUseCase),
 )

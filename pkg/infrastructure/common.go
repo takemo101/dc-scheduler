@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"math"
+	"strings"
 
 	"github.com/takemo101/dc-scheduler/pkg/application"
 	"gorm.io/gorm"
@@ -103,4 +104,16 @@ func (p GormPaging) countRecord(anyType interface{}) (int, error) {
 	var count int64
 	err := p.db.Model(anyType).Count(&count).Error
 	return int(count), err
+}
+
+// --- GetNextIdentitySelectSQL ---
+
+// GetNextIdentitySelectSQL Gormで次のIDを生成するSelect文を出力する
+func GetNextIdentitySelectSQL(dbType string) string {
+	lowerType := strings.ToLower(dbType)
+	// DBタイプがSQLiteの場合とその他を分ける
+	if lowerType == "sqlite" {
+		return "LAST_INSERT_ROWID()"
+	}
+	return "LAST_INSERT_ID()"
 }

@@ -24,6 +24,9 @@ type AdminRoute struct {
 	dashboardController controller.DashboardController
 	adminController     controller.AdminController
 	accountController   controller.AccountController
+	botController       controller.BotController
+	messageController   controller.PostMessageController
+	immediateController controller.ImmediatePostController
 }
 
 // NewAdminRoute コンストラクタ
@@ -41,6 +44,9 @@ func NewAdminRoute(
 	dashboardController controller.DashboardController,
 	adminController controller.AdminController,
 	accountController controller.AccountController,
+	botController controller.BotController,
+	messageController controller.PostMessageController,
+	immediateController controller.ImmediatePostController,
 ) AdminRoute {
 	return AdminRoute{
 		logger:              logger,
@@ -56,6 +62,9 @@ func NewAdminRoute(
 		dashboardController: dashboardController,
 		adminController:     adminController,
 		accountController:   accountController,
+		botController:       botController,
+		messageController:   messageController,
+		immediateController: immediateController,
 	}
 }
 
@@ -114,6 +123,27 @@ func (r AdminRoute) Setup() {
 			{
 				account.Get("/edit", r.accountController.Edit)
 				account.Put("/update", r.accountController.Update)
+			}
+
+			// bot route
+			bot := system.Group("/bot")
+			{
+				bot.Get("/", r.botController.Index)
+				// bot.Get("/:id/detail", r.botController.Detail)
+				bot.Get("/create", r.botController.Create)
+				bot.Post("/store", r.botController.Store)
+				bot.Get("/:id/edit", r.botController.Edit)
+				bot.Put("/:id/update", r.botController.Update)
+				bot.Delete("/:id/delete", r.botController.Delete)
+
+				bot.Delete("/:id/immediate/create", r.immediateController.Create)
+				bot.Delete("/:id/immediate/store", r.immediateController.Store)
+			}
+			// bot route
+			message := system.Group("/message")
+			{
+				message.Get("/", r.messageController.Index)
+				message.Delete("/:id/delete", r.messageController.Delete)
 			}
 
 			// auth logout route

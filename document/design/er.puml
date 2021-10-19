@@ -38,6 +38,14 @@ object regular_timings {
     * time : time
 }
 
+object schedule_timings {
+    + id : pk <<auto_increment>>
+    --
+    # post_message_id : fk
+    * reservation_at : datetime
+}
+
+
 object admins {
     + id : pk <<auto_increment>>
     --
@@ -51,5 +59,6 @@ object admins {
 
 bots ||--o{ post_messages
 post_messages ||--o{ regular_timings
+post_messages ||--o| schedule_timings
 post_messages ||--o{ sent_messages
 @enduml

@@ -12,4 +12,7 @@ var Module = fx.Options(
 	fx.Provide(admin.NewSessionAuthController),
 	fx.Provide(admin.NewAdminController),
 	fx.Provide(admin.NewAccountController),
+	fx.Provide(admin.NewBotController),
+	fx.Provide(admin.NewPostMessageController),
+	fx.Provide(admin.NewImmediatePostController),
 )
