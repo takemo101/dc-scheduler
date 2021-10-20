@@ -11,6 +11,7 @@ config.testing.yml
 /static/plugins/*
 /static/public
 /storage/public/*
+/bin
 package-lock.json
 
 # other

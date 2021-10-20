@@ -375,3 +375,10 @@ type BotRepository interface {
 	ExistsByIDWebhook(id BotID, webhook BotDiscordWebhook) (bool, error)
 	NextIdentity() (BotID, error)
 }
+
+// --- DiscordBotAdapter ---
+
+// DiscordWebhookCheckAdapter Discordウェブフックをチェックするアダプター
+type DiscordWebhookCheckAdapter interface {
+	Check(webohook BotDiscordWebhook) error
+}

@@ -41,6 +41,8 @@ svg/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
 
 #### docker ####
 
+BINARY_DIRECTORY = bin
+
 # app resource setup
 app-setup:
 	cp config.example.yml config.yml
@@ -66,5 +68,6 @@ app-testing:
 
 # app build
 app-build:
-	go build -o ./go-app ./main.go
-	go build -o ./go-app-cli ./cli/main.go
+	mkdir ./${BINARY_DIRECTORY}
+	go build -o ./${BINARY_DIRECTORY}/go-app ./main.go
+	go build -o ./${BINARY_DIRECTORY}/go-app-cli ./cli/main.go
