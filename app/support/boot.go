@@ -2,7 +2,8 @@ package support
 
 import "go.uber.org/fx"
 
-// Module export
+// Module サポートモジュールDI
 var Module = fx.Options(
-	fx.Provide(NewRequestValue),
+	fx.Provide(NewContextValue),
+	fx.Provide(NewToastrMessage),
 )

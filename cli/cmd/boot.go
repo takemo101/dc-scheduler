@@ -13,6 +13,7 @@ var Module = fx.Options(
 	fx.Provide(NewRollbackCommand),
 	fx.Provide(NewAutoMigrateCommand),
 	fx.Provide(NewCommandRoot),
+	fx.Provide(NewAdminCreateCommand),
 	fx.Provide(NewMailCommand),
 	fx.Provide(NewCommand),
 )
@@ -32,6 +33,7 @@ func NewCommand(
 	migrateCommand MigrateCommand,
 	rollbackCommand RollbackCommand,
 	autoMigrateCommand AutoMigrateCommand,
+	adminCreateCommand AdminCreateCommand,
 	mail MailCommand,
 ) Commands {
 	return Commands{
@@ -39,6 +41,7 @@ func NewCommand(
 		migrateCommand,
 		rollbackCommand,
 		autoMigrateCommand,
+		adminCreateCommand,
 		mail,
 	}
 }

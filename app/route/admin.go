@@ -9,19 +9,66 @@ import (
 	"github.com/takemo101/dc-scheduler/core"
 )
 
-// AdminRoute is struct
+// AdminRoute 管理者ルート
 type AdminRoute struct {
 	logger              core.Logger
 	app                 core.Application
 	path                core.Path
+	sessionStore        core.SessionStore
 	csrf                middleware.Csrf
-	value               support.RequestValue
+	value               support.ContextValue
+	auth                middleware.SessionAdminAuth
+	role                middleware.SessionAdminRole
 	render              middleware.ViewRender
 	authController      controller.SessionAuthController
 	dashboardController controller.DashboardController
+	adminController     controller.AdminController
+	accountController   controller.AccountController
+	botController       controller.BotController
+	messageController   controller.PostMessageController
+	immediateController controller.ImmediatePostController
 }
 
-// Setup is setup route
+// NewAdminRoute コンストラクタ
+func NewAdminRoute(
+	logger core.Logger,
+	app core.Application,
+	path core.Path,
+	sessionStore core.SessionStore,
+	csrf middleware.Csrf,
+	value support.ContextValue,
+	auth middleware.SessionAdminAuth,
+	role middleware.SessionAdminRole,
+	render middleware.ViewRender,
+	authController controller.SessionAuthController,
+	dashboardController controller.DashboardController,
+	adminController controller.AdminController,
+	accountController controller.AccountController,
+	botController controller.BotController,
+	messageController controller.PostMessageController,
+	immediateController controller.ImmediatePostController,
+) AdminRoute {
+	return AdminRoute{
+		logger:              logger,
+		app:                 app,
+		path:                path,
+		sessionStore:        sessionStore,
+		csrf:                csrf,
+		value:               value,
+		auth:                auth,
+		role:                role,
+		render:              render,
+		authController:      authController,
+		dashboardController: dashboardController,
+		adminController:     adminController,
+		accountController:   accountController,
+		botController:       botController,
+		messageController:   messageController,
+		immediateController: immediateController,
+	}
+}
+
+// Setup ルートのセットアップ
 func (r AdminRoute) Setup() {
 	r.logger.Info("setup admin-route")
 
@@ -42,6 +89,7 @@ func (r AdminRoute) Setup() {
 		// auth login route
 		auth := http.Group(
 			"/auth",
+			r.auth.CreateHandler(false, "system"),
 		)
 		{
 			auth.Get("/login", r.authController.LoginForm)
@@ -51,10 +99,52 @@ func (r AdminRoute) Setup() {
 		// after login route
 		system := http.Group(
 			"/",
+			r.auth.CreateHandler(true, "system/auth/login"),
 		)
 		{
 			// dashboard route
 			system.Get("/", r.dashboardController.Dashboard)
+
+			// admin route
+			admin := system.Group("/admin", r.role.CreateHandler(
+				[]string{"system"},
+			))
+			{
+				admin.Get("/", r.adminController.Index)
+				admin.Get("/create", r.adminController.Create)
+				admin.Post("/store", r.adminController.Store)
+				admin.Get("/:id/edit", r.adminController.Edit)
+				admin.Put("/:id/update", r.adminController.Update)
+				admin.Delete("/:id/delete", r.adminController.Delete)
+			}
+
+			// account route
+			account := system.Group("/account")
+			{
+				account.Get("/edit", r.accountController.Edit)
+				account.Put("/update", r.accountController.Update)
+			}
+
+			// bot route
+			bot := system.Group("/bot")
+			{
+				bot.Get("/", r.botController.Index)
+				// bot.Get("/:id/detail", r.botController.Detail)
+				bot.Get("/create", r.botController.Create)
+				bot.Post("/store", r.botController.Store)
+				bot.Get("/:id/edit", r.botController.Edit)
+				bot.Put("/:id/update", r.botController.Update)
+				bot.Delete("/:id/delete", r.botController.Delete)
+
+				bot.Get("/:id/immediate/create", r.immediateController.Create)
+				bot.Post("/:id/immediate/store", r.immediateController.Store)
+			}
+			// bot route
+			message := system.Group("/message")
+			{
+				message.Get("/", r.messageController.Index)
+				message.Delete("/:id/delete", r.messageController.Delete)
+			}
 
 			// auth logout route
 			system.Post("/logout", r.authController.Logout)
@@ -62,32 +152,9 @@ func (r AdminRoute) Setup() {
 	}
 }
 
-// NewAdminRoute create new admin route
-func NewAdminRoute(
-	logger core.Logger,
-	app core.Application,
-	path core.Path,
-	csrf middleware.Csrf,
-	value support.RequestValue,
-	render middleware.ViewRender,
-	authController controller.SessionAuthController,
-	dashboardController controller.DashboardController,
-) AdminRoute {
-	return AdminRoute{
-		logger:              logger,
-		app:                 app,
-		path:                path,
-		csrf:                csrf,
-		value:               value,
-		render:              render,
-		authController:      authController,
-		dashboardController: dashboardController,
-	}
-}
-
-// ViewRenderCreateHandler middleware handler
-func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender) {
-	// load request list
+// ViewRenderCreateHandler Viewへのデータを設定する
+func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender) (err error) {
+	// load Context list
 	adminlte, err := r.app.Config.Load("admin-lte")
 	if err == nil {
 		for k, v := range map[string]string{
@@ -100,6 +167,8 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 				})
 			}
 		}
+	} else {
+		return err
 	}
 
 	// load meta
@@ -108,27 +177,49 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 		vr.SetData(helper.DataMap{
 			"admin_meta": meta,
 		})
+	} else {
+		return err
 	}
 
 	// csrf-token
 	csrfToken := middleware.GetCSRFToken(c)
-	// session errors
-	errors, _ := middleware.GetSessionErrors(c)
-	// session inputs
-	inputs, _ := middleware.GetSessionInputs(c)
-	// session messages
-	messages, _ := middleware.GetSessionMessages(c)
 
-	vr.SetData(helper.DataMap{
+	// session errors
+	errors, _ := r.sessionStore.GetSessionErrors(c)
+
+	// session inputs
+	inputs, _ := r.sessionStore.GetSessionInputs(c)
+
+	// session messages
+	messages, _ := r.sessionStore.GetSessionMessages(c)
+
+	// admin auth
+	var auth helper.DataMap
+	adminContext, create := support.CreateSessionAdminAuthContext(
+		c,
+		r.sessionStore,
+	)
+
+	if create == nil {
+		adminAuth, _ := adminContext.AdminAuth()
+		auth = helper.DataMap{
+			"id":    adminAuth.ID().Value(),
+			"name":  adminAuth.Name().Value(),
+			"email": adminAuth.Email().Value(),
+			"role":  adminAuth.Role().Value(),
+		}
+	}
+
+	data := helper.DataMap{
 		"csrf_token": csrfToken,
 		"errors":     errors,
 		"inputs":     inputs,
 		"messages":   messages,
-	})
-	vr.SetJS(helper.DataMap{
-		"csrfToken": csrfToken,
-		"errors":    errors,
-		"inputs":    inputs,
-		"messages":  messages,
-	})
+		"auth":       auth,
+	}
+
+	vr.SetData(data)
+	vr.SetJS(data)
+
+	return err
 }

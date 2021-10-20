@@ -11,3 +11,9 @@ func ErrorsToMap(errors error) map[string]string {
 	}
 	return result
 }
+
+func ErrorToMap(key string, err error) map[string]string {
+	errors := validation.Errors{}
+	errors[key] = err
+	return ErrorsToMap(errors)
+}

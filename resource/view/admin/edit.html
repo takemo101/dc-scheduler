@@ -1,0 +1,81 @@
+{% extends 'layout/default.html' %}
+{% block title %}管理者｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':admin.index' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='管理者' function='USER' first_label='管理者' first_link=url('system/admin') second_label='編集:ID '|add:admin.id %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+
+        <form method="post" action="{{ url('system/admin/%d/update', admin.id) }}" id="update">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% include 'form/csrf.html' %}
+                    {% include 'form/method.html' with method='put' %}
+                    {% include 'form/input.html' with name='name' value=admin.name type='text' id="name" label='名前' input=inputs.name error=errors.name required=true %}
+                    {% include 'form/input.html' with name='email' value=admin.email type='email' id="email" label='メールアドレス' input=inputs.email error=errors.email placeholder='xxx@xxx.com' required=true %}
+                    {% include 'form/input.html' with name='password' type='password' id="password" label='パスワード' error=errors.password %}
+                    {% include 'form/input.html' with name='password_confirm' type='password' id="password_confirm" label='パスワード（確認）' error=errors.password_confirm %}
+                    {% include 'form/select.html' with name='role' id="role" label='権限' empty='--' value=admin.role_type list=roles input=inputs.role error=errors.role required=true %}
+                </div>
+            </div>
+         </form>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">日付情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ admin.created_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ admin.updated_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block content_footer_left %}
+<form action="{{ url('system/admin/%d/delete', admin.id) }}" method="post" id="delete">
+    {% include 'form/csrf.html' %}
+    {% include 'form/method.html' with method='delete' %}
+    <button class="btn btn-primary px-5  btn-warning" type="submit" data-class="js-dialog" data-form="#delete" data-type="delete">
+        削除
+    </button>
+</form>
+{% endblock %}
+{% block content_footer_right %}
+<button class="btn btn-primary px-5 " type="submit" data-class="js-dialog" data-form="#update" data-type="update">
+	更新
+</button>
+{% endblock %}

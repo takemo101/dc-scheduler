@@ -4,21 +4,20 @@ package domain {
     package message {
         class Bot {
             id: BotID
-            label: BotLabel
             name: BotName
-            avator: BotAvator
+            avatar: BotAtatar
             webhook: DiscordWebbook
             active : boolean
-            + {static} NewBot(id: int, label: string, name: string, avator: string, webhook: string, active: boolean): Bot
-            + Update(label: string, name: string, avator: string, active: boolean)
+            + {static} NewBot(id: int, name: string, avatar: string, webhook: string, active: boolean): Bot
+            + Update(name: string, avatar: string, active: boolean)
             + ChangeActive(active: boolean)
             + IsActive(): boolean
         }
 
-        class BotAvatorImage {
+        class BotAtatarImage {
             header: multipart.FileHeader
             path: string
-            + {static} NewBotAvatorImage(header :FileHeader, path string)
+            + {static} NewBotAtatarImage(header :FileHeader, path string)
         }
 
         abstract PostMessage {
@@ -90,8 +89,8 @@ package domain {
             + NextIdentity(): BotID
         }
 
-        interface BotAvatorImageRepository {
-            + put(avator: BotAvator)
+        interface BotAtatarImageRepository {
+            + put(avatar: BotAtatar)
             + toURL(path: string)
         }
 
@@ -144,7 +143,6 @@ package domain {
             + Login(admin: Admin)
             + Logout()
             + AdminID(): AdminID
-            + AdminRole(): AdminRole
             + IsLogin(): boolean
         }
     }
@@ -161,8 +159,8 @@ RegularTiming - DayOfWeek
 Admin - AdminRole
 
 BotRepository -- Bot
-BotAvatorImageRepository -- BotAvatorImage
-BotAvatorImage -- Bot
+BotAtatarImageRepository -- BotAtatarImage
+BotAtatarImage -- Bot
 BotService -- BotRepository
 BotService -- Bot
 DiscordMessageAdapter -- Bot

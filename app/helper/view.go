@@ -55,11 +55,14 @@ func (v *ViewRender) Error(message string, code int) error {
 	return nil
 }
 
-func (v *ViewRender) HandleRender(c *fiber.Ctx, handler func(*fiber.Ctx, *ViewRender)) error {
+func (v *ViewRender) HandleRender(c *fiber.Ctx, handler func(*fiber.Ctx, *ViewRender) error) error {
 	err := c.Next()
 
 	if err == nil && len(v.data.name) > 0 {
-		handler(c, v)
+		err := handler(c, v)
+		if err != nil {
+			return err
+		}
 
 		js, err := json.Marshal(v.data.js)
 		if err != nil {

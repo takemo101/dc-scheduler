@@ -30,16 +30,16 @@ class DialogElementBuilder {
       options
     );
 
-    var noHtml = options.no
+    const noHtml = options.no
       ? '<button type="button" class="btn btn-secondary btn-outline-light" data-dismiss="modal">' +
         options.no +
         "</button>"
       : "";
-    var yesHtml =
+    const yesHtml =
       '<button type="button" class="btn btn-primary btn-outline-light" data-dismiss="modal" data-yes="true">' +
       options.yes +
       "</button>";
-    var html =
+    const html =
       '<div id="dialog-modal" style="display: none;" class="modal fade" data-modal="remove" style="display: block; padding-right: 17px;" aria-modal="true">' +
       '<div class="modal-dialog">' +
       '<div class="modal-content ' +
@@ -92,7 +92,7 @@ class DialogUtility {
    * submit 実行
    */
   executeSubmit($form, element) {
-    if ($form.reportValidity() && !this.canSubmit()) {
+    if ($form[0].reportValidity() && !this.canSubmit()) {
       this.can = true;
       $form.submit();
     }
@@ -109,21 +109,18 @@ class DialogUtility {
     const $form = $($(element).data("form"));
 
     // フォームをチェック
-    if (!$form.reportValidity()) {
+    if (!$form[0].reportValidity()) {
       return;
     }
 
     const $btn = self.builder.buildButtonElement();
+    const $html = self.builder.buildHTMLElement(options);
+    $html.find('[data-yes="true"]').on("click", function () {
+      self.executeSubmit($form, element);
+    });
 
     $("body").append($btn);
-    $("body").append(
-      self
-        .buildHTMLElement(options)
-        .find('[data-yes="true"]')
-        .on("click", function () {
-          self.executeSubmit($form, element);
-        })
-    );
+    $("body").append($html);
 
     $btn.trigger("click");
   }
@@ -179,24 +176,21 @@ class DialogUtility {
     const $form = $($(element).data("form"));
 
     // フォームをチェック
-    if (!$form.reportValidity()) {
+    if (!$form[0].reportValidity()) {
       return;
     }
 
     const $btn = this.builder.buildButtonElement();
+    const $html = self.builder.buildHTMLElement({
+      title: $(element).data("title"),
+      message: $(element).data("message"),
+    });
+    $html.find('[data-yes="true"]').on("click", function () {
+      self.executeSubmit($form, element);
+    });
 
     $("body").append($btn);
-    $("body").append(
-      self
-        .buildHTMLElement({
-          title: $(element).data("title"),
-          message: $(element).data("message"),
-        })
-        .find('[data-yes="true"]')
-        .on("click", function () {
-          self.executeSubmit($form, element);
-        })
-    );
+    $("body").append($html);
 
     $btn.trigger("click");
   }
@@ -210,7 +204,7 @@ class DialogUtility {
     $('[data-modal="remove"]').remove();
 
     $("body").append(
-      self.buildHTMLElement({
+      self.builder.buildHTMLElement({
         title: $(element).data("title"),
         message: $(element).data("message"),
         no: null,

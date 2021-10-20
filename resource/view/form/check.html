@@ -1,0 +1,16 @@
+<div class="form-group">
+    <div class="custom-control custom-checkbox">
+        <input type="checkbox" name="{{ name }}" value="{% if value %}{{ value }}{% endif %}" class="custom-control-input" id="{{ id }}" {% if !notbind and (checked or input == value) %}checked="checked"{% endif %}>
+        <label for="{{ id }}" class="custom-control-label">{{ label }}</label>
+    </div>
+    {% if hint %}
+    <small class="form-text text-muted">
+        {{ hint }}
+    </small>
+    {% endif %}
+    {% if error %}
+        <div class="invalid-feedback d-block">
+            {{ error }}
+        </div>
+    {% endif %}
+</div>

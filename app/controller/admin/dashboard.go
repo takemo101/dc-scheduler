@@ -10,17 +10,17 @@ import (
 // DashboardController is home dashboard
 type DashboardController struct {
 	config core.Config
-	value  support.RequestValue
+	value  support.ContextValue
 }
 
 // NewDashboardController is create dashboard
 func NewDashboardController(
 	config core.Config,
-	value support.RequestValue,
+	value support.ContextValue,
 ) DashboardController {
 	return DashboardController{
-		config: config,
-		value:  value,
+		config,
+		value,
 	}
 }
 

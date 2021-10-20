@@ -15,7 +15,7 @@ type ApiRoute struct {
 	app       core.Application
 	cors      middleware.Cors
 	basicAuth middleware.BasicAuth
-	value     support.RequestValue
+	value     support.ContextValue
 }
 
 // Setup is setup route
@@ -51,7 +51,7 @@ func NewApiRoute(
 	app core.Application,
 	cors middleware.Cors,
 	basicAuth middleware.BasicAuth,
-	value support.RequestValue,
+	value support.ContextValue,
 ) ApiRoute {
 	return ApiRoute{
 		logger:    logger,

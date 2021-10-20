@@ -12,14 +12,14 @@ import (
 type BasicAuth struct {
 	logger core.Logger
 	config core.Config
-	value  support.RequestValue
+	value  support.ContextValue
 }
 
 // NewBasicAuth is create middleware
 func NewBasicAuth(
 	logger core.Logger,
 	config core.Config,
-	value support.RequestValue,
+	value support.ContextValue,
 ) BasicAuth {
 	return BasicAuth{
 		logger: logger,

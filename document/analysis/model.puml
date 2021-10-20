@@ -1,7 +1,6 @@
 @startuml model
 
 object ボット {
-    ラベル（識別名）
     ボット名
     アバター
     ウェブフックURL

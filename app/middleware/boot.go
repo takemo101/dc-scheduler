@@ -8,13 +8,14 @@ import (
 // Module export
 var Module = fx.Options(
 	fx.Provide(NewMethodOverride),
-	fx.Provide(NewSession),
 	fx.Provide(NewSecure),
 	fx.Provide(NewCsrf),
 	fx.Provide(NewCors),
 	fx.Provide(NewBasicAuth),
+	fx.Provide(NewSessionAdminAuth),
+	fx.Provide(NewSessionAdminRole),
 	fx.Provide(NewViewRender),
-	fx.Provide(NewRequestValueInit),
+	fx.Provide(NewContextValueInit),
 	fx.Provide(NewMiddleware),
 )
 
@@ -24,14 +25,12 @@ type Middlewares []contract.Middleware
 // NewMiddleware is setup new middlewares
 func NewMiddleware(
 	methodOverride MethodOverride,
-	session Session,
 	secure Secure,
-	value RequestValueInit,
+	value ContextValueInit,
 
 ) Middlewares {
 	return Middlewares{
 		methodOverride,
-		session,
 		secure,
 		value,
 	}
