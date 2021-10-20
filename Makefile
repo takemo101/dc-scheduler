@@ -76,4 +76,4 @@ app-build:
 # heroku script
 heroku-script:
 	cp ./.heroku/config.heroku.yml ./config.yml
-	make app-build
+	./bin/cli migrate:auto
