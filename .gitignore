@@ -8,7 +8,6 @@ config.testing.yml
 *.sqlite
 *.log
 /node_modules/*
-/static/plugins/*
 /static/public
 /storage/public/*
 /bin

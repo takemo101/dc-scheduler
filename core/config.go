@@ -22,12 +22,12 @@ const (
 
 // App config
 type App struct {
-	Name    string
-	Host    string
-	Port    int `env:"PORT"`
-	URL     string
+	Name    string `env:"APP_NAME"`
+	Host    string `env:"APP_HOST"`
+	Port    int    `env:"APP_PORT"`
+	URL     string `env:"APP_URL"`
 	Version string
-	Env     string
+	Env     string `env:"APP_ENV"`
 	Secret  string
 	Debug   bool
 	Config  string
@@ -35,13 +35,13 @@ type App struct {
 
 // DB config
 type DB struct {
-	Type       string
-	Host       string
-	Protocol   string
-	Port       int
-	Name       string
-	User       string
-	Pass       string
+	Type       string `env:"DB_TYPE"`
+	Host       string `env:"DB_HOST"`
+	Protocol   string `env:"DB_PROTOCOL"`
+	Port       int    `env:"DB_PORT"`
+	Name       string `env:"DB_NAME"`
+	User       string `env:"DB_USER"`
+	Pass       string `env:"DB_PASS"`
 	Charset    string
 	Collation  string
 	Connection struct {
@@ -82,12 +82,12 @@ type File struct {
 
 // SMTP config
 type SMTP struct {
-	Host       string
-	Port       int
+	Host       string `env:"SMTP_HOST"`
+	Port       int    `env:"SMTP_PORT"`
 	Identity   string
-	User       string
-	Pass       string
-	Encryption string
+	User       string `env:"SMTP_USER"`
+	Pass       string `env:"SMTP_USER"`
+	Encryption string `env:"SMTP_ENCRYPTION"`
 	From       struct {
 		Address string
 		Name    string

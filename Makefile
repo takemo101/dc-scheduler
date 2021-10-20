@@ -71,9 +71,3 @@ app-build:
 	mkdir -p ./${BINARY_DIRECTORY}
 	go build -o ./${BINARY_DIRECTORY}/go-app ./main.go
 	go build -o ./${BINARY_DIRECTORY}/go-app-cli ./cli/main.go
-
-
-# heroku script
-heroku-script:
-	cp ./.heroku/config.heroku.yml ./config.yml
-	./bin/cli migrate:auto
