@@ -2,6 +2,8 @@ module github.com/takemo101/dc-scheduler
 
 go 1.17
 
+// +heroku goVersion go1.17
+
 require (
 	github.com/domodwyer/mailyak/v3 v3.3.3
 	github.com/flosch/pongo2/v4 v4.0.2
