@@ -74,6 +74,6 @@ app-build:
 
 
 # heroku script
-heroku-script
+heroku-script:
 	make app-build
 	cp ./.heroku/config.heroku.yml ./config.yml
