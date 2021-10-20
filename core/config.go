@@ -24,7 +24,7 @@ const (
 type App struct {
 	Name    string
 	Host    string
-	Port    int
+	Port    int `env:"PORT"`
 	URL     string
 	Version string
 	Env     string

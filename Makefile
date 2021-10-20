@@ -71,3 +71,9 @@ app-build:
 	mkdir ./${BINARY_DIRECTORY}
 	go build -o ./${BINARY_DIRECTORY}/go-app ./main.go
 	go build -o ./${BINARY_DIRECTORY}/go-app-cli ./cli/main.go
+
+
+# heroku script
+heroku-script
+	make app-build
+	cp ./.heroku/config.heroku.yml ./config.yml
