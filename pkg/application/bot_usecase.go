@@ -89,8 +89,8 @@ func (uc BotDetailUseCase) Execute(id uint) (detail BotDetailDTO, err AppError) 
 // BotStoreInput Bot追加DTO
 type BotStoreInput struct {
 	Name            string
-	AvatorFile      *multipart.FileHeader
-	AvatorDirectory string
+	AtatarFile      *multipart.FileHeader
+	AtatarDirectory string
 	Webhook         string
 	Active          bool
 }
@@ -100,14 +100,14 @@ type BotStoreInput struct {
 // BotStoreUseCase Bot追加ユースケース
 type BotStoreUseCase struct {
 	repository     domain.BotRepository
-	fileRepository domain.BotAvatorImageRepository
+	fileRepository domain.BotAtatarImageRepository
 	service        domain.BotService
 }
 
 // NewBotStoreUseCase コンストラクタ
 func NewBotStoreUseCase(
 	repository domain.BotRepository,
-	fileRepository domain.BotAvatorImageRepository,
+	fileRepository domain.BotAtatarImageRepository,
 	service domain.BotService,
 ) BotStoreUseCase {
 	return BotStoreUseCase{
@@ -121,20 +121,20 @@ func NewBotStoreUseCase(
 func (uc BotStoreUseCase) Execute(
 	input BotStoreInput,
 ) (id uint, err AppError) {
-	var avator string
+	var avatar string
 
 	// アバターがアップロードされている場合
-	if input.AvatorFile != nil {
-		avatorEntity, e := domain.UploadBotAvatorImage(
-			input.AvatorFile,
-			input.AvatorDirectory,
+	if input.AtatarFile != nil {
+		avatarEntity, e := domain.UploadBotAtatarImage(
+			input.AtatarFile,
+			input.AtatarDirectory,
 		)
 		if e != nil {
 			return id, NewByError(e)
 		}
 
-		avatorVO, e := uc.fileRepository.Store(avatorEntity)
-		avator = avatorVO.Value()
+		avatarVO, e := uc.fileRepository.Store(avatarEntity)
+		avatar = avatarVO.Value()
 	}
 
 	nextID, e := uc.repository.NextIdentity()
@@ -145,7 +145,7 @@ func (uc BotStoreUseCase) Execute(
 	entity, e := domain.CreateBot(
 		nextID.Value(),
 		input.Name,
-		avator,
+		avatar,
 		input.Webhook,
 		input.Active,
 	)
@@ -177,8 +177,8 @@ func (uc BotStoreUseCase) Execute(
 // BotUpdateInput Bot更新DTO
 type BotUpdateInput struct {
 	Name            string
-	AvatorFile      *multipart.FileHeader
-	AvatorDirectory string
+	AtatarFile      *multipart.FileHeader
+	AtatarDirectory string
 	Webhook         string
 	Active          bool
 }
@@ -188,14 +188,14 @@ type BotUpdateInput struct {
 // BotUpdateUseCase Bot更新ユースケース
 type BotUpdateUseCase struct {
 	repository     domain.BotRepository
-	fileRepository domain.BotAvatorImageRepository
+	fileRepository domain.BotAtatarImageRepository
 	service        domain.BotService
 }
 
 // NewBotUpdateUseCase コンストラクタ
 func NewBotUpdateUseCase(
 	repository domain.BotRepository,
-	fileRepository domain.BotAvatorImageRepository,
+	fileRepository domain.BotAtatarImageRepository,
 	service domain.BotService,
 ) BotUpdateUseCase {
 	return BotUpdateUseCase{
@@ -220,28 +220,28 @@ func (uc BotUpdateUseCase) Execute(
 		return NewByError(e)
 	}
 
-	var avator string
+	var avatar string
 
 	// アバターがアップロードされている場合
-	if input.AvatorFile != nil {
-		avatorEntity, e := domain.UploadBotAvatorImage(
-			input.AvatorFile,
-			input.AvatorDirectory,
+	if input.AtatarFile != nil {
+		avatarEntity, e := domain.UploadBotAtatarImage(
+			input.AtatarFile,
+			input.AtatarDirectory,
 		)
 		if e != nil {
 			return NewByError(e)
 		}
 
-		avatorVO, e := uc.fileRepository.Update(
-			avatorEntity,
-			entity.Avator(),
+		avatarVO, e := uc.fileRepository.Update(
+			avatarEntity,
+			entity.Atatar(),
 		)
-		avator = avatorVO.Value()
+		avatar = avatarVO.Value()
 	}
 
 	e = entity.Update(
 		input.Name,
-		avator,
+		avatar,
 		input.Webhook,
 		input.Active,
 	)
@@ -270,13 +270,13 @@ func (uc BotUpdateUseCase) Execute(
 // BotDeleteUseCase Bot削除ユースケース
 type BotDeleteUseCase struct {
 	repository     domain.BotRepository
-	fileRepository domain.BotAvatorImageRepository
+	fileRepository domain.BotAtatarImageRepository
 }
 
 // NewBotDeleteUseCase コンストラクタ
 func NewBotDeleteUseCase(
 	repository domain.BotRepository,
-	fileRepository domain.BotAvatorImageRepository,
+	fileRepository domain.BotAtatarImageRepository,
 ) BotDeleteUseCase {
 	return BotDeleteUseCase{
 		repository,
@@ -302,7 +302,7 @@ func (uc BotDeleteUseCase) Execute(id uint) (err AppError) {
 		return NewByError(e)
 	}
 
-	e = uc.fileRepository.Delete(entity.Avator())
+	e = uc.fileRepository.Delete(entity.Atatar())
 	if e != nil {
 		return NewByError(e)
 	}

@@ -28,8 +28,8 @@ func ToBotDetailMap(
 	return helper.DataMap{
 		"id":          dto.ID,
 		"name":        dto.Name,
-		"avator_url":  dto.AvatorURL,
-		"avator_path": dto.AvatorPath,
+		"avatar_url":  dto.AtatarURL,
+		"avatar_path": dto.AtatarPath,
 		"webhook":     dto.Webhook,
 		"active":      dto.Active,
 		"created_at":  dto.CreatedAt,

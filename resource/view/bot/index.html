@@ -4,7 +4,7 @@
     {% include 'include/sidebar.html' with active_key=':bot.index' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='ボット' function='USER' first_label='ボット' %}
+    {% include 'include/header.html' with title='ボット' function='FUNCTION' first_label='ボット' %}
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -65,7 +65,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/immediate', bot.id) }}">
+                                <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/immediate/create', bot.id) }}">
                                     <i class="fas fa-paper-plane">
                                     </i>
                                 </a>

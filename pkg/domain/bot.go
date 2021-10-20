@@ -60,23 +60,23 @@ func (vo BotName) Value() string {
 	return string(vo)
 }
 
-// --- BotAvator ValueObject ---
+// --- BotAtatar ValueObject ---
 
-// BotAvator Botのアバターパス
-type BotAvator string
+// BotAtatar Botのアバターパス
+type BotAtatar string
 
-// NewBotAvator コンストラクタ
-func NewBotAvator(avator string) BotAvator {
-	return BotAvator(avator)
+// NewBotAtatar コンストラクタ
+func NewBotAtatar(avatar string) BotAtatar {
+	return BotAtatar(avatar)
 }
 
 // Value 値を返す
-func (vo BotAvator) Value() string {
+func (vo BotAtatar) Value() string {
 	return string(vo)
 }
 
 // IsEmpty アバターが空か
-func (vo BotAvator) IsEmpty() bool {
+func (vo BotAtatar) IsEmpty() bool {
 	return len(vo.Value()) == 0
 }
 
@@ -112,7 +112,7 @@ func (vo BotDiscordWebhook) Equals(eq BotDiscordWebhook) bool {
 type Bot struct {
 	id      BotID
 	name    BotName
-	avator  BotAvator
+	avatar  BotAtatar
 	webhook BotDiscordWebhook
 	active  bool
 }
@@ -121,7 +121,7 @@ type Bot struct {
 func NewBot(
 	id uint,
 	name string,
-	avator string,
+	avatar string,
 	webhook string,
 	active bool,
 ) Bot {
@@ -130,7 +130,7 @@ func NewBot(
 			ID: Identity(id),
 		},
 		name:    BotName(name),
-		avator:  BotAvator(avator),
+		avatar:  BotAtatar(avatar),
 		webhook: BotDiscordWebhook(webhook),
 		active:  active,
 	}
@@ -140,7 +140,7 @@ func NewBot(
 func CreateBot(
 	id uint,
 	name string,
-	avator string,
+	avatar string,
 	webhook string,
 	active bool,
 ) (entity Bot, err error) {
@@ -155,7 +155,7 @@ func CreateBot(
 		return entity, err
 	}
 
-	avatorVO := NewBotAvator(avator)
+	avatarVO := NewBotAtatar(avatar)
 
 	webhookVO, err := NewBotDiscordWebhook(webhook)
 	if err != nil {
@@ -165,7 +165,7 @@ func CreateBot(
 	return Bot{
 		id:      idVO,
 		name:    nameVO,
-		avator:  avatorVO,
+		avatar:  avatarVO,
 		webhook: webhookVO,
 		active:  active,
 	}, err
@@ -174,7 +174,7 @@ func CreateBot(
 // Update Botを更新
 func (entity *Bot) Update(
 	name string,
-	avator string,
+	avatar string,
 	webhook string,
 	active bool,
 ) error {
@@ -184,7 +184,7 @@ func (entity *Bot) Update(
 	}
 	entity.name = nameVO
 
-	entity.avator = NewBotAvator(avator)
+	entity.avatar = NewBotAtatar(avatar)
 
 	webhookVO, err := NewBotDiscordWebhook(webhook)
 	if err != nil {
@@ -205,8 +205,8 @@ func (entity Bot) Name() BotName {
 	return entity.name
 }
 
-func (entity Bot) Avator() BotAvator {
-	return entity.avator
+func (entity Bot) Atatar() BotAtatar {
+	return entity.avatar
 }
 
 func (entity Bot) Webhook() BotDiscordWebhook {
@@ -227,37 +227,37 @@ func (entity Bot) Equals(eq Bot) bool {
 	return entity.ID().Equals(eq.ID()) && entity.Webhook().Equals(eq.Webhook())
 }
 
-// --- BotAvatorImageFile ValueObject ---
+// --- BotAtatarImageFile ValueObject ---
 
 const (
-	BotAvatorContentTypeJpeg string = "image/jpeg"
-	BotAvatorContentTypePng  string = "image/png"
-	BotAvatorContentTypeGif  string = "image/png"
+	BotAtatarContentTypeJpeg string = "image/jpeg"
+	BotAtatarContentTypePng  string = "image/png"
+	BotAtatarContentTypeGif  string = "image/png"
 )
 
-// GetBotAvatorContentTypes ボットのアバターコンテントタイプを取得
-func GetBotAvatorContentTypes() []string {
+// GetBotAtatarContentTypes ボットのアバターコンテントタイプを取得
+func GetBotAtatarContentTypes() []string {
 	return []string{
-		BotAvatorContentTypeJpeg,
-		BotAvatorContentTypePng,
-		BotAvatorContentTypeGif,
+		BotAtatarContentTypeJpeg,
+		BotAtatarContentTypePng,
+		BotAtatarContentTypeGif,
 	}
 }
 
-// BotAvatorImageFile アバター画像ファイルのアップロードファイル
-type BotAvatorImageFile struct {
+// BotAtatarImageFile アバター画像ファイルのアップロードファイル
+type BotAtatarImageFile struct {
 	file *multipart.FileHeader
 }
 
-// NewBotAvatorImageFile コンストラクタ
-func NewBotAvatorImageFile(
+// NewBotAtatarImageFile コンストラクタ
+func NewBotAtatarImageFile(
 	file *multipart.FileHeader,
-) (vo BotAvatorImageFile, err error) {
+) (vo BotAtatarImageFile, err error) {
 	if file == nil {
 		return vo, errors.New("ファイルがありません")
 	}
 
-	checkTypes := GetBotAvatorContentTypes()
+	checkTypes := GetBotAtatarContentTypes()
 
 	contentType := file.Header.Get("Content-Type")
 	if contentType == "" {
@@ -265,7 +265,7 @@ func NewBotAvatorImageFile(
 	}
 
 	if funk.Contains(checkTypes, contentType) {
-		return BotAvatorImageFile{
+		return BotAtatarImageFile{
 			file,
 		}, err
 	}
@@ -274,7 +274,7 @@ func NewBotAvatorImageFile(
 }
 
 // DotExt ドットを含めた拡張子を返す
-func (vo BotAvatorImageFile) DotExt() string {
+func (vo BotAtatarImageFile) DotExt() string {
 	name := vo.file.Filename
 	pos := strings.LastIndex(name, ".")
 
@@ -282,27 +282,27 @@ func (vo BotAvatorImageFile) DotExt() string {
 }
 
 // Value 値を返す
-func (vo BotAvatorImageFile) Value() *multipart.FileHeader {
+func (vo BotAtatarImageFile) Value() *multipart.FileHeader {
 	return vo.file
 }
 
-// --- BotAvatorImage Entity ---
+// --- BotAtatarImage Entity ---
 
-// BotAvatorImage アバター画像ファイルEntity
-type BotAvatorImage struct {
+// BotAtatarImage アバター画像ファイルEntity
+type BotAtatarImage struct {
 	id   UUID
-	file BotAvatorImageFile
+	file BotAtatarImageFile
 	path FilePath
 }
 
-// UploadBotAvatorImage アバター画像をアップロード
-func UploadBotAvatorImage(
+// UploadBotAtatarImage アバター画像をアップロード
+func UploadBotAtatarImage(
 	file *multipart.FileHeader,
 	directory string,
-) (entity BotAvatorImage, err error) {
-	fileVO, err := NewBotAvatorImageFile(file)
+) (entity BotAtatarImage, err error) {
+	fileVO, err := NewBotAtatarImageFile(file)
 
-	return BotAvatorImage{
+	return BotAtatarImage{
 		id:   GenerateUUID(),
 		file: fileVO,
 		path: GenerateFilePath(
@@ -311,20 +311,20 @@ func UploadBotAvatorImage(
 	}, err
 }
 
-func (entity BotAvatorImage) ID() UUID {
+func (entity BotAtatarImage) ID() UUID {
 	return entity.id
 }
 
-func (entity BotAvatorImage) File() BotAvatorImageFile {
+func (entity BotAtatarImage) File() BotAtatarImageFile {
 	return entity.file
 }
 
-func (entity BotAvatorImage) Path() FilePath {
+func (entity BotAtatarImage) Path() FilePath {
 	return entity.path
 }
 
 // Equals Entityが同一か
-func (entity BotAvatorImage) Equals(eq BotAvatorImage) bool {
+func (entity BotAtatarImage) Equals(eq BotAtatarImage) bool {
 	return entity.ID().Equals(eq.ID())
 }
 
@@ -354,13 +354,13 @@ func (service BotService) IsDuplicateWithoutSelf(Bot Bot) (bool, error) {
 	return service.repository.ExistsByIDWebhook(Bot.ID(), Bot.Webhook())
 }
 
-// --- BotAvatorImageRepository ---
+// --- BotAtatarImageRepository ---
 
-// BotAvatorImageRepository アバター画像ファイルEntityの永続化
-type BotAvatorImageRepository interface {
-	Store(entity BotAvatorImage) (BotAvator, error)
-	Update(entity BotAvatorImage, avator BotAvator) (BotAvator, error)
-	Delete(avator BotAvator) error
+// BotAtatarImageRepository アバター画像ファイルEntityの永続化
+type BotAtatarImageRepository interface {
+	Store(entity BotAtatarImage) (BotAtatar, error)
+	Update(entity BotAtatarImage, avatar BotAtatar) (BotAtatar, error)
+	Delete(avatar BotAtatar) error
 }
 
 // --- BotRepository ---

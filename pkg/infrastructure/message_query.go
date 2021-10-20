@@ -30,7 +30,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB,
+		query.db.GormDB.Preload("Bot"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderBy},
@@ -57,7 +57,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 func (query PostMessageQuery) FindByID(id domain.PostMessageID) (dto application.PostMessageDetailDTO, err error) {
 	model := PostMessage{}
 
-	if err = query.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+	if err = query.db.GormDB.Where("id = ?", id.Value()).Preload("Bot").First(&model).Error; err != nil {
 		return dto, err
 	}
 

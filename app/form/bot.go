@@ -22,8 +22,8 @@ func createBotNameRules() []validation.Rule {
 	}
 }
 
-// createBotAvatorRules アバターファイルルール
-func createBotAvatorRules(c *fiber.Ctx, field string) []validation.Rule {
+// createBotAtatarRules アバターファイルルール
+func createBotAtatarRules(c *fiber.Ctx, field string) []validation.Rule {
 	return []validation.Rule{
 		validation.By(func(value interface{}) error {
 			file, err := c.FormFile(field)
@@ -32,7 +32,7 @@ func createBotAvatorRules(c *fiber.Ctx, field string) []validation.Rule {
 			}
 
 			contentType := file.Header.Get("Content-Type")
-			checkTypes := domain.GetBotAvatorContentTypes()
+			checkTypes := domain.GetBotAtatarContentTypes()
 
 			if !funk.Contains(checkTypes, contentType) {
 				return errors.New("画像ファイルを選択してください")
@@ -64,7 +64,7 @@ type BotSearch struct {
 // BotCreate Admin追加パラメータ
 type BotCreateAndUpdate struct {
 	Name    string `json:"name" form:"name"`
-	Avator  string `json:"avator" form:"avator"`
+	Atatar  string `json:"avatar" form:"avatar"`
 	Webhook string `json:"webhook" form:"webhook"`
 	Active  string `json:"active" form:"active"`
 }
@@ -72,7 +72,7 @@ type BotCreateAndUpdate struct {
 // Validate Bot追加バリデーション
 func (form BotCreateAndUpdate) Validate(c *fiber.Ctx) error {
 	nameRules := createBotNameRules()
-	avatorRules := createBotAvatorRules(c, "avator")
+	avatarRules := createBotAtatarRules(c, "avatar")
 	webhookRules := createBotWebhookRules()
 
 	fields := []*validation.FieldRules{
@@ -81,8 +81,8 @@ func (form BotCreateAndUpdate) Validate(c *fiber.Ctx) error {
 			nameRules...,
 		),
 		validation.Field(
-			&form.Avator,
-			avatorRules...,
+			&form.Atatar,
+			avatarRules...,
 		),
 		validation.Field(
 			&form.Webhook,

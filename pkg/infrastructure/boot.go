@@ -11,7 +11,7 @@ var Module = fx.Options(
 	fx.Provide(NewAdminQuery),
 
 	// bot
-	fx.Provide(NewBotAvatorImageRepository),
+	fx.Provide(NewBotAtatarImageRepository),
 	fx.Provide(NewBotRepository),
 	fx.Provide(NewBotQuery),
 

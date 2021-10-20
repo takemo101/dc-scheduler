@@ -1,16 +1,16 @@
 {% extends 'layout/default.html' %}
 {% block title %}ボット｜{% endblock %}
 {% block content_side %}
-    {% include 'include/sidebar.html' with active_key=':bot.create' %}
+    {% include 'include/sidebar.html' with active_key=':message.create' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='ボット' function='FUNCTION' first_label='ボット' first_link=url('system/bot') second_label='追加' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ' first_link=url('system/message') second_label='即時配信：追加' %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-8">
 
-        <form method="post" action="{{ url('system/bot/store') }}" id="store" enctype="multipart/form-data">
+        <form method="post" action="{{ url('system/bot/%d/immediate/store', bot.id) }}" id="store">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">基本設定</h3>
@@ -23,7 +23,7 @@
 
                 <div class="card-body">
                     {% include 'form/csrf.html' %}
-                    {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="10" input=inputs.message error=errors.message required=true %}
+                    {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
                 </div>
             </div>
         </form>
@@ -43,15 +43,21 @@
             </div>
             <div class="card-body">
                 <div class="row border-bottom pb-3">
-                    <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
+                    <div class="col-12 col-sm-3 font-weight-bolder">ボット名</div>
                     <div class="col-12 col-sm-9">
-                        {{ bot.created_at|date:'2006.01.02 15:04:05' }}
+                        <a href="{{ url('system/bot/%d/edit', bot.id) }}">
+                            {{ bot.name }}
+                        </a>
                     </div>
                 </div>
                 <div class="row border-bottom py-3">
-                    <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
+                    <div class="col-12 col-sm-3 font-weight-bolder">アバター</div>
                     <div class="col-12 col-sm-9">
-                        {{ bot.updated_at|date:'2006.01.02 15:04:05' }}
+                        {% if bot.avatar_url %}
+                            <img src="{{ bot.avatar_url }}" style="width:200px;">
+                        {% else %}
+                            --
+                        {% endif %}
                     </div>
                 </div>
             </div>

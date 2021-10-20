@@ -9,15 +9,15 @@ import (
 func ToPostMessageIndexMap(
 	dto application.PostMessageSearchPaginatorDTO,
 ) helper.DataMap {
-	bots := make([]helper.DataMap, len(dto.PostMessages))
+	messages := make([]helper.DataMap, len(dto.PostMessages))
 
 	for i, bot := range dto.PostMessages {
-		bots[i] = ToPostMessageDetailMap(bot)
+		messages[i] = ToPostMessageDetailMap(bot)
 	}
 
 	return helper.DataMap{
-		"bots":       bots,
-		"pagination": helper.StructToJsonMap(&dto.Pagination),
+		"post_messages": messages,
+		"pagination":    helper.StructToJsonMap(&dto.Pagination),
 	}
 }
 

@@ -10,6 +10,7 @@ config.testing.yml
 /node_modules/*
 /static/plugins/*
 /static/public
+/storage/public/*
 package-lock.json
 
 # other

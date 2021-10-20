@@ -128,19 +128,19 @@ func (ctl BotController) Store(c *fiber.Ctx) (err error) {
 	}
 
 	// アバターファイル取得
-	file, _ := c.FormFile("avator")
+	file, _ := c.FormFile("avatar")
 
 	// ディレクトリー設定取得
 	directory := ctl.config.LoadToValueString(
 		"setting",
-		"directory.bot_avator",
+		"directory.bot_avatar",
 		"",
 	)
 
 	_, appError := ctl.storeUseCase.Execute(application.BotStoreInput{
 		Name:            form.Name,
-		AvatorFile:      file,
-		AvatorDirectory: directory,
+		AtatarFile:      file,
+		AtatarDirectory: directory,
 		Webhook:         form.Webhook,
 		Active:          form.ActiveToBool(),
 	})
@@ -217,19 +217,19 @@ func (ctl BotController) Update(c *fiber.Ctx) (err error) {
 	}
 
 	// アバターファイル取得
-	file, _ := c.FormFile("avator")
+	file, _ := c.FormFile("avatar")
 
 	// ディレクトリー設定取得
 	directory := ctl.config.LoadToValueString(
 		"setting",
-		"directory.bot_avator",
+		"directory.bot_avatar",
 		"",
 	)
 
 	if appError := ctl.updateUseCase.Execute(uint(id), application.BotUpdateInput{
 		Name:            form.Name,
-		AvatorFile:      file,
-		AvatorDirectory: directory,
+		AtatarFile:      file,
+		AtatarDirectory: directory,
 		Webhook:         form.Webhook,
 		Active:          form.ActiveToBool(),
 	}); appError != nil && appError.HasError() {

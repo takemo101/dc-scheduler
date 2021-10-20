@@ -6,23 +6,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// --- BotAvatorImageRepository ---
+// --- BotAtatarImageRepository ---
 
-// BotAvatorImageRepository アバター画像ファイルEntityの永続化
-type BotAvatorImageRepository struct {
+// BotAtatarImageRepository アバター画像ファイルEntityの永続化
+type BotAtatarImageRepository struct {
 	upload UploadAdapter
 }
 
-func NewBotAvatorImageRepository(
+func NewBotAtatarImageRepository(
 	upload UploadAdapter,
-) domain.BotAvatorImageRepository {
-	return BotAvatorImageRepository{
+) domain.BotAtatarImageRepository {
+	return BotAtatarImageRepository{
 		upload,
 	}
 }
 
 // Store アバター画像を保存する
-func (repo BotAvatorImageRepository) Store(entity domain.BotAvatorImage) (vo domain.BotAvator, err error) {
+func (repo BotAtatarImageRepository) Store(entity domain.BotAtatarImage) (vo domain.BotAtatar, err error) {
 	// ディレクトリがなければ作成する
 	if !repo.upload.Exists(entity.Path().Directory()) {
 		err = repo.upload.MakeDirectory(entity.Path().Directory())
@@ -41,11 +41,11 @@ func (repo BotAvatorImageRepository) Store(entity domain.BotAvatorImage) (vo dom
 		return vo, err
 	}
 
-	return domain.NewBotAvator(toPath), err
+	return domain.NewBotAtatar(toPath), err
 }
 
 // Update アバター画像を更新する
-func (repo BotAvatorImageRepository) Update(entity domain.BotAvatorImage, avator domain.BotAvator) (vo domain.BotAvator, err error) {
+func (repo BotAtatarImageRepository) Update(entity domain.BotAtatarImage, avatar domain.BotAtatar) (vo domain.BotAtatar, err error) {
 	// 更新されたファイルをアップロードする
 	vo, err = repo.Store(entity)
 	if err != nil {
@@ -53,13 +53,13 @@ func (repo BotAvatorImageRepository) Update(entity domain.BotAvatorImage, avator
 	}
 
 	// 前のアバターが存在すれば削除しとく
-	return vo, repo.Delete(avator)
+	return vo, repo.Delete(avatar)
 }
 
 // Delete アバター画像を削除する
-func (repo BotAvatorImageRepository) Delete(avator domain.BotAvator) (err error) {
-	if !avator.IsEmpty() {
-		return repo.upload.Delete(avator.Value())
+func (repo BotAtatarImageRepository) Delete(avatar domain.BotAtatar) (err error) {
+	if !avatar.IsEmpty() {
+		return repo.upload.Delete(avatar.Value())
 	}
 
 	return err
@@ -88,7 +88,7 @@ func (repo BotRepository) Store(entity domain.Bot) (vo domain.BotID, err error) 
 	model := Bot{}
 
 	model.Name = entity.Name().Value()
-	model.Avator = entity.Avator().Value()
+	model.Atatar = entity.Atatar().Value()
 	model.Webhook = entity.Webhook().Value()
 	model.Active = entity.IsActive()
 
@@ -105,7 +105,7 @@ func (repo BotRepository) Update(entity domain.Bot) error {
 
 	model.ID = entity.ID().Value()
 	model.Name = entity.Name().Value()
-	model.Avator = entity.Avator().Value()
+	model.Atatar = entity.Atatar().Value()
 	model.Webhook = entity.Webhook().Value()
 	model.Active = entity.IsActive()
 
@@ -165,7 +165,7 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 	return domain.NewBot(
 		model.ID,
 		model.Name,
-		model.Avator,
+		model.Atatar,
 		model.Webhook,
 		model.Active,
 	)
@@ -177,7 +177,7 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 type Bot struct {
 	gorm.Model
 	Name    string `gorm:"type:varchar(191);index;not null"`
-	Avator  string `gorm:"type:varchar(191);index"`
+	Atatar  string `gorm:"type:varchar(191);index"`
 	Webhook string `gorm:"type:text"`
 	Active  bool   `gorm:"index"`
 }

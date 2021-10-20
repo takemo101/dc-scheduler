@@ -69,17 +69,17 @@ func CreateBotDetailDTOFromModel(
 	upload UploadAdapter,
 	model Bot,
 ) application.BotDetailDTO {
-	var avatorURL, avatorPath string
-	if model.Avator != "" {
-		avatorURL = upload.ToURL(model.Avator)
-		avatorPath = model.Avator
+	var avatarURL, avatarPath string
+	if model.Atatar != "" {
+		avatarURL = upload.ToURL(model.Atatar)
+		avatarPath = model.Atatar
 	}
 
 	return application.BotDetailDTO{
 		ID:         model.ID,
 		Name:       model.Name,
-		AvatorURL:  avatorURL,
-		AvatorPath: avatorPath,
+		AtatarURL:  avatarURL,
+		AtatarPath: avatarPath,
 		Webhook:    model.Webhook,
 		Active:     model.Active,
 		CreatedAt:  model.CreatedAt,

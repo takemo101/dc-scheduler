@@ -4,7 +4,7 @@
     {% include 'include/sidebar.html' with active_key=':message.index' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='USER' first_label='配信メッセージ' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ' %}
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -46,7 +46,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for message in messages %}
+                        {% for message in post_messages %}
                         <tr>
                             <td>{{ message.id }}</td>
                             <td>

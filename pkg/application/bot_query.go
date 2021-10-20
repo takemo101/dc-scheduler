@@ -18,8 +18,8 @@ type BotQuery interface {
 type BotDetailDTO struct {
 	ID         uint      `json:"id"`
 	Name       string    `json:"name"`
-	AvatorURL  string    `json:"avator_url"`
-	AvatorPath string    `json:"avator_path"`
+	AtatarURL  string    `json:"avatar_url"`
+	AtatarPath string    `json:"avatar_path"`
 	Webhook    string    `json:"webhook"`
 	Active     bool      `json:"active"`
 	CreatedAt  time.Time `json:"created_at"`

@@ -136,8 +136,8 @@ func (r AdminRoute) Setup() {
 				bot.Put("/:id/update", r.botController.Update)
 				bot.Delete("/:id/delete", r.botController.Delete)
 
-				bot.Delete("/:id/immediate/create", r.immediateController.Create)
-				bot.Delete("/:id/immediate/store", r.immediateController.Store)
+				bot.Get("/:id/immediate/create", r.immediateController.Create)
+				bot.Post("/:id/immediate/store", r.immediateController.Store)
 			}
 			// bot route
 			message := system.Group("/message")

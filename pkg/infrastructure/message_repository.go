@@ -121,7 +121,7 @@ func (repo ImmediatePostRepository) Store(entity domain.ImmediatePost) (vo domai
 func (repo ImmediatePostRepository) FindByID(id domain.PostMessageID) (entity domain.ImmediatePost, err error) {
 	model := PostMessage{}
 
-	if err = repo.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+	if err = repo.db.GormDB.Where("id = ?", id.Value()).Preload("Bot").First(&model).Error; err != nil {
 		return entity, err
 	}
 
@@ -157,11 +157,11 @@ func NewDiscordMessageAdapter(
 // SendMessage メッセージ送信リクエスト処理
 func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Message) error {
 
-	// avator := ap.upload.ToURL(bot.Avator().Value())
+	// avatar := ap.upload.ToURL(bot.Atatar().Value())
 
 	req := DiscordMessage{
 		UserName:  bot.Name().Value(),
-		AvatorURL: "https://github.com/qiita.png",
+		AtatarURL: "https://i.imgur.com/oBPXx0D.png",
 		Content:   message.Value(),
 	}
 
@@ -192,7 +192,7 @@ func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Messa
 // DiscordMessage json変換のための構造体
 type DiscordMessage struct {
 	UserName  string `json:"username"`
-	AvatorURL string `json:"avator_url"`
+	AtatarURL string `json:"avatar_url"`
 	Content   string `json:"content"`
 }
 
