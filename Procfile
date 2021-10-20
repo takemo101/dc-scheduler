@@ -1,2 +1,2 @@
 release: make heroku-script
-web: bin/go-app
+web: bin/dc-scheduler
