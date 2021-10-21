@@ -38,12 +38,12 @@ db:
     max: 10
 
 log:
-  server: "../test.log"
+  server: "test.log"
 
 file:
   storage: "storage"
   public: "public"
-  current: "/Users/kawasakiisao/go/src/github.com/takemo101/go-fiber"
+  current: ""
 
 smtp:
   host: "127.0.0.1"
@@ -58,11 +58,11 @@ smtp:
 
 static:
   prefix: "static"
-  root: "../static"
+  root: "static"
   index: "index.html"
 
 template:
-  path: "../resource/view"
+  path: "resource/view"
   suffix: ".html"
   reload: true
 
