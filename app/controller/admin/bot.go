@@ -217,7 +217,10 @@ func (ctl BotController) Update(c *fiber.Ctx) (err error) {
 	}
 
 	// アバターファイル取得
-	file, _ := c.FormFile("avatar")
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		file = nil
+	}
 
 	// ディレクトリー設定取得
 	directory := ctl.config.LoadToValueString(

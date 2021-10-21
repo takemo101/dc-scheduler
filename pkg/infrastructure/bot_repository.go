@@ -105,7 +105,9 @@ func (repo BotRepository) Update(entity domain.Bot) error {
 
 	model.ID = entity.ID().Value()
 	model.Name = entity.Name().Value()
-	model.Atatar = entity.Atatar().Value()
+	if !entity.Atatar().IsEmpty() {
+		model.Atatar = entity.Atatar().Value()
+	}
 	model.Webhook = entity.Webhook().Value()
 	model.Active = entity.IsActive()
 

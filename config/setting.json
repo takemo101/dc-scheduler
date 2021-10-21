@@ -1,5 +1,8 @@
 {
   "directory": {
     "bot_avatar": "bot/avatar"
+  },
+  "resource": {
+    "empty_avatar": "image/logo.png"
   }
 }

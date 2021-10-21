@@ -143,25 +143,44 @@ func CreateImmediatePostEntityFromModel(model PostMessage) domain.ImmediatePost 
 // DiscordMessageAdapter
 type DiscordMessageAdapter struct {
 	upload UploadAdapter
+	config core.Config
+	path   core.Path
 }
 
 // NewDiscordMessageAdapter コンストラクタ
 func NewDiscordMessageAdapter(
 	upload UploadAdapter,
+	config core.Config,
+	path core.Path,
 ) domain.DiscordMessageAdapter {
 	return DiscordMessageAdapter{
 		upload,
+		config,
+		path,
 	}
 }
 
 // SendMessage メッセージ送信リクエスト処理
 func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Message) error {
 
-	// avatar := ap.upload.ToURL(bot.Atatar().Value())
+	var avatar string
+	if bot.Atatar().IsEmpty() {
+		avatar = ap.upload.ToURL(bot.Atatar().Value())
+	} else {
+		// コンフィグからブランクアバターを取得する
+		empty := ap.config.LoadToValueString(
+			"setting",
+			"resource.empty_avatar",
+			"",
+		)
+		if empty != "" {
+			avatar = ap.path.StaticURL(empty)
+		}
+	}
 
 	req := DiscordMessage{
 		UserName:  bot.Name().Value(),
-		AtatarURL: "https://i.imgur.com/oBPXx0D.png",
+		AtatarURL: avatar,
 		Content:   message.Value(),
 	}
 

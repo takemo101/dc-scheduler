@@ -86,6 +86,7 @@ app-linux-build:
 # app deploy for lolipop
 app-loli-deploy:
 	make app-linux-build
+	ssh -p ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ${LOLI_SSH_USER}@${LOLI_SSH_HOST} 'mkdir -p ${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}'
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app-cli ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 

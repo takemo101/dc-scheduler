@@ -237,6 +237,8 @@ func (uc BotUpdateUseCase) Execute(
 			entity.Atatar(),
 		)
 		avatar = avatarVO.Value()
+	} else {
+		avatar = entity.Atatar().Value()
 	}
 
 	e = entity.Update(
