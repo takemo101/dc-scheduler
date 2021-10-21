@@ -28,7 +28,7 @@ func (query AdminQuery) Search(parameter application.AdminSearchParameterDTO) (d
 		query.db.GormDB,
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderBy},
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)

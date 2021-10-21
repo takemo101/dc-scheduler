@@ -164,3 +164,18 @@ func (p *Paginator) createPageNumberURL(
 	u.RawQuery = q.Encode()
 	return u.String()
 }
+
+// --- OrderByType ---
+
+// リストの順
+type OrderByType string
+
+const (
+	OrderByTypeDesc OrderByType = "DESC"
+	OrderByTypeAsc  OrderByType = "ASC"
+)
+
+// ToQuery クエリー文字列に変換
+func (order OrderByType) ToQuery(key string) string {
+	return key + " " + string(order)
+}

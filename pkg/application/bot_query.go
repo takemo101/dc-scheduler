@@ -28,9 +28,10 @@ type BotDetailDTO struct {
 
 // BotSearchParameterDTO Bot一覧取得パラメータDTO
 type BotSearchParameterDTO struct {
-	Page    int
-	Limit   int
-	OrderBy string
+	Page        int
+	Limit       int
+	OrderByKey  string
+	OrderByType OrderByType
 }
 
 // BotSearchPaginatorDTO Bot一覧DTO

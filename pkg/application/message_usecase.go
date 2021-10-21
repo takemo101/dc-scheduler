@@ -36,9 +36,10 @@ func (uc PostMessageSearchUseCase) Execute(
 ) (paginator PostMessageSearchPaginatorDTO, err AppError) {
 
 	parameter := PostMessageSearchParameterDTO{
-		Page:    input.Page,
-		Limit:   input.Limit,
-		OrderBy: "id DESC",
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
@@ -152,9 +153,10 @@ func (uc SentMessageHistoryUseCase) Execute(
 ) (paginator SentMessageSearchPaginatorDTO, err AppError) {
 
 	parameter := SentMessageSearchParameterDTO{
-		Page:    input.Page,
-		Limit:   input.Limit,
-		OrderBy: "id DESC",
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)

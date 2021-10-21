@@ -40,16 +40,22 @@ func ToPostMessageDetailMap(
 func ToSentMessageHistoryMap(
 	dto application.SentMessageSearchPaginatorDTO,
 ) helper.DataMap {
-	messages := make([]helper.DataMap, len(dto.SentMessages))
-
-	for i, message := range dto.SentMessages {
-		messages[i] = ToSentMessageDetailMap(message)
-	}
+	messages := ToSentMessagesMap(dto.SentMessages)
 
 	return helper.DataMap{
 		"sent_messages": messages,
 		"pagination":    helper.StructToJsonMap(&dto.Pagination),
 	}
+}
+
+func ToSentMessagesMap(list []application.SentMessageDetailDTO) []helper.DataMap {
+	messages := make([]helper.DataMap, len(list))
+
+	for i, message := range list {
+		messages[i] = ToSentMessageDetailMap(message)
+	}
+
+	return messages
 }
 
 // ToSentMessageDetailMap SentMessageのDetailデータ

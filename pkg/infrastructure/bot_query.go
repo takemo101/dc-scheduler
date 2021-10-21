@@ -33,7 +33,7 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 		query.db.GormDB,
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderBy},
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)

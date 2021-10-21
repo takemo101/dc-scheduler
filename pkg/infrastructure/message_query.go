@@ -33,7 +33,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 		query.db.GormDB.Preload("Bot"),
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderBy},
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -108,7 +108,7 @@ func (query SentMessageQuery) Search(parameter application.SentMessageSearchPara
 		query.db.GormDB.Preload("PostMessage.Bot"),
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderBy},
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -126,6 +126,23 @@ func (query SentMessageQuery) Search(parameter application.SentMessageSearchPara
 	dto.SentMessages = SentMessages
 
 	return dto, err
+}
+
+// Search SentMessageのリスト取得
+func (query SentMessageQuery) RecentlyList(limit uint) (list []application.SentMessageDetailDTO, err error) {
+	var models []SentMessage
+
+	err = query.db.GormDB.Preload("PostMessage.Bot").Order("id DESC").Limit(int(limit)).Find(&models).Error
+	if err != nil {
+		return list, err
+	}
+
+	list = make([]application.SentMessageDetailDTO, len(models))
+	for i, m := range models {
+		list[i] = CreateSentMessageDetailDTOFromModel(query.upload, m)
+	}
+
+	return list, err
 }
 
 // CreateSentMessageDetailDTOFromModel SentMessageからSentMessageDetailDTOを生成する

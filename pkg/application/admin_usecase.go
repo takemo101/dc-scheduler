@@ -38,9 +38,10 @@ func (uc AdminSearchUseCase) Execute(
 ) (paginator AdminSearchPaginatorDTO, err AppError) {
 
 	parameter := AdminSearchParameterDTO{
-		Page:    input.Page,
-		Limit:   input.Limit,
-		OrderBy: "id DESC",
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)

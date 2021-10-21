@@ -40,9 +40,10 @@ func (uc BotSearchUseCase) Execute(
 ) (paginator BotSearchPaginatorDTO, err AppError) {
 
 	parameter := BotSearchParameterDTO{
-		Page:    input.Page,
-		Limit:   input.Limit,
-		OrderBy: "id DESC",
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)

@@ -26,9 +26,10 @@ type PostMessageDetailDTO struct {
 
 // PostMessageSearchParameterDTO PostMessage一覧取得パラメータDTO
 type PostMessageSearchParameterDTO struct {
-	Page    int
-	Limit   int
-	OrderBy string
+	Page        int
+	Limit       int
+	OrderByKey  string
+	OrderByType OrderByType
 }
 
 // PostMessageSearchPaginatorDTO PostMessage一覧DTO
@@ -42,6 +43,7 @@ type PostMessageSearchPaginatorDTO struct {
 // SentMessageQuery
 type SentMessageQuery interface {
 	Search(SentMessageSearchParameterDTO) (SentMessageSearchPaginatorDTO, error)
+	RecentlyList(limit uint) ([]SentMessageDetailDTO, error)
 }
 
 // SentMessageDetailDTO PostMessage詳細DTO
@@ -54,9 +56,10 @@ type SentMessageDetailDTO struct {
 
 // SentMessageSearchParameterDTO SentMessage一覧取得パラメータDTO
 type SentMessageSearchParameterDTO struct {
-	Page    int
-	Limit   int
-	OrderBy string
+	Page        int
+	Limit       int
+	OrderByKey  string
+	OrderByType OrderByType
 }
 
 // SentMessageSearchPaginatorDTO SentMessage一覧DTO
