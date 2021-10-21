@@ -32,6 +32,13 @@ type App struct {
 	Config  string
 }
 
+// Time time locale config
+type Time struct {
+	Zone     string `env:"TIME_ZONE"`
+	Offset   int    `env:"TIME_OFFSET"`
+	Location string `env:"TIME_LOCATION"`
+}
+
 // DB config
 type DB struct {
 	Type       string `env:"DB_TYPE"`
@@ -132,6 +139,7 @@ type Cors struct {
 // Config full config
 type Config struct {
 	App
+	Time
 	DB
 	Server
 	Log

@@ -55,8 +55,15 @@ func (app *Application) Run() {
 
 // Setup is all setup
 func (app *Application) Setup() {
+	app.setupTimeLocale()
 	app.setupStatic()
 	app.setupMiddleware()
+}
+
+// setupTimeLocal is setup time locale
+func (app *Application) setupTimeLocale() {
+	time.Local = time.FixedZone(app.Config.Time.Zone, app.Config.Time.Offset)
+	time.LoadLocation(app.Config.Time.Location)
 }
 
 // setupStatic is setup static path

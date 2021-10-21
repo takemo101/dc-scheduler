@@ -24,6 +24,11 @@ server:
     read: 4
     write: 4
 
+time:
+  zone: "Asia/Tokyo"
+  offset: 32400
+  location: "Asia/Tokyo"
+
 db:
   type: "sqlite"
   host: "localhost"
