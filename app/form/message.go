@@ -24,7 +24,14 @@ type PostMessageSearch struct {
 	Page int `json:"page" form:"page"`
 }
 
-// --- Create ---
+// --- SentMessageHistory ---
+
+// SentMessageHistory SentMessage検索パラメータ
+type SentMessageHistory struct {
+	Page int `json:"page" form:"page"`
+}
+
+// --- ImmediatePostCreate ---
 
 // ImmediatePostCreate Admin追加パラメータ
 type ImmediatePostCreate struct {

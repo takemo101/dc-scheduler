@@ -6,7 +6,7 @@ import (
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// --- BotSearchQuery ---
+// --- BotQuery ---
 
 // BotQuery Bot参照
 type BotQuery interface {

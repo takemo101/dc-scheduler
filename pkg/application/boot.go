@@ -23,6 +23,8 @@ var Module = fx.Options(
 	fx.Provide(NewBotSearchUseCase),
 	// --- Message UseCase ---
 	fx.Provide(NewPostMessageSearchUseCase),
+	fx.Provide(NewPostMessageCreateFormUseCase),
 	fx.Provide(NewPostMessageDeleteUseCase),
+	fx.Provide(NewSentMessageHistoryUseCase),
 	fx.Provide(NewImmediatePostStoreUseCase),
 )

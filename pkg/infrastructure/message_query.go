@@ -80,3 +80,63 @@ func CreatePostMessageDetailDTOFromModel(
 		UpdatedAt:   model.UpdatedAt,
 	}
 }
+
+// --- SentMessageQuery ---
+
+// SentMessageQuery application.SentMessageQueryの実装
+type SentMessageQuery struct {
+	db     core.Database
+	upload UploadAdapter
+}
+
+// NewSentMessageQuery コンストラクタ
+func NewSentMessageQuery(
+	db core.Database,
+	upload UploadAdapter,
+) application.SentMessageQuery {
+	return SentMessageQuery{
+		db,
+		upload,
+	}
+}
+
+// Search SentMessageの一覧取得
+func (query SentMessageQuery) Search(parameter application.SentMessageSearchParameterDTO) (dto application.SentMessageSearchPaginatorDTO, err error) {
+	var models []SentMessage
+
+	paging := NewGormPaging(
+		query.db.GormDB.Preload("PostMessage.Bot"),
+		parameter.Page,
+		parameter.Limit,
+		[]string{parameter.OrderBy},
+	)
+
+	paginator, err := paging.Paging(&models)
+	if err != nil {
+		return dto, err
+	}
+
+	dto.Pagination = paginator
+
+	SentMessages := make([]application.SentMessageDetailDTO, len(models))
+	for i, m := range models {
+		SentMessages[i] = CreateSentMessageDetailDTOFromModel(query.upload, m)
+	}
+
+	dto.SentMessages = SentMessages
+
+	return dto, err
+}
+
+// CreateSentMessageDetailDTOFromModel SentMessageからSentMessageDetailDTOを生成する
+func CreateSentMessageDetailDTOFromModel(
+	upload UploadAdapter,
+	model SentMessage,
+) application.SentMessageDetailDTO {
+	return application.SentMessageDetailDTO{
+		ID:          model.ID,
+		Message:     model.Message,
+		PostMessage: CreatePostMessageDetailDTOFromModel(upload, model.PostMessage),
+		SendedAt:    model.SendedAt,
+	}
+}

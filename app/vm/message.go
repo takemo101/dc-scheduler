@@ -11,8 +11,8 @@ func ToPostMessageIndexMap(
 ) helper.DataMap {
 	messages := make([]helper.DataMap, len(dto.PostMessages))
 
-	for i, bot := range dto.PostMessages {
-		messages[i] = ToPostMessageDetailMap(bot)
+	for i, message := range dto.PostMessages {
+		messages[i] = ToPostMessageDetailMap(message)
 	}
 
 	return helper.DataMap{
@@ -33,5 +33,33 @@ func ToPostMessageDetailMap(
 		"bot":               ToBotDetailMap(dto.Bot),
 		"created_at":        dto.CreatedAt,
 		"updated_at":        dto.UpdatedAt,
+	}
+}
+
+// ToSentMessageHistoryMap SentMessageのHistoryデータ
+func ToSentMessageHistoryMap(
+	dto application.SentMessageSearchPaginatorDTO,
+) helper.DataMap {
+	messages := make([]helper.DataMap, len(dto.SentMessages))
+
+	for i, message := range dto.SentMessages {
+		messages[i] = ToSentMessageDetailMap(message)
+	}
+
+	return helper.DataMap{
+		"sent_messages": messages,
+		"pagination":    helper.StructToJsonMap(&dto.Pagination),
+	}
+}
+
+// ToSentMessageDetailMap SentMessageのDetailデータ
+func ToSentMessageDetailMap(
+	dto application.SentMessageDetailDTO,
+) helper.DataMap {
+	return helper.DataMap{
+		"id":           dto.ID,
+		"post_message": ToPostMessageDetailMap(dto.PostMessage),
+		"message":      dto.Message,
+		"sended_at":    dto.SendedAt,
 	}
 }

@@ -14,12 +14,13 @@ import (
 
 // PostMessageController 配信関連コントローラ
 type PostMessageController struct {
-	value         support.ContextValue
-	toastr        support.ToastrMessage
-	config        core.Config
-	sessionStore  core.SessionStore
-	searchUseCase application.PostMessageSearchUseCase
-	deleteUseCase application.PostMessageDeleteUseCase
+	value          support.ContextValue
+	toastr         support.ToastrMessage
+	config         core.Config
+	sessionStore   core.SessionStore
+	searchUseCase  application.PostMessageSearchUseCase
+	deleteUseCase  application.PostMessageDeleteUseCase
+	historyUseCase application.SentMessageHistoryUseCase
 }
 
 // NewPostMessageController コンストラクタ
@@ -30,6 +31,7 @@ func NewPostMessageController(
 	sessionStore core.SessionStore,
 	searchUseCase application.PostMessageSearchUseCase,
 	deleteUseCase application.PostMessageDeleteUseCase,
+	historyUseCase application.SentMessageHistoryUseCase,
 ) PostMessageController {
 	return PostMessageController{
 		value,
@@ -38,6 +40,7 @@ func NewPostMessageController(
 		sessionStore,
 		searchUseCase,
 		deleteUseCase,
+		historyUseCase,
 	}
 }
 
@@ -85,4 +88,28 @@ func (ctl PostMessageController) Delete(c *fiber.Ctx) (err error) {
 		support.Messages{},
 	)
 	return response.Redirect(c, "system/message")
+}
+
+// History 削除処理
+func (ctl PostMessageController) History(c *fiber.Ctx) (err error) {
+	var form form.SentMessageHistory
+	response := ctl.value.GetResponseHelper(c)
+
+	if err := c.QueryParser(&form); err != nil {
+		return response.Error(err)
+	}
+
+	dto, appError := ctl.historyUseCase.Execute(
+		application.SentMessageHistoryInput{
+			Page:  form.Page,
+			Limit: 20,
+		},
+	)
+	if appError != nil && appError.HasError() {
+		return response.Error(appError)
+	}
+
+	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
+
+	return response.View("message/history", helper.DataMap(vm.ToSentMessageHistoryMap(dto)))
 }

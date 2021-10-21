@@ -65,10 +65,16 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if bot.active %}
                                 <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/immediate/create', bot.id) }}">
                                     <i class="fas fa-paper-plane">
                                     </i>
                                 </a>
+                                <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/schedule/create', bot.id) }}">
+                                    <i class="fas fa-stopwatch">
+                                    </i>
+                                </a>
+                                {% endif %}
                                 <a class="btn btn-info btn-sm" href="{{ url('system/bot/%d/edit', bot.id) }}">
                                     <i class="fas fa-pencil-alt">
                                     </i>

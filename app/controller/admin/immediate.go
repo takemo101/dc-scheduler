@@ -14,12 +14,12 @@ import (
 
 // ImmediatePostController 即時配信コントローラ
 type ImmediatePostController struct {
-	value            support.ContextValue
-	toastr           support.ToastrMessage
-	config           core.Config
-	sessionStore     core.SessionStore
-	botDetailUseCase application.BotDetailUseCase
-	storeUseCase     application.ImmediatePostStoreUseCase
+	value             support.ContextValue
+	toastr            support.ToastrMessage
+	config            core.Config
+	sessionStore      core.SessionStore
+	createFormUseCase application.PostMessageCreateFormUseCase
+	storeUseCase      application.ImmediatePostStoreUseCase
 }
 
 // NewImmediatePostController コンストラクタ
@@ -28,7 +28,7 @@ func NewImmediatePostController(
 	toastr support.ToastrMessage,
 	config core.Config,
 	sessionStore core.SessionStore,
-	botDetailUseCase application.BotDetailUseCase,
+	createFormUseCase application.PostMessageCreateFormUseCase,
 	storeUseCase application.ImmediatePostStoreUseCase,
 ) ImmediatePostController {
 	return ImmediatePostController{
@@ -36,7 +36,7 @@ func NewImmediatePostController(
 		toastr,
 		config,
 		sessionStore,
-		botDetailUseCase,
+		createFormUseCase,
 		storeUseCase,
 	}
 }
@@ -50,7 +50,7 @@ func (ctl ImmediatePostController) Create(c *fiber.Ctx) error {
 		return response.Error(err)
 	}
 
-	dto, appError := ctl.botDetailUseCase.Execute(uint(id))
+	dto, appError := ctl.createFormUseCase.Execute(uint(id))
 	if appError != nil {
 		if appError.HaveType(application.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)

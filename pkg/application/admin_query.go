@@ -6,7 +6,7 @@ import (
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// --- AdminSearchQuery ---
+// --- AdminQuery ---
 
 // AdminQuery Admin参照
 type AdminQuery interface {

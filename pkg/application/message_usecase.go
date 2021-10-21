@@ -49,6 +49,47 @@ func (uc PostMessageSearchUseCase) Execute(
 	return paginator, err
 }
 
+// --- PostMessageCreateFormUseCase ---
+
+// PostMessageCreateFormUseCase Bot作成フォームユースケース
+type PostMessageCreateFormUseCase struct {
+	repository domain.BotRepository
+	query      BotQuery
+}
+
+// NewPostMessageCreateFormUseCase コンストラクタ
+func NewPostMessageCreateFormUseCase(
+	repository domain.BotRepository,
+	query BotQuery,
+) PostMessageCreateFormUseCase {
+	return PostMessageCreateFormUseCase{
+		repository,
+		query,
+	}
+}
+
+// Execute フォーム表示のためのBot取得を実行
+func (uc PostMessageCreateFormUseCase) Execute(botID uint) (detail BotDetailDTO, err AppError) {
+	findID, e := domain.NewBotID(botID)
+	if e != nil {
+		return detail, NewError(NotFoundDataError)
+	}
+
+	entity, e := uc.repository.FindByID(findID)
+	if e != nil {
+		return detail, NewByError(e)
+	} else if !entity.IsActive() {
+		return detail, NewError(NotFoundDataError)
+	}
+
+	detail, e = uc.query.FindByID(findID)
+	if e != nil {
+		return detail, NewByError(e)
+	}
+
+	return detail, err
+}
+
 // --- PostMessageDeleteUseCase ---
 
 // PostMessageDeleteUseCase PostMessage削除ユースケース
@@ -79,6 +120,49 @@ func (uc PostMessageDeleteUseCase) Execute(id uint) (err AppError) {
 	}
 
 	return err
+}
+
+// --- SentMessageHistoryInput ---
+
+// SentMessageHistoryInput SentMessage一覧取得（送信メッセージ履歴取得）DTO
+type SentMessageHistoryInput struct {
+	Page  int
+	Limit int
+}
+
+// --- SentMessageHistoryUseCase ---
+
+// SentMessageHistoryUseCase PostMessage削除ユースケース
+type SentMessageHistoryUseCase struct {
+	query SentMessageQuery
+}
+
+// NewSentMessageHistoryUseCase コンストラクタ
+func NewSentMessageHistoryUseCase(
+	query SentMessageQuery,
+) SentMessageHistoryUseCase {
+	return SentMessageHistoryUseCase{
+		query,
+	}
+}
+
+// Execute SentMessage一覧取得（送信メッセージ履歴取得）を実行
+func (uc SentMessageHistoryUseCase) Execute(
+	input SentMessageHistoryInput,
+) (paginator SentMessageSearchPaginatorDTO, err AppError) {
+
+	parameter := SentMessageSearchParameterDTO{
+		Page:    input.Page,
+		Limit:   input.Limit,
+		OrderBy: "id DESC",
+	}
+
+	paginator, e := uc.query.Search(parameter)
+	if e != nil {
+		return paginator, NewByError(e)
+	}
+
+	return paginator, err
 }
 
 // --- ImmediatePostStoreInput ---

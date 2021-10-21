@@ -143,6 +143,7 @@ func (r AdminRoute) Setup() {
 			message := system.Group("/message")
 			{
 				message.Get("/", r.messageController.Index)
+				message.Get("/history", r.messageController.History)
 				message.Delete("/:id/delete", r.messageController.Delete)
 			}
 

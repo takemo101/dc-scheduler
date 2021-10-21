@@ -165,8 +165,6 @@ func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Messa
 
 	var avatar string
 	if bot.Atatar().IsEmpty() {
-		avatar = ap.upload.ToURL(bot.Atatar().Value())
-	} else {
 		// コンフィグからブランクアバターを取得する
 		empty := ap.config.LoadToValueString(
 			"setting",
@@ -176,6 +174,8 @@ func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Messa
 		if empty != "" {
 			avatar = ap.path.StaticURL(empty)
 		}
+	} else {
+		avatar = ap.upload.ToURL(bot.Atatar().Value())
 	}
 
 	req := DiscordMessage{
@@ -235,6 +235,7 @@ type SentMessage struct {
 	ID            uint   `gorm:"primarykey"`
 	Message       string `gorm:"type:text;not null"`
 	PostMessageID uint   `gorm:"index;not null"`
+	PostMessage   PostMessage
 	SendedAt      time.Time
 }
 

@@ -245,7 +245,7 @@ func (entity PostMessage) SentMessages() []SentMessage {
 }
 
 // Send メッセージを送信する
-func (entity PostMessage) Send(now time.Time) (send SentMessage, err error) {
+func (entity *PostMessage) Send(now time.Time) (send SentMessage, err error) {
 	if !entity.CanSent() {
 		return send, errors.New("Message送信可能ではありません")
 	}
@@ -425,7 +425,7 @@ func (entity SchedulePost) CanSent(now time.Time) bool {
 }
 
 // Send メッセージを送信する
-func (entity SchedulePost) Send(now time.Time) (send SentMessage, err error) {
+func (entity *SchedulePost) Send(now time.Time) (send SentMessage, err error) {
 	if !entity.CanSent(now) {
 		return send, errors.New("Message送信可能ではありません")
 	}

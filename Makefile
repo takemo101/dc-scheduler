@@ -90,14 +90,5 @@ app-loli-deploy:
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app-cli ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 
-app-loli-deply-copy:
-	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./config ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}
-	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./resource ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}
-	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./static ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}
-	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./config.example.yml ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}
-	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./config.testing.example.yml ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}
-	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./Makefile ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}
-	ssh -p ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ${LOLI_SSH_USER}@${LOLI_SSH_HOST} 'mkdir -p ${LOLI_PROJECT_DIRECTORY}/storage/public'
-
 loli-login:
 	ssh -p 35135 -i .ssh/id_rsa proud-iki-7985@ssh-1.mc.lolipop.jp

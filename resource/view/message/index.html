@@ -61,7 +61,7 @@
                                 </a>
                             </td>
                             <td>
-                                <small>{{ nl2br(message.message)|safe }}</small>
+                                <small>{{ nl2br(message.message|escape) }}</small>
                             </td>
                             <td>
                                 <button data-class="js-dialog" data-type="delete" data-form="#{{ message.id|stringformat:'delete-%d' }}" class="btn btn-danger btn-sm" name="submit">

@@ -42,6 +42,23 @@
                     "path": "system/bot/create"
                 }
             ]
+        },
+        {
+            "key": ":message",
+            "name": "配信メッセージ",
+            "icon": "far fa-paper-plane",
+            "path": "#",
+            "menus": [{
+                    "key": ":message.index",
+                    "name": "検索",
+                    "path": "system/message"
+                },
+                {
+                    "key": ":message.history",
+                    "name": "履歴",
+                    "path": "system/message/history"
+                }
+            ]
         }
     ],
     "plugins": {
