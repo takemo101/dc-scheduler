@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -156,10 +155,11 @@ var Conf = Config{}
 
 // NewConfig create configure
 func NewConfig(
-	path contract.ConfigPath,
+	configPath contract.ConfigPath,
+	current contract.CurrentDirectory,
 ) Config {
 	// config.yml
-	err := configor.Load(&Conf, string(path))
+	err := configor.Load(&Conf, string(configPath))
 	if err != nil {
 		log.Fatalf("fail to load config.yml : %v", err)
 	}
@@ -171,8 +171,7 @@ func NewConfig(
 	}
 
 	if Conf.File.Current == "" {
-		current, _ := os.Getwd()
-		Conf.File.Current = current
+		Conf.File.Current = string(current)
 	}
 
 	Conf.ConfigMapData = make(map[string]interface{})
@@ -185,7 +184,7 @@ func (c *Config) Load(key string) (map[string]interface{}, error) {
 		return mapValue.(map[string]interface{}), nil
 	}
 
-	path := path.Join(c.App.Config, key+".json")
+	path := path.Join(c.File.Current, c.App.Config, key+".json")
 	jsonString, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err

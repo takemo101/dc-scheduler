@@ -21,7 +21,10 @@ func NewTemplateEngine(
 	p Path,
 	logger Logger,
 ) TemplateEngine {
-	engine := django.New(config.Template.Path, config.Template.Suffix)
+	engine := django.New(
+		p.Current(config.Template.Path),
+		config.Template.Suffix,
+	)
 	engine.Reload(config.Template.Reload)
 	engine.Debug(config.App.Debug)
 

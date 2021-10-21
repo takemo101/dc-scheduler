@@ -18,6 +18,9 @@ type Command interface {
 // ConfigPath
 type ConfigPath string
 
+// CurrentDirectory
+type CurrentDirectory string
+
 // AppBooter app boot interface
 type AppBooter interface {
 	AppBoot()

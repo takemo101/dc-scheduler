@@ -11,8 +11,9 @@ import (
 
 // TestOptions app boot options
 type TestOptions struct {
-	ConfigPath contract.ConfigPath
-	FXOption   fx.Option
+	ConfigPath       string
+	CurrentDirectory string
+	FXOption         fx.Option
 }
 
 // Testing test func
@@ -20,7 +21,10 @@ func Testing(t *testing.T, options TestOptions, tests ...interface{}) {
 	fxtest.New(
 		t,
 		fx.Provide(func() contract.ConfigPath {
-			return options.ConfigPath
+			return contract.ConfigPath(options.ConfigPath)
+		}),
+		fx.Provide(func() contract.CurrentDirectory {
+			return contract.CurrentDirectory(options.CurrentDirectory)
 		}),
 		options.FXOption,
 		core.Module,

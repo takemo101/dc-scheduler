@@ -1,6 +1,8 @@
 package core
 
 import (
+	"path"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -28,7 +30,13 @@ func NewLogger(config Config) Logger {
 	}
 
 	if config.Log.Server != "" {
-		zapConfig.OutputPaths = []string{config.Log.Server}
+		zapConfig.OutputPaths = []string{
+			path.Join(config.File.Current, config.Log.Server),
+		}
+	} else {
+		zapConfig.OutputPaths = []string{
+			path.Join(config.File.Current, "server.log"),
+		}
 	}
 
 	logger, _ := zapConfig.Build()

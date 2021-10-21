@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"path"
+
 	"github.com/takemo101/dc-scheduler/app"
 	"github.com/takemo101/dc-scheduler/cli/cmd"
 	"github.com/takemo101/dc-scheduler/cli/kernel"
@@ -30,10 +33,16 @@ func NewCLIBooter(
 }
 
 func main() {
+	current := os.Getenv("APP_CURRENT")
+	if current == "" {
+		current, _ = os.Getwd()
+	}
+
 	// boot cobra application
 	kernel.Run(
 		kernel.CLIOptions{
-			ConfigPath: "config.yml",
+			ConfigPath:       path.Join(current, "config.yml"),
+			CurrentDirectory: current,
 			CommandOptions: cmd.CommandOptions{
 				Models:     database.Models,
 				Migrations: database.Migrations,

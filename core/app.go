@@ -14,12 +14,14 @@ import (
 type Application struct {
 	App      *fiber.App
 	Config   Config
+	Path     Path
 	Template TemplateEngine
 }
 
 // NewApplication create a new application
 func NewApplication(
 	config Config,
+	path Path,
 	template TemplateEngine,
 ) Application {
 	kbyte := 1024
@@ -40,6 +42,7 @@ func NewApplication(
 	return Application{
 		App:    app,
 		Config: config,
+		Path:   path,
 	}
 }
 
@@ -60,7 +63,7 @@ func (app *Application) Setup() {
 func (app *Application) setupStatic() {
 	app.App.Static(
 		app.Config.Static.Prefix,
-		app.Config.Static.Root,
+		app.Path.Current(app.Config.Static.Root),
 		fiber.Static{
 			Index: app.Config.Static.Index,
 		},
