@@ -77,7 +77,7 @@ func (ctl SessionAuthController) Login(c *fiber.Ctx) (err error) {
 		if appError.HaveType(application.AdminNotFoundAccountError) {
 			ctl.sessionStore.SetErrorResource(
 				c,
-				helper.ErrorToMap("email", err),
+				helper.ErrorToMap("email", appError),
 				helper.StructToFormMap(&form),
 			)
 			return response.Back(c)

@@ -103,7 +103,7 @@ func (vo BotDiscordWebhook) Value() string {
 
 // ValidURL ウェブフックURLの中のデータが正常か
 func (vo BotDiscordWebhook) ValidURL(id string, token string) bool {
-	return strings.Contains(vo.Value(), "/"+id) && strings.Contains(vo.Value(), "/"+token)
+	return strings.Contains(vo.Value(), id+"/"+token)
 }
 
 // Equals VOの値が一致するか
