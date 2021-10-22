@@ -27,7 +27,6 @@ server:
 time:
   zone: "Asia/Tokyo"
   offset: 32400
-  location: "Asia/Tokyo"
 
 db:
   type: "sqlite"

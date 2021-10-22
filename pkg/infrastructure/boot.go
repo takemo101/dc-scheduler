@@ -14,6 +14,7 @@ var Module = fx.Options(
 	fx.Provide(NewBotAtatarImageRepository),
 	fx.Provide(NewBotRepository),
 	fx.Provide(NewBotQuery),
+	fx.Provide(NewDiscordWebhookCheckAdapter),
 
 	// message
 	fx.Provide(NewPostMessageRepository),

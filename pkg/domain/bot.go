@@ -101,6 +101,11 @@ func (vo BotDiscordWebhook) Value() string {
 	return string(vo)
 }
 
+// ValidURL ウェブフックURLの中のデータが正常か
+func (vo BotDiscordWebhook) ValidURL(id string, token string) bool {
+	return strings.Contains(vo.Value(), "/"+id) && strings.Contains(vo.Value(), "/"+token)
+}
+
 // Equals VOの値が一致するか
 func (vo BotDiscordWebhook) Equals(eq BotDiscordWebhook) bool {
 	return vo.Value() == eq.Value()
@@ -380,5 +385,5 @@ type BotRepository interface {
 
 // DiscordWebhookCheckAdapter Discordウェブフックをチェックするアダプター
 type DiscordWebhookCheckAdapter interface {
-	Check(webohook BotDiscordWebhook) error
+	Check(webohook BotDiscordWebhook) (bool, error)
 }

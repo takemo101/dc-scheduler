@@ -34,9 +34,8 @@ type App struct {
 
 // Time time locale config
 type Time struct {
-	Zone     string `env:"TIME_ZONE"`
-	Offset   int    `env:"TIME_OFFSET"`
-	Location string `env:"TIME_LOCATION"`
+	Zone   string `env:"TIME_ZONE"`
+	Offset int    `env:"TIME_OFFSET"`
 }
 
 // DB config

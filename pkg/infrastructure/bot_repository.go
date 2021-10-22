@@ -1,6 +1,12 @@
 package infrastructure
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/takemo101/dc-scheduler/core"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 	"gorm.io/gorm"
@@ -171,6 +177,65 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 		model.Webhook,
 		model.Active,
 	)
+}
+
+// ---- DiscordWebhookCheckAdapter ---
+
+// DiscordWebhookCheckAdapter Discordウェブフックをチェックするアダプター
+type DiscordWebhookCheckAdapter struct {
+	//
+}
+
+// NewDiscordWebhookCheckAdapter コンストラクタ
+func NewDiscordWebhookCheckAdapter(
+//
+) domain.DiscordWebhookCheckAdapter {
+	return DiscordWebhookCheckAdapter{}
+}
+
+// Check 指定したウェブフックがアクセス可能か
+func (ap DiscordWebhookCheckAdapter) Check(
+	webhook domain.BotDiscordWebhook,
+) (ok bool, err error) {
+	response, err := http.Get(webhook.Value())
+	if err != nil {
+		return false, err
+	}
+
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body)
+	bytes := []byte(body)
+
+	var checkResponse WebhookCheckResponse
+	err = json.Unmarshal(bytes, &checkResponse)
+	if err != nil {
+		return false, err
+	}
+
+	if response.StatusCode == 200 {
+		if webhook.ValidURL(
+			checkResponse.ID,
+			checkResponse.Token,
+		) {
+			return true, err
+		}
+
+		return false, errors.New("Webookとレスポンス値が一致しません")
+	}
+
+	return ok, errors.New(fmt.Sprintf("%#v", response))
+}
+
+type WebhookCheckResponse struct {
+	Type          int    `json:"type"`
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Avator        string `json:"avator"`
+	ChannelID     string `json:"channel_id"`
+	GuildID       string `json:"guild_id"`
+	ApplicationID string `json:"application_id"`
+	Token         string `json:"token"`
 }
 
 // --- Bot ---

@@ -145,7 +145,7 @@ func (ctl BotController) Store(c *fiber.Ctx) (err error) {
 		Active:          form.ActiveToBool(),
 	})
 	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.BotDuplicateError) {
+		if appError.HaveType(application.BotDuplicateError) || appError.HaveType(application.BotWebhookInvalidError) {
 			ctl.sessionStore.SetErrorResource(
 				c,
 				helper.ErrorToMap("webhook", appError),
@@ -236,6 +236,15 @@ func (ctl BotController) Update(c *fiber.Ctx) (err error) {
 		Webhook:         form.Webhook,
 		Active:          form.ActiveToBool(),
 	}); appError != nil && appError.HasError() {
+		if appError.HaveType(application.BotDuplicateError) || appError.HaveType(application.BotWebhookInvalidError) {
+			ctl.sessionStore.SetErrorResource(
+				c,
+				helper.ErrorToMap("webhook", appError),
+				helper.StructToFormMap(&form),
+			)
+			return response.Back(c)
+		}
+
 		return response.Error(appError)
 	}
 

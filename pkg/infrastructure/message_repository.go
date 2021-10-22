@@ -201,6 +201,8 @@ func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Messa
 		return err
 	}
 
+	defer response.Body.Close()
+
 	if response.StatusCode == 204 {
 		return nil
 	}
