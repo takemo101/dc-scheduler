@@ -104,6 +104,5 @@ func (form *SchedulePostCreateAndUpdate) Sanitize() (err error) {
 // ReservationAtToTime ReservationAtの文字列をtime.Timeに変換して返す
 func (form SchedulePostCreateAndUpdate) ReservationAtToTime() time.Time {
 	at, _ := time.Parse("2006-01-02 15:04", form.ReservationAt)
-
 	return at
 }

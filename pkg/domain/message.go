@@ -124,13 +124,12 @@ type MessageSendedAt time.Time
 
 // NewMessageSendedAt コンストラクタ
 func NewMessageSendedAt(at time.Time) MessageSendedAt {
-	min := at.Minute() / MinuteIntervalTiming
 	justAt := time.Date(
 		at.Year(),
 		at.Month(),
 		at.Day(),
 		at.Hour(),
-		min,
+		(at.Minute()/MinuteIntervalTiming)*MinuteIntervalTiming,
 		0,
 		0,
 		at.Location(),
@@ -382,13 +381,12 @@ type MessageReservationAt time.Time
 // NewMessageReservationAt コンストラクタ
 func NewMessageReservationAt(at time.Time, now time.Time) (vo MessageReservationAt, err error) {
 	if at.After(now) {
-		min := at.Minute() / MinuteIntervalTiming
 		justAt := time.Date(
 			at.Year(),
 			at.Month(),
 			at.Day(),
 			at.Hour(),
-			min,
+			(at.Minute()/MinuteIntervalTiming)*MinuteIntervalTiming,
 			0,
 			0,
 			at.Location(),

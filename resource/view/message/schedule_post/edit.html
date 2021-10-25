@@ -29,7 +29,7 @@
                         <label class="cursor-pointer required" for="reservation_at">
                             配信予定日時
                         </label>
-                        <input type="text" class="form-control datetimepicker-input {% if errors.reservation_at %}is-invalid{% endif %}" name="reservation_at" value="{% if inputs.reservation_at %}{{ inputs.reservation_at }}{% else %}{{ schedule_post.reservation_at }}{% endif %}" id="reservation_at"
+                        <input type="text" class="form-control datetimepicker-input {% if errors.reservation_at %}is-invalid{% endif %}" name="reservation_at" value="{% if inputs.reservation_at %}{{ inputs.reservation_at }}{% else %}{{ schedule_post.reservation_at|date:'2006-01-02 15:04' }}{% endif %}" id="reservation_at"
                         data-target="#delivery_date" data-toggle="datetimepicker" required />
                         {% if errors.reservation_at %}
                             <div class="invalid-feedback d-block">
