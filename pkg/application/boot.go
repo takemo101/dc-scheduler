@@ -26,5 +26,11 @@ var Module = fx.Options(
 	fx.Provide(NewPostMessageCreateFormUseCase),
 	fx.Provide(NewPostMessageDeleteUseCase),
 	fx.Provide(NewSentMessageHistoryUseCase),
+	fx.Provide(NewImmediatePostSearchUseCase),
 	fx.Provide(NewImmediatePostStoreUseCase),
+	fx.Provide(NewSchedulePostSearchUseCase),
+	fx.Provide(NewSchedulePostStoreUseCase),
+	fx.Provide(NewSchedulePostEditFormUseCase),
+	fx.Provide(NewSchedulePostUpdateUseCase),
+	fx.Provide(NewSchedulePostSendUseCase),
 )

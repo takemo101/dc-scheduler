@@ -24,6 +24,7 @@
                 <div class="card-body">
                     {% include 'form/csrf.html' %}
                     {% include 'form/method.html' with method='put' %}
+
                     {% include 'form/input.html' with name='name' value=admin.name type='text' id="name" label='名前' input=inputs.name error=errors.name required=true %}
                     {% include 'form/input.html' with name='email' value=admin.email type='email' id="email" label='メールアドレス' input=inputs.email error=errors.email placeholder='xxx@xxx.com' required=true %}
                     {% include 'form/input.html' with name='password' type='password' id="password" label='パスワード' error=errors.password %}

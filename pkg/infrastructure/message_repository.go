@@ -85,33 +85,41 @@ func NewImmediatePostRepository(
 	}
 }
 
-// Store メッセージの追加＆送信済みメッセージがあればそれも保存（即時配信なので）
+// Store メッセージの追加＆配信済みメッセージがあればそれも保存（即時配信なので）
 func (repo ImmediatePostRepository) Store(entity domain.ImmediatePost) (vo domain.PostMessageID, err error) {
 	model := PostMessage{}
 
 	model.Message = entity.Message().Value()
 	model.MessageType = entity.MessageType()
 	model.BotID = entity.Bot().ID().Value()
+	model.Sended = entity.IsSended()
 
-	// 一旦モデルを保存
-	if err = repo.db.GormDB.Create(&model).Error; err != nil {
-		return vo, err
-	}
+	err = repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
+		// 一旦モデルを保存
+		if err = repo.db.GormDB.Create(&model).Error; err != nil {
+			return err
+		}
 
-	// idを生成する
-	vo, err = domain.NewPostMessageID(model.ID)
-	if err != nil {
-		return vo, err
-	}
+		// idを生成する
+		vo, err = domain.NewPostMessageID(model.ID)
+		if err != nil {
+			return err
+		}
 
-	// 送信済みであればメッセージを保存
-	if entity.IsSended() {
-		for _, sent := range entity.SentMessages() {
-			err = repo.SaveSendedMessage(vo, sent)
-			if err != nil {
-				return vo, err
+		// 配信済みメッセージがあれば保存
+		if entity.HasSentMessages() {
+			for _, sent := range entity.SentMessages() {
+				err = repo.SaveSendedMessage(vo, sent)
+				if err != nil {
+					return err
+				}
 			}
 		}
+
+		return err
+	})
+	if err != nil {
+		return vo, err
 	}
 
 	return vo, err
@@ -135,6 +143,143 @@ func CreateImmediatePostEntityFromModel(model PostMessage) domain.ImmediatePost 
 		model.Message,
 		CreateBotEntityFromModel(model.Bot),
 		[]domain.SentMessage{},
+		model.Sended,
+	)
+}
+
+// --- SchedulePostRepository ---
+
+// SchedulePostRepository 予約配信Entityの永続化
+type SchedulePostRepository struct {
+	PostMessageRepository
+	db core.Database
+}
+
+// NewSchedulePostRepository コンストラクタ
+func NewSchedulePostRepository(
+	db core.Database,
+	config core.Config,
+) domain.SchedulePostRepository {
+	return SchedulePostRepository{
+		PostMessageRepository{
+			db,
+			config,
+		},
+		db,
+	}
+}
+
+// SendList 配信可能なリストを取得
+func (repo SchedulePostRepository) SendList(at domain.MessageSendedAt) ([]domain.SchedulePost, error) {
+	models := []PostMessage{}
+
+	if err := repo.db.GormDB.Where("message_type = ? AND sended = ? AND reservation_at <= ? AND active = ?", domain.MessageTypeSchedulePost, false, at.Value(), true).Joins("Bot").Joins("ScheduleTiming").Find(&models).Error; err != nil {
+		return []domain.SchedulePost{}, err
+	}
+
+	list := make([]domain.SchedulePost, len(models))
+
+	for i, model := range models {
+		list[i] = CreateSchedulePostEntityFromModel(model)
+	}
+
+	return list, nil
+}
+
+// Store メッセージの追加
+func (repo SchedulePostRepository) Store(entity domain.SchedulePost) (vo domain.PostMessageID, err error) {
+	model := PostMessage{}
+
+	model.Message = entity.Message().Value()
+	model.MessageType = entity.MessageType()
+	model.BotID = entity.Bot().ID().Value()
+
+	err = repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
+		// 一旦モデルを保存
+		if err = repo.db.GormDB.Create(&model).Error; err != nil {
+			return err
+		}
+
+		// idを生成する
+		vo, err = domain.NewPostMessageID(model.ID)
+		if err != nil {
+			return err
+		}
+
+		timingModel := ScheduleTiming{}
+		timingModel.PostMessageID = model.ID
+		timingModel.ReservationAt = entity.ReservationAt().Value()
+
+		// 予約日時を保存
+		if err = repo.db.GormDB.Create(&timingModel).Error; err != nil {
+			return err
+		}
+
+		return err
+	})
+	if err != nil {
+		return vo, err
+	}
+
+	return vo, err
+}
+
+// Update メッセージの更新＆配信済みメッセージがあればそれも保存（予約配信なので）
+func (repo SchedulePostRepository) Update(entity domain.SchedulePost) error {
+	model := PostMessage{}
+
+	model.ID = entity.ID().Value()
+	model.Message = entity.Message().Value()
+	model.ScheduleTiming = ScheduleTiming{
+		PostMessageID: entity.ID().Value(),
+		ReservationAt: entity.ReservationAt().Value(),
+	}
+	model.Sended = entity.IsSended()
+
+	err := repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
+		err = repo.db.GormDB.Where("post_message_id = ?", entity.ID().Value()).Delete(&ScheduleTiming{}).Error
+
+		err = repo.db.GormDB.Updates(&model).Error
+		if err != nil {
+			return err
+		}
+
+		// 配信済みメッセージがあれば保存
+		if entity.HasSentMessages() {
+			for _, sent := range entity.SentMessages() {
+				err = repo.SaveSendedMessage(entity.ID(), sent)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		return err
+	})
+
+	return err
+}
+
+// FindByID PostMessageIDからSchedulePostを取得する
+func (repo SchedulePostRepository) FindByID(id domain.PostMessageID) (entity domain.SchedulePost, err error) {
+	model := PostMessage{}
+
+	if err = repo.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+		return entity, err
+	}
+
+	return CreateSchedulePostEntityFromModel(model), err
+}
+
+// CreateBotEntityFromModel BotからEntityを生成する
+func CreateSchedulePostEntityFromModel(model PostMessage) domain.SchedulePost {
+	return domain.NewSchedulePost(
+		model.ID,
+		model.Message,
+		model.ScheduleTiming.ReservationAt,
+		CreateBotEntityFromModel(model.Bot),
+		[]domain.SentMessage{},
+		model.Sended,
 	)
 }
 
@@ -160,7 +305,7 @@ func NewDiscordMessageAdapter(
 	}
 }
 
-// SendMessage メッセージ送信リクエスト処理
+// SendMessage メッセージ配信リクエスト処理
 func (ap DiscordMessageAdapter) SendMessage(bot domain.Bot, message domain.Message) error {
 
 	var avatar string
@@ -228,6 +373,7 @@ type PostMessage struct {
 	Bot            Bot                `gorm:"constraint:OnDelete:CASCADE;"`
 	SentMessages   []SentMessage      `gorm:"constraint:OnDelete:CASCADE;"`
 	ScheduleTiming ScheduleTiming     `gorm:"constraint:OnDelete:CASCADE;"`
+	Sended         bool               `gorm:"index"`
 }
 
 // --- SentMessage ---

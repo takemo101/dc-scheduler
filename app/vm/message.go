@@ -69,3 +69,63 @@ func ToSentMessageDetailMap(
 		"sended_at":    dto.SendedAt,
 	}
 }
+
+// ToImmediatePostIndexMap ImmediatePostのIndexデータ
+func ToImmediatePostIndexMap(
+	dto application.ImmediatePostSearchPaginatorDTO,
+) helper.DataMap {
+	messages := make([]helper.DataMap, len(dto.ImmediatePosts))
+
+	for i, message := range dto.ImmediatePosts {
+		messages[i] = ToImmediatePostDetailMap(message)
+	}
+
+	return helper.DataMap{
+		"immediate_posts": messages,
+		"pagination":      helper.StructToJsonMap(&dto.Pagination),
+	}
+}
+
+// ToImmediatePostDetailMap ImmediatePostのDetailデータ
+func ToImmediatePostDetailMap(
+	dto application.ImmediatePostDetailDTO,
+) helper.DataMap {
+	return helper.DataMap{
+		"id":         dto.ID,
+		"message":    dto.Message,
+		"bot":        ToBotDetailMap(dto.Bot),
+		"created_at": dto.CreatedAt,
+		"updated_at": dto.UpdatedAt,
+	}
+}
+
+// ToSchedulePostIndexMap SchedulePostのIndexデータ
+func ToSchedulePostIndexMap(
+	dto application.SchedulePostSearchPaginatorDTO,
+) helper.DataMap {
+	messages := make([]helper.DataMap, len(dto.SchedulePosts))
+
+	for i, message := range dto.SchedulePosts {
+		messages[i] = ToSchedulePostDetailMap(message)
+	}
+
+	return helper.DataMap{
+		"schedule_posts": messages,
+		"pagination":     helper.StructToJsonMap(&dto.Pagination),
+	}
+}
+
+// ToSchedulePostDetailMap SchedulePostのDetailデータ
+func ToSchedulePostDetailMap(
+	dto application.SchedulePostDetailDTO,
+) helper.DataMap {
+	return helper.DataMap{
+		"id":             dto.ID,
+		"message":        dto.Message,
+		"bot":            ToBotDetailMap(dto.Bot),
+		"is_sended":      dto.IsSended,
+		"reservation_at": dto.ReservationAt,
+		"created_at":     dto.CreatedAt,
+		"updated_at":     dto.UpdatedAt,
+	}
+}

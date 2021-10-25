@@ -10,7 +10,8 @@
             "icon": "fas fa-users",
             "path": "#",
             "role": "system",
-            "menus": [{
+            "menus": [
+                {
                     "key": ":admin.index",
                     "name": "検索",
                     "path": "system/admin"
@@ -31,7 +32,8 @@
             "name": "ボット",
             "icon": "fas fa-robot",
             "path": "#",
-            "menus": [{
+            "menus": [
+                {
                     "key": ":bot.index",
                     "name": "検索",
                     "path": "system/bot"
@@ -48,14 +50,27 @@
             "name": "配信メッセージ",
             "icon": "far fa-paper-plane",
             "path": "#",
-            "menus": [{
+            "menus": [
+                {
                     "key": ":message.index",
                     "name": "検索",
-                    "path": "system/message"
+                    "path": "#",
+                    "menus": [
+                        {
+                            "key": ":message.index.immediate",
+                            "name": "即時配信",
+                            "path": "system/message/immediate"
+                        },
+                        {
+                            "key": ":message.index.schedule",
+                            "name": "予約配信",
+                            "path": "system/message/schedule"
+                        }
+                    ]
                 },
                 {
                     "key": ":message.history",
-                    "name": "履歴",
+                    "name": "配信履歴",
                     "path": "system/message/history"
                 }
             ]
@@ -79,6 +94,9 @@
             },
             {
                 "file": "plugins/daterangepicker/daterangepicker.css"
+            },
+            {
+                "file": "plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css"
             },
             {
                 "file": "plugins/select2/css/select2.min.css"
@@ -107,12 +125,6 @@
                 "file": "plugins/toastr/toastr.min.js"
             },
             {
-                "file": "plugins/daterangepicker/moment.min.js"
-            },
-            {
-                "file": "plugins/daterangepicker/daterangepicker.js"
-            },
-            {
                 "file": "plugins/select2/js/select2.full.min.js"
             },
             {
@@ -127,6 +139,18 @@
             },
             {
                 "file": "plugins/bs-custom-file-input/bs-custom-file-input.min.js"
+            },
+            {
+                "file": "plugins/moment/moment.min.js"
+            },
+            {
+                "file": "plugins/moment/moment-with-locales.min.js"
+            },
+            {
+                "file": "plugins/daterangepicker/daterangepicker.js"
+            },
+            {
+                "file": "plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"
             }
         ]
     }

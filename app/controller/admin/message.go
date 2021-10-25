@@ -87,7 +87,7 @@ func (ctl PostMessageController) Delete(c *fiber.Ctx) (err error) {
 		support.ToastrDelete.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/message")
+	return response.Back(c)
 }
 
 // History 削除処理

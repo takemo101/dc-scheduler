@@ -1,10 +1,10 @@
 {% extends 'layout/default.html' %}
 {% block title %}配信メッセージ｜{% endblock %}
 {% block content_side %}
-    {% include 'include/sidebar.html' with active_key=':message.index' %}
+    {% include 'include/sidebar.html' with active_key=':message.index.schedule' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：予約配信' %}
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -37,7 +37,8 @@
                                 更新日時
                             </th>
                             <th>
-                                対象ボット
+                                対象ボット<br/>
+                                予約日時 [配信状態]
                             </th>
                             <th>
                                 メッセージ内容
@@ -46,7 +47,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for message in post_messages %}
+                        {% for message in schedule_posts %}
                         <tr>
                             <td>{{ message.id }}</td>
                             <td>
@@ -58,12 +59,28 @@
                             <td>
                                 <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
                                     {{ message.bot.name }}
-                                </a>
+                                </a><br/>
+                                {{ message.reservation_at|date:'2006.01.02 15:04' }}
+                                {% if message.is_sended %}
+                                <span class="badge badge-primary">
+                                    配信済み
+                                </span>
+                                {% else %}
+                                <span class="badge badge-secondary">
+                                    未配信
+                                </span>
+                                {% endif %}
                             </td>
                             <td>
                                 <small>{{ nl2br(message.message|escape) }}</small>
                             </td>
                             <td>
+                                {% if !message.is_sended %}
+                                <a class="btn btn-info btn-sm" href="{{ url('system/message/schedule/%d/edit', message.id) }}">
+                                    <i class="fas fa-pencil-alt">
+                                    </i>
+                                </a>
+                                {% endif %}
                                 <button data-class="js-dialog" data-type="delete" data-form="#{{ message.id|stringformat:'delete-%d' }}" class="btn btn-danger btn-sm" name="submit">
                                     <i class="fas fa-trash">
                                     </i>

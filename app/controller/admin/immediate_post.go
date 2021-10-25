@@ -18,6 +18,7 @@ type ImmediatePostController struct {
 	toastr            support.ToastrMessage
 	config            core.Config
 	sessionStore      core.SessionStore
+	searchUseCase     application.ImmediatePostSearchUseCase
 	createFormUseCase application.PostMessageCreateFormUseCase
 	storeUseCase      application.ImmediatePostStoreUseCase
 }
@@ -28,6 +29,7 @@ func NewImmediatePostController(
 	toastr support.ToastrMessage,
 	config core.Config,
 	sessionStore core.SessionStore,
+	searchUseCase application.ImmediatePostSearchUseCase,
 	createFormUseCase application.PostMessageCreateFormUseCase,
 	storeUseCase application.ImmediatePostStoreUseCase,
 ) ImmediatePostController {
@@ -36,9 +38,34 @@ func NewImmediatePostController(
 		toastr,
 		config,
 		sessionStore,
+		searchUseCase,
 		createFormUseCase,
 		storeUseCase,
 	}
+}
+
+// Index 一覧表示
+func (ctl ImmediatePostController) Index(c *fiber.Ctx) (err error) {
+	var form form.PostMessageSearch
+	response := ctl.value.GetResponseHelper(c)
+
+	if err := c.QueryParser(&form); err != nil {
+		return response.Error(err)
+	}
+
+	dto, appError := ctl.searchUseCase.Execute(
+		application.ImmediatePostSearchInput{
+			Page:  form.Page,
+			Limit: 20,
+		},
+	)
+	if appError != nil && appError.HasError() {
+		return response.Error(appError)
+	}
+
+	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
+
+	return response.View("message/immediate_post/index", helper.DataMap(vm.ToImmediatePostIndexMap(dto)))
 }
 
 // Create 追加フォーム
@@ -82,7 +109,7 @@ func (ctl ImmediatePostController) Store(c *fiber.Ctx) (err error) {
 		return response.Error(err)
 	}
 
-	if err := form.Validate(c); err != nil {
+	if err := form.Validate(); err != nil {
 		ctl.sessionStore.SetErrorResource(
 			c,
 			helper.ErrorsToMap(err),
@@ -108,5 +135,5 @@ func (ctl ImmediatePostController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/message")
+	return response.Redirect(c, "system/message/immediate")
 }

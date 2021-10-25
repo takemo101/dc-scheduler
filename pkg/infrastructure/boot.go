@@ -19,8 +19,11 @@ var Module = fx.Options(
 	// message
 	fx.Provide(NewPostMessageRepository),
 	fx.Provide(NewImmediatePostRepository),
+	fx.Provide(NewSchedulePostRepository),
 	fx.Provide(NewPostMessageQuery),
 	fx.Provide(NewSentMessageQuery),
+	fx.Provide(NewImmediatePostQuery),
+	fx.Provide(NewSchedulePostQuery),
 	fx.Provide(NewDiscordMessageAdapter),
 
 	// adapter

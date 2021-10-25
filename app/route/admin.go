@@ -27,6 +27,7 @@ type AdminRoute struct {
 	botController       controller.BotController
 	messageController   controller.PostMessageController
 	immediateController controller.ImmediatePostController
+	scheduleController  controller.SchedulePostController
 }
 
 // NewAdminRoute コンストラクタ
@@ -47,6 +48,7 @@ func NewAdminRoute(
 	botController controller.BotController,
 	messageController controller.PostMessageController,
 	immediateController controller.ImmediatePostController,
+	scheduleController controller.SchedulePostController,
 ) AdminRoute {
 	return AdminRoute{
 		logger:              logger,
@@ -65,6 +67,7 @@ func NewAdminRoute(
 		botController:       botController,
 		messageController:   messageController,
 		immediateController: immediateController,
+		scheduleController:  scheduleController,
 	}
 }
 
@@ -138,11 +141,20 @@ func (r AdminRoute) Setup() {
 
 				bot.Get("/:id/immediate/create", r.immediateController.Create)
 				bot.Post("/:id/immediate/store", r.immediateController.Store)
+
+				bot.Get("/:id/schedule/create", r.scheduleController.Create)
+				bot.Post("/:id/schedule/store", r.scheduleController.Store)
 			}
-			// bot route
+			// message route
 			message := system.Group("/message")
 			{
-				message.Get("/", r.messageController.Index)
+				// message.Get("/", r.messageController.Index)
+				message.Get("/immediate", r.immediateController.Index)
+
+				message.Get("/schedule", r.scheduleController.Index)
+				message.Get("/schedule/:id/edit", r.scheduleController.Edit)
+				message.Put("/schedule/:id/update", r.scheduleController.Update)
+
 				message.Get("/history", r.messageController.History)
 				message.Delete("/:id/delete", r.messageController.Delete)
 			}

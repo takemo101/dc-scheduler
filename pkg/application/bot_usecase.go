@@ -75,12 +75,12 @@ func NewBotDetailUseCase(
 func (uc BotDetailUseCase) Execute(id uint) (detail BotDetailDTO, err AppError) {
 	findID, e := domain.NewBotID(id)
 	if e != nil {
-		return detail, NewError(NotFoundDataError)
+		return detail, NewByError(e)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, NewError(NotFoundDataError)
 	}
 
 	return detail, err

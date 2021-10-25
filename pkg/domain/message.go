@@ -119,12 +119,24 @@ func (vo MessageType) Equals(eq MessageType) bool {
 
 // --- MessageSendedAt ValueObject ---
 
-// MessageSendedAt 送信日時
+// MessageSendedAt 配信日時
 type MessageSendedAt time.Time
 
 // NewMessageSendedAt コンストラクタ
 func NewMessageSendedAt(at time.Time) MessageSendedAt {
-	return MessageSendedAt(at)
+	min := at.Minute() / MinuteIntervalTiming
+	justAt := time.Date(
+		at.Year(),
+		at.Month(),
+		at.Day(),
+		at.Hour(),
+		min,
+		0,
+		0,
+		at.Location(),
+	)
+
+	return MessageSendedAt(justAt)
 }
 
 // Value 値を返す
@@ -134,14 +146,14 @@ func (vo MessageSendedAt) Value() time.Time {
 
 // --- SentMessage Entity ---
 
-// SentMessage メッセージ送信（履歴）Entity
+// SentMessage メッセージ配信Entity
 type SentMessage struct {
 	id       UUID
 	message  Message
 	sendedAt MessageSendedAt
 }
 
-// SendMessage メッセージ送信をする
+// SendMessage メッセージ配信をする
 func SendMessage(
 	messageVO Message,
 	now time.Time,
@@ -200,6 +212,10 @@ func CreatePostMessage(
 	messageType MessageType,
 	bot Bot,
 ) (entity PostMessage, err error) {
+	if !bot.IsActive() {
+		return entity, errors.New("Botが無効となっています")
+	}
+
 	idVO, err := NewPostMessageID(id)
 	if err != nil {
 		return entity, err
@@ -244,10 +260,10 @@ func (entity PostMessage) SentMessages() []SentMessage {
 	return entity.sentMessages
 }
 
-// Send メッセージを送信する
+// Send メッセージを配信する
 func (entity *PostMessage) Send(now time.Time) (send SentMessage, err error) {
 	if !entity.CanSent() {
-		return send, errors.New("Message送信可能ではありません")
+		return send, errors.New("Message配信可能ではありません")
 	}
 
 	send, err = SendMessage(entity.message, now)
@@ -261,7 +277,7 @@ func (entity *PostMessage) Send(now time.Time) (send SentMessage, err error) {
 }
 
 // ChangeMessage メッセージを変更する
-func (entity PostMessage) ChangeMessage(message string) (err error) {
+func (entity *PostMessage) ChangeMessage(message string) (err error) {
 	messageVO, err := NewMessage(message)
 	if err != nil {
 		return err
@@ -271,13 +287,13 @@ func (entity PostMessage) ChangeMessage(message string) (err error) {
 	return err
 }
 
-// CanSent メッセージが送信可能か
+// CanSent メッセージが配信可能か
 func (entity PostMessage) CanSent() bool {
 	return entity.bot.IsActive()
 }
 
-// IsSended メッセージ送信済みの状態か
-func (entity PostMessage) IsSended() bool {
+// HasSentMessage メッセージ配信済みのものがあるか
+func (entity PostMessage) HasSentMessages() bool {
 	return len(entity.sentMessages) > 0
 }
 
@@ -297,6 +313,7 @@ func (entity PostMessage) Equals(eq PostMessage) bool {
 // ImmediatePost 即時配信メッセージEntity
 type ImmediatePost struct {
 	PostMessage
+	sended bool
 }
 
 // NewImmediatePost コンストラクタ
@@ -305,6 +322,7 @@ func NewImmediatePost(
 	message string,
 	bot Bot,
 	sentMessages []SentMessage,
+	sended bool,
 ) ImmediatePost {
 	return ImmediatePost{
 		PostMessage: NewPostMessage(
@@ -314,6 +332,7 @@ func NewImmediatePost(
 			bot,
 			sentMessages,
 		),
+		sended: true,
 	}
 }
 
@@ -332,7 +351,27 @@ func CreateImmediatePost(
 
 	return ImmediatePost{
 		PostMessage: postMessage,
+		sended:      false,
 	}, err
+}
+
+func (entity ImmediatePost) IsSended() bool {
+	return entity.sended
+}
+
+// Send メッセージを配信する
+func (entity *ImmediatePost) Send(now time.Time) (send SentMessage, err error) {
+	send, err = entity.PostMessage.Send(now)
+	if err == nil {
+		entity.sended = true
+	}
+
+	return send, err
+}
+
+// CanSent 即時配信可能か
+func (entity ImmediatePost) CanSent() bool {
+	return !entity.IsSended() && entity.CanSent()
 }
 
 // --- ReservationAt ValueObject ---
@@ -343,7 +382,18 @@ type MessageReservationAt time.Time
 // NewMessageReservationAt コンストラクタ
 func NewMessageReservationAt(at time.Time, now time.Time) (vo MessageReservationAt, err error) {
 	if at.After(now) {
-		return MessageReservationAt(at), err
+		min := at.Minute() / MinuteIntervalTiming
+		justAt := time.Date(
+			at.Year(),
+			at.Month(),
+			at.Day(),
+			at.Hour(),
+			min,
+			0,
+			0,
+			at.Location(),
+		)
+		return MessageReservationAt(justAt), err
 	}
 
 	return vo, errors.New("MessageReservationAtは現在以降を指定してください")
@@ -356,15 +406,19 @@ func (vo MessageReservationAt) Value() time.Time {
 
 // After 予約日時以降か
 func (vo MessageReservationAt) After(now time.Time) bool {
-	return !vo.Value().Before(now)
+	return !vo.Value().After(now)
 }
 
 // --- SchedulePost Entity ---
+
+// MinuteIntervalTiming スケジューリングの分間隔
+const MinuteIntervalTiming int = 10 // 10分間隔のスケジューリング
 
 // SchedulePost 予約配信メッセージEntity
 type SchedulePost struct {
 	PostMessage
 	reservationAt MessageReservationAt
+	sended        bool
 }
 
 // NewSchedulePost コンストラクタ
@@ -374,6 +428,7 @@ func NewSchedulePost(
 	reservationAt time.Time,
 	bot Bot,
 	sentMessages []SentMessage,
+	sended bool,
 ) SchedulePost {
 	return SchedulePost{
 		PostMessage: NewPostMessage(
@@ -384,6 +439,7 @@ func NewSchedulePost(
 			sentMessages,
 		),
 		reservationAt: MessageReservationAt(reservationAt),
+		sended:        sended,
 	}
 }
 
@@ -403,31 +459,63 @@ func CreateSchedulePost(
 	)
 
 	reservationAtVO, err := NewMessageReservationAt(reservationAt, now)
+	if err != nil {
+		return entity, err
+	}
 
 	return SchedulePost{
 		PostMessage:   postMessage,
 		reservationAt: reservationAtVO,
+		sended:        false,
 	}, err
+}
+
+// Update SchedulePostを更新
+func (entity *SchedulePost) Update(
+	message string,
+	reservationAt time.Time,
+	now time.Time,
+) (err error) {
+	if entity.IsSended() {
+		return errors.New("SchedulePostは配信済みです")
+	}
+
+	reservationAtVO, err := NewMessageReservationAt(reservationAt, now)
+	if err != nil {
+		return err
+	}
+	entity.reservationAt = reservationAtVO
+
+	err = entity.ChangeMessage(message)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func (entity SchedulePost) ReservationAt() MessageReservationAt {
 	return entity.reservationAt
 }
 
-// IsSended 予約時間を過ぎているか
+func (entity SchedulePost) IsSended() bool {
+	return entity.sended
+}
+
+// IsPassedReservationAt 予約時間を過ぎているか
 func (entity SchedulePost) IsPassedReservationAt(now time.Time) bool {
 	return entity.ReservationAt().After(now)
 }
 
 // CanSent 予約配信可能か
 func (entity SchedulePost) CanSent(now time.Time) bool {
-	return entity.Bot().IsActive() && entity.IsPassedReservationAt(now)
+	return !entity.IsSended() && entity.Bot().IsActive() && entity.IsPassedReservationAt(now)
 }
 
-// Send メッセージを送信する
+// Send メッセージを配信する
 func (entity *SchedulePost) Send(now time.Time) (send SentMessage, err error) {
 	if !entity.CanSent(now) {
-		return send, errors.New("Message送信可能ではありません")
+		return send, errors.New("Message配信可能ではありません")
 	}
 
 	send, err = SendMessage(entity.message, now)
@@ -436,6 +524,7 @@ func (entity *SchedulePost) Send(now time.Time) (send SentMessage, err error) {
 		entity.sentMessages,
 		send,
 	)
+	entity.sended = true
 
 	return send, err
 }
@@ -462,7 +551,7 @@ type ImmediatePostRepository interface {
 // SchedulePostRepository 予約配信Entityの永続化
 type SchedulePostRepository interface {
 	PostMessageRepository
-	SendList(now time.Time) []SchedulePost
+	SendList(at MessageSendedAt) ([]SchedulePost, error)
 	Store(entity SchedulePost) (PostMessageID, error)
 	Update(entity SchedulePost) error
 	FindByID(id PostMessageID) (SchedulePost, error)

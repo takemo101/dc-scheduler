@@ -117,7 +117,7 @@ func (repo BotRepository) Update(entity domain.Bot) error {
 	model.Webhook = entity.Webhook().Value()
 	model.Active = entity.IsActive()
 
-	return repo.db.GormDB.Updates(model).Error
+	return repo.db.GormDB.Updates(&model).Error
 }
 
 // FindByID BotIDからBotを取得する

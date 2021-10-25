@@ -201,7 +201,7 @@ func (repo AdminRepository) Update(entity domain.Admin) error {
 	model.Password = entity.HashPassword().Value()
 	model.Role = entity.Role()
 
-	return repo.db.GormDB.Updates(model).Error
+	return repo.db.GormDB.Updates(&model).Error
 }
 
 // FindByID AdminIDからAdminを取得する

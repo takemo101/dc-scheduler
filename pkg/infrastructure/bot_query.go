@@ -43,12 +43,12 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 
 	dto.Pagination = paginator
 
-	Bots := make([]application.BotDetailDTO, len(models))
+	bots := make([]application.BotDetailDTO, len(models))
 	for i, m := range models {
-		Bots[i] = CreateBotDetailDTOFromModel(query.upload, m)
+		bots[i] = CreateBotDetailDTOFromModel(query.upload, m)
 	}
 
-	dto.Bots = Bots
+	dto.Bots = bots
 
 	return dto, err
 }

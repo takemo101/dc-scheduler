@@ -125,7 +125,7 @@ func (uc PostMessageDeleteUseCase) Execute(id uint) (err AppError) {
 
 // --- SentMessageHistoryInput ---
 
-// SentMessageHistoryInput SentMessage一覧取得（送信メッセージ履歴取得）DTO
+// SentMessageHistoryInput SentMessage一覧取得（配信メッセージ履歴取得）DTO
 type SentMessageHistoryInput struct {
 	Page  int
 	Limit int
@@ -147,12 +147,56 @@ func NewSentMessageHistoryUseCase(
 	}
 }
 
-// Execute SentMessage一覧取得（送信メッセージ履歴取得）を実行
+// Execute SentMessage一覧取得（配信メッセージ履歴取得）を実行
 func (uc SentMessageHistoryUseCase) Execute(
 	input SentMessageHistoryInput,
 ) (paginator SentMessageSearchPaginatorDTO, err AppError) {
 
 	parameter := SentMessageSearchParameterDTO{
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
+	}
+
+	paginator, e := uc.query.Search(parameter)
+	if e != nil {
+		return paginator, NewByError(e)
+	}
+
+	return paginator, err
+}
+
+// --- ImmediatePostSearchInput ---
+
+// ImmediatePostSearchInput ImmediatePost一覧取得DTO
+type ImmediatePostSearchInput struct {
+	Page  int
+	Limit int
+}
+
+// --- ImmediatePostSearchUseCase ---
+
+// ImmediatePostSearchUseCase ImmediatePost一覧ユースケース
+type ImmediatePostSearchUseCase struct {
+	query ImmediatePostQuery
+}
+
+// NewImmediatePostSearchUseCase コンストラクタ
+func NewImmediatePostSearchUseCase(
+	query ImmediatePostQuery,
+) ImmediatePostSearchUseCase {
+	return ImmediatePostSearchUseCase{
+		query,
+	}
+}
+
+// Execute ImmediatePost一覧取得を実行
+func (uc ImmediatePostSearchUseCase) Execute(
+	input ImmediatePostSearchInput,
+) (paginator ImmediatePostSearchPaginatorDTO, err AppError) {
+
+	parameter := ImmediatePostSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
@@ -196,7 +240,7 @@ func NewImmediatePostStoreUseCase(
 	}
 }
 
-// Execute ImmediatePost追加＆即時送信を実行
+// Execute ImmediatePost追加＆即時配信を実行
 func (uc ImmediatePostStoreUseCase) Execute(
 	botID uint,
 	input ImmediatePostStoreInput,
@@ -226,23 +270,287 @@ func (uc ImmediatePostStoreUseCase) Execute(
 		return id, NewByError(e)
 	}
 
-	// 送信状態にする
+	// 配信状態にする
 	send, e := entity.Send(time.Now())
 	if e != nil {
 		return id, NewByError(e)
 	}
 
-	// 送信状態のメッセージをディスコードで送信
+	// 配信状態のメッセージをディスコードで配信
 	e = uc.adapter.SendMessage(entity.Bot(), send.Message())
 	if e != nil {
 		return id, NewByError(e)
 	}
 
-	// 送信状態の情報を保存
+	// 配信状態の情報を保存
 	storeID, e := uc.repository.Store(entity)
 	if e != nil {
 		return id, NewByError(e)
 	}
 
 	return storeID.Value(), err
+}
+
+// --- SchedulePostSearchInput ---
+
+// SchedulePostSearchInput SchedulePost一覧取得DTO
+type SchedulePostSearchInput struct {
+	Page  int
+	Limit int
+}
+
+// --- SchedulePostSearchUseCase ---
+
+// SchedulePostSearchUseCase SchedulePost一覧ユースケース
+type SchedulePostSearchUseCase struct {
+	query SchedulePostQuery
+}
+
+// NewSchedulePostSearchUseCase コンストラクタ
+func NewSchedulePostSearchUseCase(
+	query SchedulePostQuery,
+) SchedulePostSearchUseCase {
+	return SchedulePostSearchUseCase{
+		query,
+	}
+}
+
+// Execute SchedulePost一覧取得を実行
+func (uc SchedulePostSearchUseCase) Execute(
+	input SchedulePostSearchInput,
+) (paginator SchedulePostSearchPaginatorDTO, err AppError) {
+
+	parameter := SchedulePostSearchParameterDTO{
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
+	}
+
+	paginator, e := uc.query.Search(parameter)
+	if e != nil {
+		return paginator, NewByError(e)
+	}
+
+	return paginator, err
+}
+
+// --- SchedulePostStoreInput ---
+
+// SchedulePostStoreInput SchedulePost追加DTO
+type SchedulePostStoreInput struct {
+	Message       string
+	ReservationAt time.Time
+}
+
+// --- SchedulePostStoreUseCase ---
+
+// SchedulePostStoreUseCase SchedulePost追加ユースケース
+type SchedulePostStoreUseCase struct {
+	repository    domain.SchedulePostRepository
+	botRepository domain.BotRepository
+}
+
+// NewSchedulePostStoreUseCase コンストラクタ
+func NewSchedulePostStoreUseCase(
+	repository domain.SchedulePostRepository,
+	botRepository domain.BotRepository,
+) SchedulePostStoreUseCase {
+	return SchedulePostStoreUseCase{
+		repository,
+		botRepository,
+	}
+}
+
+// Execute SchedulePost追加を実行
+func (uc SchedulePostStoreUseCase) Execute(
+	botID uint,
+	input SchedulePostStoreInput,
+) (id uint, err AppError) {
+
+	botIDVO, e := domain.NewBotID(botID)
+	if e != nil {
+		return id, NewByError(e)
+	}
+
+	bot, e := uc.botRepository.FindByID(botIDVO)
+	if e != nil {
+		return id, NewError(NotFoundDataError)
+	}
+
+	nextID, e := uc.repository.NextIdentity()
+	if e != nil {
+		return id, NewByError(e)
+	}
+
+	entity, e := domain.CreateSchedulePost(
+		nextID.Value(),
+		input.Message,
+		input.ReservationAt,
+		bot,
+		time.Now(),
+	)
+	if e != nil {
+		return id, NewByError(e)
+	}
+
+	// 配信状態の情報を保存
+	storeID, e := uc.repository.Store(entity)
+	if e != nil {
+		return id, NewByError(e)
+	}
+
+	return storeID.Value(), err
+}
+
+// --- SchedulePostEditFormUseCase ---
+
+// SchedulePostEditFormUseCase SchedulePost編集フォームユースケース
+type SchedulePostEditFormUseCase struct {
+	repository domain.SchedulePostRepository
+	query      SchedulePostQuery
+}
+
+// NewPostMessageCreateFormUseCase コンストラクタ
+func NewSchedulePostEditFormUseCase(
+	repository domain.SchedulePostRepository,
+	query SchedulePostQuery,
+) SchedulePostEditFormUseCase {
+	return SchedulePostEditFormUseCase{
+		repository,
+		query,
+	}
+}
+
+// Execute フォーム表示のためのSchedulePost取得を実行
+func (uc SchedulePostEditFormUseCase) Execute(id uint) (detail SchedulePostDetailDTO, err AppError) {
+	findID, e := domain.NewPostMessageID(id)
+	if e != nil {
+		return detail, NewByError(e)
+	}
+
+	entity, e := uc.repository.FindByID(findID)
+	if e != nil {
+		return detail, NewByError(e)
+	} else if entity.IsSended() {
+		return detail, NewError(NotFoundDataError)
+	}
+
+	detail, e = uc.query.FindByID(findID)
+	if e != nil {
+		return detail, NewByError(e)
+	}
+
+	return detail, err
+}
+
+// --- SchedulePostUpdateInput ---
+
+// SchedulePostUpdateInput SchedulePost追加DTO
+type SchedulePostUpdateInput struct {
+	Message       string
+	ReservationAt time.Time
+}
+
+// --- SchedulePostUpdateUseCase ---
+
+// SchedulePostUpdateUseCase SchedulePost追加ユースケース
+type SchedulePostUpdateUseCase struct {
+	repository domain.SchedulePostRepository
+}
+
+// NewSchedulePostUpdateUseCase コンストラクタ
+func NewSchedulePostUpdateUseCase(
+	repository domain.SchedulePostRepository,
+) SchedulePostUpdateUseCase {
+	return SchedulePostUpdateUseCase{
+		repository,
+	}
+}
+
+// Execute SchedulePost更新を実行
+func (uc SchedulePostUpdateUseCase) Execute(
+	id uint,
+	input SchedulePostUpdateInput,
+) (err AppError) {
+
+	idVO, e := domain.NewPostMessageID(id)
+	if e != nil {
+		return NewByError(e)
+	}
+
+	entity, e := uc.repository.FindByID(idVO)
+	if e != nil {
+		return NewError(NotFoundDataError)
+	}
+
+	e = entity.Update(
+		input.Message,
+		input.ReservationAt,
+		time.Now(),
+	)
+	if e != nil {
+		return NewByError(e)
+	}
+
+	// 配信状態の情報を保存
+	e = uc.repository.Update(entity)
+	if e != nil {
+		return NewByError(e)
+	}
+
+	return err
+}
+
+// --- SchedulePostSendUseCase ---
+
+// SchedulePostSendUseCase SchedulePost配信ユースケース
+type SchedulePostSendUseCase struct {
+	repository domain.SchedulePostRepository
+	adapter    domain.DiscordMessageAdapter
+}
+
+// NewSchedulePostSendUseCase コンストラクタ
+func NewSchedulePostSendUseCase(
+	repository domain.SchedulePostRepository,
+	adapter domain.DiscordMessageAdapter,
+) SchedulePostSendUseCase {
+	return SchedulePostSendUseCase{
+		repository,
+		adapter,
+	}
+}
+
+// Execute SchedulePost配信を実行
+func (uc SchedulePostSendUseCase) Execute(
+	now time.Time,
+) (err AppError) {
+	messages, e := uc.repository.SendList(domain.NewMessageSendedAt(now))
+	if e != nil {
+		return NewByError(e)
+	}
+
+	for _, entity := range messages {
+
+		// 配信状態にする
+		send, e := entity.Send(now)
+		if e != nil {
+			return NewByError(e)
+		}
+
+		// 配信状態のメッセージをディスコードで配信
+		e = uc.adapter.SendMessage(entity.Bot(), send.Message())
+		if e != nil {
+			return NewByError(e)
+		}
+
+		// 配信状態の情報を保存
+		e = uc.repository.Update(entity)
+		if e != nil {
+			return NewByError(e)
+		}
+
+	}
+
+	return err
 }
