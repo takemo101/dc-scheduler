@@ -31,14 +31,14 @@ func NewSecurityToken(
 // Setup security token middleware
 func (m SecurityToken) Setup() {
 	m.logger.Info("setup security token")
-	m.app.App.Use(m.CreateHandler([]string{}))
+	m.app.App.Use(m.CreateHandler("token", []string{}))
 }
 
 // CreateHandler is create middleware handler
-func (m SecurityToken) CreateHandler(tokens []string) fiber.Handler {
+func (m SecurityToken) CreateHandler(key string, tokens []string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		response := m.value.GetResponseHelper(c)
-		token := c.Query("token", "")
+		token := c.Query(key, "")
 
 		for _, t := range tokens {
 			if token == t {

@@ -77,7 +77,7 @@ func (r ApiRoute) Setup() {
 			tokens[i] = t.(string)
 		}
 
-		message := api.Group("/message", r.security.CreateHandler(tokens))
+		message := api.Group("/message", r.security.CreateHandler("token", tokens))
 		{
 			message.Get("/schedule/send", r.schedulePostController.Send)
 		}

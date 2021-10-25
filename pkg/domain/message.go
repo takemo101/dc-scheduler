@@ -410,7 +410,7 @@ func (vo MessageReservationAt) After(now time.Time) bool {
 // --- SchedulePost Entity ---
 
 // MinuteIntervalTiming スケジューリングの分間隔
-const MinuteIntervalTiming int = 10 // 10分間隔のスケジューリング
+const MinuteIntervalTiming int = 5 // 10分間隔のスケジューリング
 
 // SchedulePost 予約配信メッセージEntity
 type SchedulePost struct {
