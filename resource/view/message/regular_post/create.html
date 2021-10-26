@@ -4,13 +4,13 @@
     {% include 'include/sidebar.html' with active_key=':message.create' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：予約配信' first_link=url('system/message/schedule') second_label='追加' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('system/message/regular') second_label='追加' %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-8">
 
-        <form method="post" action="{{ url('system/bot/%d/schedule/store', bot.id) }}" id="store">
+        <form method="post" action="{{ url('system/bot/%d/regular/store', bot.id) }}" id="store">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">基本設定</h3>
@@ -24,20 +24,8 @@
                 <div class="card-body">
                     {% include 'form/csrf.html' %}
 
-                    <div class="form-group">
-                        <label class="cursor-pointer required" for="reservation_at">
-                            配信予定日時
-                        </label>
-                        <input type="text" class="form-control datetimepicker-input {% if errors.reservation_at %}is-invalid{% endif %}" name="reservation_at" value="{{ inputs.reservation_at }}" id="reservation_at"
-                        data-target="#reservation_at" data-toggle="datetimepicker" required />
-                        {% if errors.reservation_at %}
-                            <div class="invalid-feedback d-block">
-                                {{ errors.reservation_at }}
-                            </div>
-                        {% endif %}
-                    </div>
-
                     {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
+                    {% include 'form/check.html' with name='active' id="active" label='配信をアクティブにする' value='1' input=inputs.active error=errors.active %}
                 </div>
             </div>
         </form>
@@ -85,18 +73,4 @@
 <button class="btn btn-primary px-5 " data-aire-component="button" type="submit" data-class="js-dialog" data-form="#store" data-type="store">
 	追加
 </button>
-{% endblock %}
-{% block footer_script %}
-<script>
-    $(() => {
-        $('#reservation_at').datetimepicker({
-            icons: { time: 'far fa-clock' },
-            locale: 'ja',
-            format: 'YYYY-MM-DD HH:mm',
-            defaultDate: new Date(),
-            minDate: new Date(),
-            stepping: 5,
-        });
-    });
-</script>
 {% endblock %}

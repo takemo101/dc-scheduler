@@ -28,6 +28,8 @@ type AdminRoute struct {
 	messageController   controller.PostMessageController
 	immediateController controller.ImmediatePostController
 	scheduleController  controller.SchedulePostController
+	regularController   controller.RegularPostController
+	timingController    controller.RegularTimingController
 }
 
 // NewAdminRoute コンストラクタ
@@ -49,6 +51,8 @@ func NewAdminRoute(
 	messageController controller.PostMessageController,
 	immediateController controller.ImmediatePostController,
 	scheduleController controller.SchedulePostController,
+	regularController controller.RegularPostController,
+	timingController controller.RegularTimingController,
 ) AdminRoute {
 	return AdminRoute{
 		logger:              logger,
@@ -68,6 +72,8 @@ func NewAdminRoute(
 		messageController:   messageController,
 		immediateController: immediateController,
 		scheduleController:  scheduleController,
+		regularController:   regularController,
+		timingController:    timingController,
 	}
 }
 
@@ -144,6 +150,9 @@ func (r AdminRoute) Setup() {
 
 				bot.Get("/:id/schedule/create", r.scheduleController.Create)
 				bot.Post("/:id/schedule/store", r.scheduleController.Store)
+
+				bot.Get("/:id/regular/create", r.regularController.Create)
+				bot.Post("/:id/regular/store", r.regularController.Store)
 			}
 			// message route
 			message := system.Group("/message")
@@ -154,6 +163,13 @@ func (r AdminRoute) Setup() {
 				message.Get("/schedule", r.scheduleController.Index)
 				message.Get("/schedule/:id/edit", r.scheduleController.Edit)
 				message.Put("/schedule/:id/update", r.scheduleController.Update)
+
+				message.Get("/regular", r.regularController.Index)
+				message.Get("/regular/:id/edit", r.regularController.Edit)
+				message.Put("/regular/:id/update", r.regularController.Update)
+				message.Get("/regular/:id/timing/edit", r.timingController.Edit)
+				message.Post("/regular/:id/timing/add", r.timingController.Add)
+				message.Delete("/regular/:id/timing/remove/:day_of_week/:hour_time", r.timingController.Remove)
 
 				message.Get("/history", r.messageController.History)
 				message.Delete("/:id/delete", r.messageController.Delete)

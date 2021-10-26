@@ -23,6 +23,7 @@
 
                 <div class="card-body">
                     {% include 'form/csrf.html' %}
+
                     {% include 'form/input.html' with name='name' type='text' id="name" label='ボット名' input=inputs.name error=errors.name required=true %}
                     {% include 'form/file.html' with name='avatar' type='text' id="avatar" label='アバター' input=inputs.avatar error=errors.avatar accept='image/*' required=false %}
                     {% include 'form/input.html' with name='webhook' type='text' id="webhook" label='DiscordウェブフックURL' input=inputs.webhook error=errors.webhook hint='※ ウェブフックURLはDiscordにログインして作成してください' placeholder='https://discordapp.com/api/webhooks/xxx/xxx' required=true %}

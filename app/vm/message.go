@@ -129,3 +129,53 @@ func ToSchedulePostDetailMap(
 		"updated_at":     dto.UpdatedAt,
 	}
 }
+
+// ToRegularPostIndexMap RegularPostのIndexデータ
+func ToRegularPostIndexMap(
+	dto application.RegularPostSearchPaginatorDTO,
+) helper.DataMap {
+	messages := make([]helper.DataMap, len(dto.RegularPosts))
+
+	for i, message := range dto.RegularPosts {
+		messages[i] = ToRegularPostDetailMap(message)
+	}
+
+	return helper.DataMap{
+		"regular_posts": messages,
+		"pagination":    helper.StructToJsonMap(&dto.Pagination),
+	}
+}
+
+// ToRegularPostDetailMap RegularPostのDetailデータ
+func ToRegularPostDetailMap(
+	dto application.RegularPostDetailDTO,
+) helper.DataMap {
+
+	timings := make([]helper.DataMap, len(dto.RegularTimings))
+	for i, tm := range dto.RegularTimings {
+		timings[i] = ToRegularTimingMap(tm)
+	}
+
+	return helper.DataMap{
+		"id":              dto.ID,
+		"message":         dto.Message,
+		"bot":             ToBotDetailMap(dto.Bot),
+		"active":          dto.Active,
+		"regular_timings": timings,
+		"created_at":      dto.CreatedAt,
+		"updated_at":      dto.UpdatedAt,
+	}
+}
+
+// ToRegularTimingMap RegularTimingのデータ
+func ToRegularTimingMap(
+	dto application.RegularTimingDTO,
+) helper.DataMap {
+	return helper.DataMap{
+		"id":               dto.ID,
+		"day_of_week":      dto.DayOfWeek,
+		"day_of_week_name": dto.DayOfWeek.Name(),
+		"hour_time":        dto.HourTime,
+		"hour_time_text":   dto.HourTime.Format("15:04"),
+	}
+}

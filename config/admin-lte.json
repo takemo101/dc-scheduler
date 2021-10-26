@@ -65,6 +65,11 @@
                             "key": ":message.index.schedule",
                             "name": "予約配信",
                             "path": "system/message/schedule"
+                        },
+                        {
+                            "key": ":message.index.regular",
+                            "name": "定期配信",
+                            "path": "system/message/regular"
                         }
                     ]
                 },

@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -92,7 +93,8 @@ func (repo ImmediatePostRepository) Store(entity domain.ImmediatePost) (vo domai
 	model.Message = entity.Message().Value()
 	model.MessageType = entity.MessageType()
 	model.BotID = entity.Bot().ID().Value()
-	model.Sended = entity.IsSended()
+	model.Sended = sql.NullBool{Bool: entity.IsSended(), Valid: true}
+	model.Active = sql.NullBool{Bool: entity.IsSended(), Valid: true}
 
 	err = repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
 		// 一旦モデルを保存
@@ -129,7 +131,7 @@ func (repo ImmediatePostRepository) Store(entity domain.ImmediatePost) (vo domai
 func (repo ImmediatePostRepository) FindByID(id domain.PostMessageID) (entity domain.ImmediatePost, err error) {
 	model := PostMessage{}
 
-	if err = repo.db.GormDB.Where("id = ?", id.Value()).Preload("Bot").First(&model).Error; err != nil {
+	if err = repo.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeImmediatePost).Preload("Bot").First(&model).Error; err != nil {
 		return entity, err
 	}
 
@@ -143,7 +145,7 @@ func CreateImmediatePostEntityFromModel(model PostMessage) domain.ImmediatePost 
 		model.Message,
 		CreateBotEntityFromModel(model.Bot),
 		[]domain.SentMessage{},
-		model.Sended,
+		model.Sended.Bool,
 	)
 }
 
@@ -173,7 +175,7 @@ func NewSchedulePostRepository(
 func (repo SchedulePostRepository) SendList(at domain.MessageSendedAt) ([]domain.SchedulePost, error) {
 	models := []PostMessage{}
 
-	if err := repo.db.GormDB.Where("message_type = ? AND sended = ? AND reservation_at <= ? AND active = ?", domain.MessageTypeSchedulePost, false, at.Value(), true).Joins("Bot").Joins("ScheduleTiming").Find(&models).Error; err != nil {
+	if err := repo.db.GormDB.Where("message_type = ? AND sended = ? AND reservation_at <= ? AND post_messages.active = ?", domain.MessageTypeSchedulePost, false, at.Value(), true).Joins("Bot").Joins("ScheduleTiming").Find(&models).Error; err != nil {
 		return []domain.SchedulePost{}, err
 	}
 
@@ -193,6 +195,8 @@ func (repo SchedulePostRepository) Store(entity domain.SchedulePost) (vo domain.
 	model.Message = entity.Message().Value()
 	model.MessageType = entity.MessageType()
 	model.BotID = entity.Bot().ID().Value()
+	model.Sended = sql.NullBool{Bool: entity.IsSended(), Valid: true}
+	model.Active = sql.NullBool{Bool: true, Valid: true}
 
 	err = repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
 		// 一旦モデルを保存
@@ -234,7 +238,7 @@ func (repo SchedulePostRepository) Update(entity domain.SchedulePost) error {
 		PostMessageID: entity.ID().Value(),
 		ReservationAt: entity.ReservationAt().Value(),
 	}
-	model.Sended = entity.IsSended()
+	model.Sended = sql.NullBool{Bool: entity.IsSended(), Valid: true}
 
 	err := repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
 		err = repo.db.GormDB.Where("post_message_id = ?", entity.ID().Value()).Delete(&ScheduleTiming{}).Error
@@ -264,14 +268,14 @@ func (repo SchedulePostRepository) Update(entity domain.SchedulePost) error {
 func (repo SchedulePostRepository) FindByID(id domain.PostMessageID) (entity domain.SchedulePost, err error) {
 	model := PostMessage{}
 
-	if err = repo.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+	if err = repo.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).First(&model).Error; err != nil {
 		return entity, err
 	}
 
 	return CreateSchedulePostEntityFromModel(model), err
 }
 
-// CreateBotEntityFromModel BotからEntityを生成する
+// CreateSchedulePostEntityFromModel PostMessageからEntityを生成する
 func CreateSchedulePostEntityFromModel(model PostMessage) domain.SchedulePost {
 	return domain.NewSchedulePost(
 		model.ID,
@@ -279,7 +283,7 @@ func CreateSchedulePostEntityFromModel(model PostMessage) domain.SchedulePost {
 		model.ScheduleTiming.ReservationAt,
 		CreateBotEntityFromModel(model.Bot),
 		[]domain.SentMessage{},
-		model.Sended,
+		model.Sended.Bool,
 	)
 }
 
@@ -373,7 +377,9 @@ type PostMessage struct {
 	Bot            Bot                `gorm:"constraint:OnDelete:CASCADE;"`
 	SentMessages   []SentMessage      `gorm:"constraint:OnDelete:CASCADE;"`
 	ScheduleTiming ScheduleTiming     `gorm:"constraint:OnDelete:CASCADE;"`
-	Sended         bool               `gorm:"index"`
+	RegularTimings []RegularTiming    `gorm:"constraint:OnDelete:CASCADE;"`
+	Sended         sql.NullBool       `gorm:"type:boolean;index"`
+	Active         sql.NullBool       `gorm:"type:boolean;index"`
 }
 
 // --- SentMessage ---

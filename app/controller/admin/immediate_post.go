@@ -16,7 +16,6 @@ import (
 type ImmediatePostController struct {
 	value             support.ContextValue
 	toastr            support.ToastrMessage
-	config            core.Config
 	sessionStore      core.SessionStore
 	searchUseCase     application.ImmediatePostSearchUseCase
 	createFormUseCase application.PostMessageCreateFormUseCase
@@ -27,7 +26,6 @@ type ImmediatePostController struct {
 func NewImmediatePostController(
 	value support.ContextValue,
 	toastr support.ToastrMessage,
-	config core.Config,
 	sessionStore core.SessionStore,
 	searchUseCase application.ImmediatePostSearchUseCase,
 	createFormUseCase application.PostMessageCreateFormUseCase,
@@ -36,7 +34,6 @@ func NewImmediatePostController(
 	return ImmediatePostController{
 		value,
 		toastr,
-		config,
 		sessionStore,
 		searchUseCase,
 		createFormUseCase,

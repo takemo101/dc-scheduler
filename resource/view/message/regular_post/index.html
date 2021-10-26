@@ -1,10 +1,10 @@
 {% extends 'layout/default.html' %}
-{% block title %}ボット｜{% endblock %}
+{% block title %}配信メッセージ｜{% endblock %}
 {% block content_side %}
-    {% include 'include/sidebar.html' with active_key=':bot.index' %}
+    {% include 'include/sidebar.html' with active_key=':message.index.regular' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='ボット' function='FUNCTION' first_label='ボット' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' %}
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -37,24 +37,35 @@
                                 更新日時
                             </th>
                             <th>
-                                ボット名 [アクティブ状態]
+                                対象ボット<br/>
+                                配信タイミング [アクティブ状態]
+                            </th>
+                            <th>
+                                メッセージ内容
                             </th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for bot in bots %}
+                        {% for message in regular_posts %}
                         <tr>
-                            <td>{{ bot.id }}</td>
+                            <td>{{ message.id }}</td>
                             <td>
                                 <small>
-                                    {{ bot.created_at|date:'2006.01.02 15:04' }}<br/>
-                                    {{ bot.updated_at|date:'2006.01.02 15:04' }}
+                                    {{ message.created_at|date:'2006.01.02 15:04' }}<br/>
+                                    {{ message.updated_at|date:'2006.01.02 15:04' }}
                                 </small>
                             </td>
                             <td>
-                                {{ bot.name }}
-                                {% if bot.active %}
+                                <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
+                                    {{ message.bot.name }}
+                                </a><br/>
+                                {% if message.regular_timings|length %}
+                                {{ message.regular_timings|length }}タイミング
+                                {% else %}
+                                タイミングは追加されてません
+                                {% endif %}
+                                {% if message.active %}
                                 <span class="badge badge-primary">
                                     有効
                                 </span>
@@ -65,29 +76,22 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if bot.active %}
-                                <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/immediate/create', bot.id) }}">
-                                    <i class="fas fa-paper-plane">
+                                <small>{{ nl2br(message.message|escape) }}</small>
+                            </td>
+                            <td>
+                                <a class="btn btn-success btn-sm" href="{{ url('system/message/regular/%d/timing/edit', message.id) }}">
+                                    <i class="fas fa-clock">
                                     </i>
                                 </a>
-                                <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/schedule/create', bot.id) }}">
-                                    <i class="fas fa-stopwatch">
-                                    </i>
-                                </a>
-                                <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/regular/create', bot.id) }}">
-                                    <i class="fas fa-calendar-alt">
-                                    </i>
-                                </a>
-                                {% endif %}
-                                <a class="btn btn-info btn-sm" href="{{ url('system/bot/%d/edit', bot.id) }}">
+                                <a class="btn btn-info btn-sm" href="{{ url('system/message/regular/%d/edit', message.id) }}">
                                     <i class="fas fa-pencil-alt">
                                     </i>
                                 </a>
-                                <button data-class="js-dialog" data-type="delete" data-form="#{{ bot.id|stringformat:'delete-%d' }}" class="btn btn-danger btn-sm" name="submit">
+                                <button data-class="js-dialog" data-type="delete" data-form="#{{ message.id|stringformat:'delete-%d' }}" class="btn btn-danger btn-sm" name="submit">
                                     <i class="fas fa-trash">
                                     </i>
                                 </button>
-                                <form action="{{ url('system/bot/%d/delete', bot.id) }}" method="post" id="{{ bot.id|stringformat:'delete-%d' }}">
+                                <form action="{{ url('system/message/%d/delete', message.id) }}" method="post" id="{{ message.id|stringformat:'delete-%d' }}">
                                     {% include 'form/csrf.html' %}
                                     {% include 'form/method.html' with method='delete' %}
                                 </form>

@@ -12,13 +12,13 @@ import (
 
 // ApiRoute is struct
 type ApiRoute struct {
-	logger                 core.Logger
-	app                    core.Application
-	cors                   middleware.Cors
-	basicAuth              middleware.BasicAuth
-	value                  support.ContextValue
-	security               middleware.SecurityToken
-	schedulePostController controller.SchedulePostApiController
+	logger            core.Logger
+	app               core.Application
+	cors              middleware.Cors
+	basicAuth         middleware.BasicAuth
+	value             support.ContextValue
+	security          middleware.SecurityToken
+	messageController controller.PostMessageApiController
 }
 
 // NewApiRoute create new web route
@@ -29,16 +29,16 @@ func NewApiRoute(
 	security middleware.SecurityToken,
 	basicAuth middleware.BasicAuth,
 	value support.ContextValue,
-	schedulePostController controller.SchedulePostApiController,
+	messageController controller.PostMessageApiController,
 ) ApiRoute {
 	return ApiRoute{
-		logger:                 logger,
-		app:                    app,
-		cors:                   cors,
-		basicAuth:              basicAuth,
-		value:                  value,
-		schedulePostController: schedulePostController,
-		security:               security,
+		logger:            logger,
+		app:               app,
+		cors:              cors,
+		basicAuth:         basicAuth,
+		value:             value,
+		messageController: messageController,
+		security:          security,
 	}
 }
 
@@ -79,7 +79,7 @@ func (r ApiRoute) Setup() {
 
 		message := api.Group("/message", r.security.CreateHandler("token", tokens))
 		{
-			message.Get("/schedule/send", r.schedulePostController.Send)
+			message.Get("/send", r.messageController.Send)
 		}
 	}
 }

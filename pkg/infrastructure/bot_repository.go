@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -96,7 +97,7 @@ func (repo BotRepository) Store(entity domain.Bot) (vo domain.BotID, err error) 
 	model.Name = entity.Name().Value()
 	model.Atatar = entity.Atatar().Value()
 	model.Webhook = entity.Webhook().Value()
-	model.Active = entity.IsActive()
+	model.Active = sql.NullBool{Bool: entity.IsActive(), Valid: true}
 
 	if err = repo.db.GormDB.Create(&model).Error; err != nil {
 		return vo, err
@@ -115,7 +116,7 @@ func (repo BotRepository) Update(entity domain.Bot) error {
 		model.Atatar = entity.Atatar().Value()
 	}
 	model.Webhook = entity.Webhook().Value()
-	model.Active = entity.IsActive()
+	model.Active = sql.NullBool{Bool: entity.IsActive(), Valid: true}
 
 	return repo.db.GormDB.Updates(&model).Error
 }
@@ -175,7 +176,7 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 		model.Name,
 		model.Atatar,
 		model.Webhook,
-		model.Active,
+		model.Active.Bool,
 	)
 }
 
@@ -243,8 +244,8 @@ type WebhookCheckResponse struct {
 // Bot Gormモデル
 type Bot struct {
 	gorm.Model
-	Name    string `gorm:"type:varchar(191);index;not null"`
-	Atatar  string `gorm:"type:varchar(191);index"`
-	Webhook string `gorm:"type:text"`
-	Active  bool   `gorm:"index"`
+	Name    string       `gorm:"type:varchar(191);index;not null"`
+	Atatar  string       `gorm:"type:varchar(191);index"`
+	Webhook string       `gorm:"type:text"`
+	Active  sql.NullBool `gorm:"type:boolean;index"`
 }

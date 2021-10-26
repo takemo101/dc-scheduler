@@ -17,6 +17,9 @@ var Module = fx.Options(
 	fx.Provide(admin.NewPostMessageController),
 	fx.Provide(admin.NewImmediatePostController),
 	fx.Provide(admin.NewSchedulePostController),
+	fx.Provide(admin.NewRegularPostController),
+	fx.Provide(admin.NewRegularTimingController),
+
 	// api controller
-	fx.Provide(api.NewSchedulePostApiController),
+	fx.Provide(api.NewPostMessageApiController),
 )

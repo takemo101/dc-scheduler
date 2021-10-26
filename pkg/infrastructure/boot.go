@@ -5,27 +5,29 @@ import (
 )
 
 var Module = fx.Options(
-	// admin
+	// Admin
 	fx.Provide(NewAdminAuthContext),
 	fx.Provide(NewAdminRepository),
 	fx.Provide(NewAdminQuery),
 
-	// bot
+	// Bot
 	fx.Provide(NewBotAtatarImageRepository),
 	fx.Provide(NewBotRepository),
 	fx.Provide(NewBotQuery),
 	fx.Provide(NewDiscordWebhookCheckAdapter),
 
-	// message
+	// Message
 	fx.Provide(NewPostMessageRepository),
 	fx.Provide(NewImmediatePostRepository),
 	fx.Provide(NewSchedulePostRepository),
+	fx.Provide(NewRegularPostRepository),
 	fx.Provide(NewPostMessageQuery),
 	fx.Provide(NewSentMessageQuery),
 	fx.Provide(NewImmediatePostQuery),
 	fx.Provide(NewSchedulePostQuery),
+	fx.Provide(NewRegularPostQuery),
 	fx.Provide(NewDiscordMessageAdapter),
 
-	// adapter
+	// Adapter
 	fx.Provide(NewPublicStorageUploadAdapter),
 )

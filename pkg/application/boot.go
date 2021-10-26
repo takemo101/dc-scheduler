@@ -15,12 +15,14 @@ var Module = fx.Options(
 	fx.Provide(NewMyAccountUpdateUseCase),
 	fx.Provide(NewAdminLoginUseCase),
 	fx.Provide(NewAdminLogoutUseCase),
+
 	// --- Bot UseCase ---
 	fx.Provide(NewBotStoreUseCase),
 	fx.Provide(NewBotUpdateUseCase),
 	fx.Provide(NewBotDeleteUseCase),
 	fx.Provide(NewBotDetailUseCase),
 	fx.Provide(NewBotSearchUseCase),
+
 	// --- Message UseCase ---
 	fx.Provide(NewPostMessageSearchUseCase),
 	fx.Provide(NewPostMessageCreateFormUseCase),
@@ -33,4 +35,11 @@ var Module = fx.Options(
 	fx.Provide(NewSchedulePostEditFormUseCase),
 	fx.Provide(NewSchedulePostUpdateUseCase),
 	fx.Provide(NewSchedulePostSendUseCase),
+	fx.Provide(NewRegularPostSearchUseCase),
+	fx.Provide(NewRegularPostStoreUseCase),
+	fx.Provide(NewRegularPostEditFormUseCase),
+	fx.Provide(NewRegularPostUpdateUseCase),
+	fx.Provide(NewRegularTimingAddUseCase),
+	fx.Provide(NewRegularTimingRemoveUseCase),
+	fx.Provide(NewRegularPostSendUseCase),
 )

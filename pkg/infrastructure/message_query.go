@@ -272,7 +272,7 @@ func (query SchedulePostQuery) Search(parameter application.SchedulePostSearchPa
 func (query SchedulePostQuery) FindByID(id domain.PostMessageID) (dto application.SchedulePostDetailDTO, err error) {
 	model := PostMessage{}
 
-	if err = query.db.GormDB.Where("id = ?", id.Value()).Preload("ScheduleTiming").Preload("Bot").First(&model).Error; err != nil {
+	if err = query.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).Preload("ScheduleTiming").Preload("Bot").First(&model).Error; err != nil {
 		return dto, err
 	}
 
@@ -290,7 +290,7 @@ func CreateSchedulePostDetailDTOFromModel(
 		ID:            model.ID,
 		Message:       model.Message,
 		Bot:           CreateBotDetailDTOFromModel(upload, bot),
-		IsSended:      model.Sended,
+		IsSended:      model.Sended.Bool,
 		ReservationAt: model.ScheduleTiming.ReservationAt,
 		CreatedAt:     model.CreatedAt,
 		UpdatedAt:     model.UpdatedAt,

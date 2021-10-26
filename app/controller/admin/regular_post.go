@@ -12,30 +12,34 @@ import (
 	"github.com/takemo101/dc-scheduler/pkg/application"
 )
 
-// SchedulePostController 即時配信コントローラ
-type SchedulePostController struct {
+// RegularPostController 即時配信コントローラ
+type RegularPostController struct {
 	value             support.ContextValue
 	toastr            support.ToastrMessage
 	sessionStore      core.SessionStore
-	searchUseCase     application.SchedulePostSearchUseCase
+	searchUseCase     application.RegularPostSearchUseCase
 	createFormUseCase application.PostMessageCreateFormUseCase
-	storeUseCase      application.SchedulePostStoreUseCase
-	editFormUseCase   application.SchedulePostEditFormUseCase
-	updateUseCase     application.SchedulePostUpdateUseCase
+	storeUseCase      application.RegularPostStoreUseCase
+	editFormUseCase   application.RegularPostEditFormUseCase
+	updateUseCase     application.RegularPostUpdateUseCase
+	addUseCase        application.RegularTimingAddUseCase
+	removeUseCase     application.RegularTimingRemoveUseCase
 }
 
-// NewSchedulePostController コンストラクタ
-func NewSchedulePostController(
+// NewRegularPostController コンストラクタ
+func NewRegularPostController(
 	value support.ContextValue,
 	toastr support.ToastrMessage,
 	sessionStore core.SessionStore,
-	searchUseCase application.SchedulePostSearchUseCase,
+	searchUseCase application.RegularPostSearchUseCase,
 	createFormUseCase application.PostMessageCreateFormUseCase,
-	storeUseCase application.SchedulePostStoreUseCase,
-	editFormUseCase application.SchedulePostEditFormUseCase,
-	updateUseCase application.SchedulePostUpdateUseCase,
-) SchedulePostController {
-	return SchedulePostController{
+	storeUseCase application.RegularPostStoreUseCase,
+	editFormUseCase application.RegularPostEditFormUseCase,
+	updateUseCase application.RegularPostUpdateUseCase,
+	addUseCase application.RegularTimingAddUseCase,
+	removeUseCase application.RegularTimingRemoveUseCase,
+) RegularPostController {
+	return RegularPostController{
 		value,
 		toastr,
 		sessionStore,
@@ -44,11 +48,13 @@ func NewSchedulePostController(
 		storeUseCase,
 		editFormUseCase,
 		updateUseCase,
+		addUseCase,
+		removeUseCase,
 	}
 }
 
 // Index 一覧表示
-func (ctl SchedulePostController) Index(c *fiber.Ctx) (err error) {
+func (ctl RegularPostController) Index(c *fiber.Ctx) (err error) {
 	var form form.PostMessageSearch
 	response := ctl.value.GetResponseHelper(c)
 
@@ -57,7 +63,7 @@ func (ctl SchedulePostController) Index(c *fiber.Ctx) (err error) {
 	}
 
 	dto, appError := ctl.searchUseCase.Execute(
-		application.SchedulePostSearchInput{
+		application.RegularPostSearchInput{
 			Page:  form.Page,
 			Limit: 20,
 		},
@@ -68,11 +74,11 @@ func (ctl SchedulePostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
+	return response.View("message/regular_post/index", helper.DataMap(vm.ToRegularPostIndexMap(dto)))
 }
 
 // Create 追加フォーム
-func (ctl SchedulePostController) Create(c *fiber.Ctx) error {
+func (ctl RegularPostController) Create(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -88,15 +94,15 @@ func (ctl SchedulePostController) Create(c *fiber.Ctx) error {
 		return response.Error(appError)
 	}
 
-	return response.View("message/schedule_post/create", helper.DataMap{
+	return response.View("message/regular_post/create", helper.DataMap{
 		"content_footer": true,
 		"bot":            vm.ToBotDetailMap(dto),
 	})
 }
 
 // Store 追加処理
-func (ctl SchedulePostController) Store(c *fiber.Ctx) (err error) {
-	var form form.SchedulePostCreateAndUpdate
+func (ctl RegularPostController) Store(c *fiber.Ctx) (err error) {
+	var form form.RegularPostCreateAndUpdate
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -121,9 +127,9 @@ func (ctl SchedulePostController) Store(c *fiber.Ctx) (err error) {
 		return response.Back(c)
 	}
 
-	_, appError := ctl.storeUseCase.Execute(uint(id), application.SchedulePostStoreInput{
-		Message:       form.Message,
-		ReservationAt: form.ReservationAtToTime(),
+	_, appError := ctl.storeUseCase.Execute(uint(id), application.RegularPostStoreInput{
+		Message: form.Message,
+		Active:  form.ActiveToBool(),
 	})
 	if appError != nil && appError.HasError() {
 		if appError.HaveType(application.NotFoundDataError) {
@@ -138,11 +144,11 @@ func (ctl SchedulePostController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/message/schedule")
+	return response.Redirect(c, "system/message/regular")
 }
 
 // Edit 編集フォーム
-func (ctl SchedulePostController) Edit(c *fiber.Ctx) (err error) {
+func (ctl RegularPostController) Edit(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -158,15 +164,15 @@ func (ctl SchedulePostController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("message/schedule_post/edit", helper.DataMap{
+	return response.View("message/regular_post/edit", helper.DataMap{
 		"content_footer": true,
-		"schedule_post":  vm.ToSchedulePostDetailMap(dto),
+		"regular_post":   vm.ToRegularPostDetailMap(dto),
 	})
 }
 
 // Update 更新処理
-func (ctl SchedulePostController) Update(c *fiber.Ctx) (err error) {
-	var form form.SchedulePostCreateAndUpdate
+func (ctl RegularPostController) Update(c *fiber.Ctx) (err error) {
+	var form form.RegularPostCreateAndUpdate
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -191,9 +197,9 @@ func (ctl SchedulePostController) Update(c *fiber.Ctx) (err error) {
 		return response.Back(c)
 	}
 
-	if appError := ctl.updateUseCase.Execute(uint(id), application.SchedulePostUpdateInput{
-		Message:       form.Message,
-		ReservationAt: form.ReservationAtToTime(),
+	if appError := ctl.updateUseCase.Execute(uint(id), application.RegularPostUpdateInput{
+		Message: form.Message,
+		Active:  form.ActiveToBool(),
 	}); appError != nil && appError.HasError() {
 		return response.Error(appError)
 	}

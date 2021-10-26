@@ -81,7 +81,7 @@ func CreateBotDetailDTOFromModel(
 		AtatarURL:  avatarURL,
 		AtatarPath: avatarPath,
 		Webhook:    model.Webhook,
-		Active:     model.Active,
+		Active:     model.Active.Bool,
 		CreatedAt:  model.CreatedAt,
 		UpdatedAt:  model.UpdatedAt,
 	}

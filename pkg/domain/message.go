@@ -129,7 +129,7 @@ func NewMessageSendedAt(at time.Time) MessageSendedAt {
 		at.Month(),
 		at.Day(),
 		at.Hour(),
-		(at.Minute()/MinuteIntervalTiming)*MinuteIntervalTiming,
+		TimeToIntervalMinute(at),
 		0,
 		0,
 		at.Location(),
@@ -164,6 +164,10 @@ func SendMessage(
 		message:  messageVO,
 		sendedAt: sendedAtVO,
 	}, err
+}
+
+func (entity SentMessage) ID() UUID {
+	return entity.id
 }
 
 func (entity SentMessage) Message() Message {
@@ -347,6 +351,9 @@ func CreateImmediatePost(
 		MessageTypeImmediatePost,
 		bot,
 	)
+	if err != nil {
+		return entity, err
+	}
 
 	return ImmediatePost{
 		PostMessage: postMessage,
@@ -386,7 +393,7 @@ func NewMessageReservationAt(at time.Time, now time.Time) (vo MessageReservation
 			at.Month(),
 			at.Day(),
 			at.Hour(),
-			(at.Minute()/MinuteIntervalTiming)*MinuteIntervalTiming,
+			TimeToIntervalMinute(at),
 			0,
 			0,
 			at.Location(),
@@ -404,13 +411,17 @@ func (vo MessageReservationAt) Value() time.Time {
 
 // After 予約日時以降か
 func (vo MessageReservationAt) After(now time.Time) bool {
-	return !vo.Value().After(now)
+	return !now.Before(vo.Value())
 }
 
 // --- SchedulePost Entity ---
 
 // MinuteIntervalTiming スケジューリングの分間隔
 const MinuteIntervalTiming int = 5 // 10分間隔のスケジューリング
+
+func TimeToIntervalMinute(at time.Time) int {
+	return (at.Minute() / MinuteIntervalTiming) * MinuteIntervalTiming
+}
 
 // SchedulePost 予約配信メッセージEntity
 type SchedulePost struct {
@@ -455,6 +466,9 @@ func CreateSchedulePost(
 		MessageTypeSchedulePost,
 		bot,
 	)
+	if err != nil {
+		return entity, err
+	}
 
 	reservationAtVO, err := NewMessageReservationAt(reservationAt, now)
 	if err != nil {
