@@ -7,8 +7,54 @@
     {% include 'include/header.html' with title='ダッシュボード' %}
 {% endblock %}
 {% block content %}
-<div class="card-columns card-columns--many" id="panel">
 
+<div class="card">
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <p class="text-muted">
+                        以下のステップにしたがってDiscordボットでメッセージを配信しましょう！
+                    </p>
+                </div>
+                <div class="col-12 col-sm-4">
+                    <h6>Step1 ボット情報の追加</h6>
+                    <p>
+                        <small>
+                            ボット情報を追加する前に、まずはDiscordアプリからウェブフックURLを取得してください。<br>
+                            URLを取得したら、サイドメニューの「ボット ＞ 追加」から、ウェブフックURLなどのボット情報を追加してください。
+                        </small>
+                    </p>
+                </div>
+                <div class="col-12 col-sm-4">
+                    <h6>Step2 メッセージの追加</h6>
+                    <p>
+                        <small>
+                            ボットを追加したら、サイドメニューの「ボット ＞ 検索」からボットリストページを開き、対象ボットに並んでいるボタンから配信メッセージを追加してください。<br>
+                            メッセージの配信方法は「即時配信・予約配信・定期配信」の三つのいづれかで配信でき、定期配信でメッセージを追加した場合は、更に配信タイミングを追加する必要があります。<br/>
+                        </small>
+                    </p>
+                </div>
+                <div class="col-12 col-sm-4">
+                    <h6>Step3 スケジューラの設定</h6>
+                    <p>
+                        <small>
+                            予約配信と定期配信につきましては、定期的にアプリのAPIにアクセスするための設定が必要があります。<br/>
+                            スケジューラにつきましては、クロンでも良いですが、GoogleCloudSchedulerを利用することをおすすめします。<br/>
+                            以下のAPIエンドポイントに5分おきにアクセスする設定を行ってください。<br/>
+                            <a href="{{ url("api/message/send?token=xxx-xxxx") }}">
+                                {{ url("api/message/send?token=xxx-xxxx") }}
+                            </a>
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- ./card-body -->
+
+    </div>
+
+<div class="card-columns card-columns--many" id="panel">
 
     <div class="card">
         <div class="card-header">
@@ -19,6 +65,7 @@
                 </button>
             </div>
         </div>
+        {% if sent_messages|length > 0 %}
         <div class="card-body p-0">
             <table class="table">
                 <thead>
@@ -49,8 +96,17 @@
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <div class="card-body">
+            <div class="alert alert-info alert-dismissible mb-0">
+                <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                配信されたメッセージはありません
+            </div>
+        </div>
+        {% endif %}
     </div>
 
+{% comment %}
     <div class="card">
         <div class="card-header">
             <h5 class="card-title">メール情報</h5>
@@ -99,6 +155,7 @@
             </table>
         </div>
     </div>
+{% endcomment %}
 
     <div class="card">
         <div class="card-header">
