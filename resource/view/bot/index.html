@@ -27,6 +27,7 @@
                 </div>
             </div>
             <!-- /.card-header -->
+            {% if bots|length > 0 %}
             <div class="card-body table-responsive p-0">
                 <table class="table table-condensed">
                     <thead>
@@ -70,6 +71,7 @@
                                     <i class="fas fa-paper-plane">
                                     </i>
                                 </a>
+                                {% endif %}
                                 <a class="btn btn-success btn-sm" href="{{ url('system/bot/%d/schedule/create', bot.id) }}">
                                     <i class="fas fa-stopwatch">
                                     </i>
@@ -78,7 +80,6 @@
                                     <i class="fas fa-calendar-alt">
                                     </i>
                                 </a>
-                                {% endif %}
                                 <a class="btn btn-info btn-sm" href="{{ url('system/bot/%d/edit', bot.id) }}">
                                     <i class="fas fa-pencil-alt">
                                     </i>
@@ -99,6 +100,14 @@
             </div>
             <!-- /.card-body -->
             {% include 'pagination/default.html' %}
+            {% else %}
+            <div class="card-body">
+                <div class="alert alert-info alert-dismissible mb-0">
+                    <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                    その条件のリストはありません
+                </div>
+            </div>
+            {% endif %}
         </div>
         <!-- /.card -->
 

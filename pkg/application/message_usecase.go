@@ -76,13 +76,6 @@ func (uc PostMessageCreateFormUseCase) Execute(botID uint) (detail BotDetailDTO,
 		return detail, NewError(NotFoundDataError)
 	}
 
-	entity, e := uc.repository.FindByID(findID)
-	if e != nil {
-		return detail, NewByError(e)
-	} else if !entity.IsActive() {
-		return detail, NewError(NotFoundDataError)
-	}
-
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
 		return detail, NewByError(e)

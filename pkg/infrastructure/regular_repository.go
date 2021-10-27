@@ -148,7 +148,7 @@ func CreateRegularPostEntityFromModel(model PostMessage) domain.RegularPost {
 // RegularTiming Gormモデル
 type RegularTiming struct {
 	ID            uint             `gorm:"primarykey"`
-	PostMessageID uint             `gorm:"index;not null"`
+	PostMessageID uint             `gorm:"index;not null;constraint:OnDelete:CASCADE;"`
 	DayOfWeek     domain.DayOfWeek `gorm:"type:varchar(30);index"`
 	HourTime      time.Time        `gorm:"type:time;index"`
 }

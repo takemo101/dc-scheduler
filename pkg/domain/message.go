@@ -215,9 +215,6 @@ func CreatePostMessage(
 	messageType MessageType,
 	bot Bot,
 ) (entity PostMessage, err error) {
-	if !bot.IsActive() {
-		return entity, errors.New("Botが無効となっています")
-	}
 
 	idVO, err := NewPostMessageID(id)
 	if err != nil {
@@ -345,6 +342,10 @@ func CreateImmediatePost(
 	message string,
 	bot Bot,
 ) (entity ImmediatePost, err error) {
+	if !bot.IsActive() {
+		return entity, errors.New("Botが無効となっています")
+	}
+
 	postMessage, err := CreatePostMessage(
 		id,
 		message,

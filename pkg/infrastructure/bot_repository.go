@@ -134,7 +134,7 @@ func (repo BotRepository) FindByID(id domain.BotID) (entity domain.Bot, err erro
 
 // Delete BotIDからBotを削除する
 func (repo BotRepository) Delete(id domain.BotID) error {
-	return repo.db.GormDB.Where("id = ?", id.Value()).Delete(&Bot{}).Error
+	return repo.db.GormDB.Where("id = ?", id.Value()).Unscoped().Delete(&Bot{}).Error
 }
 
 // ExistsByWebhook BotDiscordWebhooklが重複しているBotがあるか

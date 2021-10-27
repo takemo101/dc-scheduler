@@ -22,8 +22,15 @@
                 </div>
 
                 <div class="card-body">
+                    {% if bot.active %}
                     {% include 'form/csrf.html' %}
                     {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
+                    {% else %}
+                    <div class="alert alert-warning alert-dismissible mb-0">
+                        <h5><i class="icon fas fa-exclamation-triangle"></i> Attention</h5>
+                        ボットが無効の状態なので、即時配信メッセージを追加することはできません
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </form>

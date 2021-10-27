@@ -92,6 +92,7 @@
                     </button>
                 </div>
             </div>
+            {% if regular_post.regular_timings|length > 0 %}
             <div class="card-body p-0">
                 <table class="table">
                     <thead>
@@ -127,6 +128,14 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="card-body">
+                <div class="alert alert-info alert-dismissible mb-0">
+                    <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                    配信タイミングを追加してください
+                </div>
+            </div>
+            {% endif %}
         </div>
 
     </div>

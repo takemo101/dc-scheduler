@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -127,7 +128,7 @@ func (ctl RegularPostController) Store(c *fiber.Ctx) (err error) {
 		return response.Back(c)
 	}
 
-	_, appError := ctl.storeUseCase.Execute(uint(id), application.RegularPostStoreInput{
+	storeID, appError := ctl.storeUseCase.Execute(uint(id), application.RegularPostStoreInput{
 		Message: form.Message,
 		Active:  form.ActiveToBool(),
 	})
@@ -144,7 +145,11 @@ func (ctl RegularPostController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/message/regular")
+
+	return response.Redirect(
+		c,
+		fmt.Sprintf("system/message/regular/%d/timing/edit", storeID),
+	)
 }
 
 // Edit 編集フォーム

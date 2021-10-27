@@ -51,7 +51,20 @@ func (repo PostMessageRepository) SaveSendedMessage(
 
 // Delete PostMessageIDからPostMessageを削除する
 func (repo PostMessageRepository) Delete(id domain.PostMessageID) error {
-	return repo.db.GormDB.Where("id = ?", id.Value()).Delete(&PostMessage{}).Error
+
+	return repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("post_message_id = ?", id.Value()).Delete(&RegularTiming{}).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Where("post_message_id = ?", id.Value()).Delete(&ScheduleTiming{}).Error
+		if err != nil {
+			return err
+		}
+
+		return tx.Where("id = ?", id.Value()).Delete(&PostMessage{}).Error
+	})
 }
 
 // NextIdentity 次のIDを取得する
@@ -373,7 +386,7 @@ type PostMessage struct {
 	gorm.Model
 	Message        string             `gorm:"type:text;not null"`
 	MessageType    domain.MessageType `gorm:"type:varchar(30);index"`
-	BotID          uint               `gorm:"index;not null"`
+	BotID          uint               `gorm:"index;not null;constraint:OnDelete:CASCADE;"`
 	Bot            Bot                `gorm:"constraint:OnDelete:CASCADE;"`
 	SentMessages   []SentMessage      `gorm:"constraint:OnDelete:CASCADE;"`
 	ScheduleTiming ScheduleTiming     `gorm:"constraint:OnDelete:CASCADE;"`
