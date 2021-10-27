@@ -8,7 +8,7 @@ package domain {
             avatar: BotAtatar
             webhook: DiscordWebbook
             active : boolean
-            + {static} NewBot(id: int, name: string, avatar: string, webhook: string, active: boolean): Bot
+            + {static} CreateBot(id: int, name: string, avatar: string, webhook: string, active: boolean): Bot
             + Update(name: string, avatar: string, active: boolean)
             + ChangeActive(active: boolean)
             + IsActive(): boolean
@@ -26,9 +26,10 @@ package domain {
             message: Message
             messageType: MessageType
             sentMessages: SentMessage[]
-            + Send()
+            + Send(now: Datetime)
             + ChangeMessage(message: string)
-            + IsSent(): boolean
+            + HasSentMessage(): boolean
+            + CanSent(): boolean
         }
 
         enum MessageType {
@@ -40,17 +41,24 @@ package domain {
 
         class SchedulePost {
             reservationAt: ReservationAt
-            + {static} NewSchedulePost(id: int, message: string, reservationAt: Datetime, bot: Bot)
+            sended: boolean
+            + {static} CreateSchedulePost(id: int, message: string, reservationAt: Datetime, bot: Bot)
+            + IsSended(): boolean
+            + IsPassedReservationAt(now: Datetime): boolean
         }
 
         class RegularPost {
             timings: RegularTiming[]
+            active: boolean
             + {static} NewRegularPost(id: int, message: string, bot: Bot): PostMessage
             + AddTiming(dayOfWeek: string, time: Time)
+            + IsActive(): boolean
         }
 
         class ImmediatePost {
-            + {static} NewImmediatePost(id: int, message: string, bot: Bot): PostMessage
+            sended: boolean
+            + {static} CreateImmediatePost(id: int, message: string, bot: Bot): PostMessage
+            + IsSended(): boolean
         }
 
         class RegularTiming {
@@ -73,11 +81,12 @@ package domain {
         class SentMessage {
             message: Message
             sendedAt: SendedAt
-            + {static} NewSentMessage(message: string, sendedAt: Datetime): SendMessage
+            + {static} SendMessage(message: string, sendedAt: Datetime): SendMessage
         }
 
         class BotService {
             + IsDuplicate(bot: Bot): boolean
+            + IsDuplicateWithoutSelf(bot Bot): boolean
         }
 
         interface BotRepository {
@@ -86,22 +95,43 @@ package domain {
             + Update(bot: Bot)
             + Delete(id: BotID)
             + ExistsByWebhook(webhook: DiscordWebbook)
+            + ExistsByIDWebhook(id BotID, webhook: DiscordWebbook)
             + NextIdentity(): BotID
         }
 
         interface BotAtatarImageRepository {
-            + put(avatar: BotAtatar)
-            + toURL(path: string)
+            + Store(avatar: BotAtatarImage)
+            + Update(avatar: BotAtatarImage)
+            + Delete(avator: BotAvator)
         }
 
         interface PostMessageRepository {
-            + FindByID(id: PostMessageID): PostMessage
-            + SendRegularList(now: Datetime): PostMessage[]
-            + SendScheduleList(now: Datetime): PostMessage[]
-            + Store(postMessage PostMessage): PostMessageID
-            + Update(postMessage PostMessage)
             + Delete(id: PostMessageID)
             + NextIdentity(): PostMessageID
+        }
+
+        interface ImmediatePostRepository {
+            + Store(immediate ImmediatePost): PostMessageID
+            + Update(immediate ImmediatePost)
+            + FindByID(id: PostMessageID): ImmediatePost
+        }
+
+        interface SchedulePostRepository {
+            + SendList(at SendedAt)
+            + Store(schedule SchedulePost): PostMessageID
+            + Update(schedule SchedulePost)
+            + FindByID(id: PostMessageID): SchedulePost
+        }
+
+        interface RegularPostRepository {
+            + SendList(timing RegularTiming)
+            + Store(schedule RegularPost): PostMessageID
+            + Update(schedule RegularPost)
+            + FindByID(id: PostMessageID): RegularPost
+        }
+
+        interface DiscordWebhookCheckAdapter {
+            + Check(webhook: DiscordWebbook): boolean
         }
 
         interface DiscordMessageAdapter {
@@ -116,8 +146,10 @@ package domain {
             email: Email
             hashPassword: HashPassword
             role: AdminRole
-            + {static} NewAdmin(id: int, name: string, email: string, password string, role: string): Admin
+            + {static} CreateAdmin(id: int, name: string, email: string, password string, role: string): Admin
             + Update(name: string, email: string, password string, role: string)
+            + ComparePassword(plainPass: string): boolean
+            + CreateLoginAuth(admin Admin): AdminAuth
         }
 
         enum AdminRole {
@@ -126,23 +158,34 @@ package domain {
             + String(): string
         }
 
+        class AdminAuth {
+            id: AdminID
+            name: Name
+            email: Email
+            role: AdminRole
+            + {static} HaveRole(role: string): boolean
+        }
+
         class AdminService {
             + IsDuplicate(admin: Admin): boolean
+            + IsDuplicateWithoutSelf(admin: Admin): boolean
         }
 
         interface AdminRepository {
             + Store(admin: Admin): AdminID
             + Update(admin: Admin)
             + FindByID(id: AdminID): Admin
+            + FindByEmail(email Email): Admin
             + Delete(id: AdminID)
             + ExistsByEmail(email: Email): bool
+            + ExistsByIDEmail(id AdminID, email Email): bool
             + NextIdentity(): AdminID
         }
 
         interface AdminAuthContext {
-            + Login(admin: Admin)
+            + Login(auth: AdminAuth)
             + Logout()
-            + AdminID(): AdminID
+            + AdminAuth(): AdminAuth
             + IsLogin(): boolean
         }
     }
@@ -163,13 +206,21 @@ BotAtatarImageRepository -- BotAtatarImage
 BotAtatarImage -- Bot
 BotService -- BotRepository
 BotService -- Bot
+DiscordWebhookCheckAdapter -- Bot
 DiscordMessageAdapter -- Bot
 DiscordMessageAdapter -- PostMessage
 PostMessageRepository -- PostMessage
+ImmediatePostRepository --|> PostMessageRepository
+SchedulePostRepository --|> PostMessageRepository
+RegularPostRepository --|> PostMessageRepository
+ImmediatePostRepository -- ImmediatePost
+SchedulePostRepository -- SchedulePost
+RegularPostRepository -- RegularPost
+AdminAuth -- Admin
 AdminRepository -- Admin
 AdminService -- AdminRepository
-AdminService -- Admin
+AdminService -- AdminAuth
 
-AdminAuthContext -- Admin
+AdminAuthContext -- AdminAuth
 
 @enduml

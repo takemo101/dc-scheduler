@@ -32,7 +32,7 @@
                     {% if menu.menus %}
                         <ul class="nav nav-treeview">
                             {% for submenu in menu.menus %}
-                                <li class="nav-item {% if submenu.menus %}has-treeview{% endif %} {% if menu.key in active_key %}menu-open{% endif %}">
+                                <li class="nav-item {% if submenu.menus %}has-treeview{% endif %} {% if submenu.key in active_key %}menu-open{% endif %}">
                                     <a href="{{ url(submenu.path) }}" class="nav-link {% if submenu.key in active_key %}active{% endif %}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
