@@ -1,0 +1,76 @@
+{% extends 'layout/default.html' %}
+{% block title %}配信メッセージ｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':message.create' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('system/message/regular') second_label='追加' %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+
+        <form method="post" action="{{ url('system/bot/%d/regular/store', bot.id) }}" id="store">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% include 'form/csrf.html' %}
+
+                    {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
+                    {% include 'form/check.html' with name='active' id="active" label='配信をアクティブにする' value='1' input=inputs.active error=errors.active %}
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">対象ボット情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">ボット名</div>
+                    <div class="col-12 col-sm-9">
+                        <a href="{{ url('system/bot/%d/edit', bot.id) }}">
+                            {{ bot.name }}
+                        </a>
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">アバター</div>
+                    <div class="col-12 col-sm-9">
+                        {% if bot.avatar_url %}
+                            <img src="{{ bot.avatar_url }}" style="width:200px;">
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+{% block content_footer_right %}
+<button class="btn btn-primary px-5 " data-aire-component="button" type="submit" data-class="js-dialog" data-form="#store" data-type="store">
+	追加
+</button>
+{% endblock %}

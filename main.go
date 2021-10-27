@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"path"
+
 	"github.com/takemo101/dc-scheduler/app"
 	"github.com/takemo101/dc-scheduler/app/middleware"
 	"github.com/takemo101/dc-scheduler/app/route"
@@ -34,11 +37,16 @@ func NewAppBooter(
 }
 
 func main() {
+	current := os.Getenv("APP_CURRENT")
+	if current == "" {
+		current, _ = os.Getwd()
+	}
 
 	// boot gin application
 	boot.Run(
 		boot.AppOptions{
-			ConfigPath:           "config.yml",
+			ConfigPath:           path.Join(current, "config.yml"),
+			CurrentDirectory:     current,
 			AppBooterConstructor: NewAppBooter,
 			FXOption: fx.Options(
 				app.Module,

@@ -10,7 +10,8 @@ import (
 
 // AppOptions app boot options
 type AppOptions struct {
-	ConfigPath           contract.ConfigPath
+	ConfigPath           string
+	CurrentDirectory     string
 	AppBooterConstructor interface{}
 	FXOption             fx.Option
 }
@@ -54,7 +55,10 @@ func Run(options AppOptions) {
 		core.Module,
 		fx.Provide(
 			func() contract.ConfigPath {
-				return options.ConfigPath
+				return contract.ConfigPath(options.ConfigPath)
+			},
+			func() contract.CurrentDirectory {
+				return contract.CurrentDirectory(options.CurrentDirectory)
 			},
 			options.AppBooterConstructor,
 		),

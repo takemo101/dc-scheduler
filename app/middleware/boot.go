@@ -16,6 +16,7 @@ var Module = fx.Options(
 	fx.Provide(NewSessionAdminRole),
 	fx.Provide(NewViewRender),
 	fx.Provide(NewContextValueInit),
+	fx.Provide(NewSecurityToken),
 	fx.Provide(NewMiddleware),
 )
 

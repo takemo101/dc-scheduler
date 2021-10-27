@@ -33,7 +33,7 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 		query.db.GormDB,
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderBy},
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -43,12 +43,12 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 
 	dto.Pagination = paginator
 
-	Bots := make([]application.BotDetailDTO, len(models))
+	bots := make([]application.BotDetailDTO, len(models))
 	for i, m := range models {
-		Bots[i] = CreateBotDetailDTOFromModel(query.upload, m)
+		bots[i] = CreateBotDetailDTOFromModel(query.upload, m)
 	}
 
-	dto.Bots = Bots
+	dto.Bots = bots
 
 	return dto, err
 }
@@ -81,7 +81,7 @@ func CreateBotDetailDTOFromModel(
 		AtatarURL:  avatarURL,
 		AtatarPath: avatarPath,
 		Webhook:    model.Webhook,
-		Active:     model.Active,
+		Active:     model.Active.Bool,
 		CreatedAt:  model.CreatedAt,
 		UpdatedAt:  model.UpdatedAt,
 	}

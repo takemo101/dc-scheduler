@@ -2,6 +2,7 @@ package controller
 
 import (
 	admin "github.com/takemo101/dc-scheduler/app/controller/admin"
+	api "github.com/takemo101/dc-scheduler/app/controller/api"
 	"go.uber.org/fx"
 )
 
@@ -15,4 +16,10 @@ var Module = fx.Options(
 	fx.Provide(admin.NewBotController),
 	fx.Provide(admin.NewPostMessageController),
 	fx.Provide(admin.NewImmediatePostController),
+	fx.Provide(admin.NewSchedulePostController),
+	fx.Provide(admin.NewRegularPostController),
+	fx.Provide(admin.NewRegularTimingController),
+
+	// api controller
+	fx.Provide(api.NewPostMessageApiController),
 )

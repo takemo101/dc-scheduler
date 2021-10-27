@@ -18,6 +18,7 @@ object post_messages {
     # bot_id : fk
     * message : text
     * message_type : enum/string
+    * sended : bool
     * created_at
     * updated_at
 }
@@ -35,7 +36,7 @@ object regular_timings {
     --
     # post_message_id : fk
     * day_of_week : enum/string
-    * time : time
+    * hour_time : time
 }
 
 object schedule_timings {

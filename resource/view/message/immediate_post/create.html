@@ -1,10 +1,10 @@
 {% extends 'layout/default.html' %}
-{% block title %}ボット｜{% endblock %}
+{% block title %}配信メッセージ｜{% endblock %}
 {% block content_side %}
     {% include 'include/sidebar.html' with active_key=':message.create' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ' first_link=url('system/message') second_label='即時配信：追加' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：即時配信' first_link=url('system/message/immediate') second_label='追加' %}
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -22,8 +22,15 @@
                 </div>
 
                 <div class="card-body">
+                    {% if bot.active %}
                     {% include 'form/csrf.html' %}
                     {% include 'form/textarea.html' with name='message' id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
+                    {% else %}
+                    <div class="alert alert-warning alert-dismissible mb-0">
+                        <h5><i class="icon fas fa-exclamation-triangle"></i> Attention</h5>
+                        ボットが無効の状態なので、即時配信メッセージを追加することはできません
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </form>

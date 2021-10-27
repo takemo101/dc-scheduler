@@ -4,10 +4,10 @@ app:
   port: 8000
   url: "http://127.0.0.1:8000"
   version: "0.0.1"
-  env: "development"
+  env: "testing"
   secret: "secret"
-  debug: true
-  config: "./config"
+  debug: false
+  config: "../config"
 
 server:
   prefork: false
@@ -24,11 +24,15 @@ server:
     read: 4
     write: 4
 
+time:
+  zone: "Asia/Tokyo"
+  offset: 32400
+
 db:
   type: "sqlite"
   host: "localhost"
   protocol: "tcp"
-  name: "fiber.sqlite"
+  name: "../fiber.testing.sqlite?_foreign_keys=on"
   user: "root"
   pass: "root"
   port: 3306
@@ -38,15 +42,15 @@ db:
     max: 10
 
 log:
-  server: "./server.log"
+  server: "test.log"
 
 file:
   storage: "storage"
   public: "public"
-  current: "/home/fiber-app"
+  current: ""
 
 smtp:
-  host: "mailhog"
+  host: "127.0.0.1"
   port: 1025
   identity: ""
   user: ""
@@ -58,13 +62,13 @@ smtp:
 
 static:
   prefix: "static"
-  root: "./static"
+  root: "static"
   index: "index.html"
 
 template:
-  path: "./resource/view"
+  path: "resource/view"
   suffix: ".html"
-  reload: false
+  reload: true
 
 cache:
   expiration: 30

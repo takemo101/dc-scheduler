@@ -12,8 +12,9 @@ func Test_Domain(t *testing.T) {
 	boot.Testing(
 		t,
 		boot.TestOptions{
-			ConfigPath: "../config.testing.yml",
-			FXOption:   fx.Options(),
+			ConfigPath:       "../config.testing.yml",
+			CurrentDirectory: "../",
+			FXOption:         fx.Options(),
 		},
 		func() {
 			t.Run("test", func(t *testing.T) {

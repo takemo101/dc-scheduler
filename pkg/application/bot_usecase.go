@@ -9,6 +9,7 @@ import (
 // --- AppErrorType ---
 
 const BotDuplicateError AppErrorType = "ボット情報が重複しています"
+const BotWebhookInvalidError AppErrorType = "ボットURLが無効です"
 
 // --- BotSearchInput ---
 
@@ -40,9 +41,10 @@ func (uc BotSearchUseCase) Execute(
 ) (paginator BotSearchPaginatorDTO, err AppError) {
 
 	parameter := BotSearchParameterDTO{
-		Page:    input.Page,
-		Limit:   input.Limit,
-		OrderBy: "id DESC",
+		Page:        input.Page,
+		Limit:       input.Limit,
+		OrderByKey:  "id",
+		OrderByType: OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
@@ -73,12 +75,12 @@ func NewBotDetailUseCase(
 func (uc BotDetailUseCase) Execute(id uint) (detail BotDetailDTO, err AppError) {
 	findID, e := domain.NewBotID(id)
 	if e != nil {
-		return detail, NewError(NotFoundDataError)
+		return detail, NewByError(e)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, NewError(NotFoundDataError)
 	}
 
 	return detail, err
@@ -100,6 +102,7 @@ type BotStoreInput struct {
 // BotStoreUseCase Bot追加ユースケース
 type BotStoreUseCase struct {
 	repository     domain.BotRepository
+	adapter        domain.DiscordWebhookCheckAdapter
 	fileRepository domain.BotAtatarImageRepository
 	service        domain.BotService
 }
@@ -107,11 +110,13 @@ type BotStoreUseCase struct {
 // NewBotStoreUseCase コンストラクタ
 func NewBotStoreUseCase(
 	repository domain.BotRepository,
+	adapter domain.DiscordWebhookCheckAdapter,
 	fileRepository domain.BotAtatarImageRepository,
 	service domain.BotService,
 ) BotStoreUseCase {
 	return BotStoreUseCase{
 		repository,
+		adapter,
 		fileRepository,
 		service,
 	}
@@ -149,7 +154,6 @@ func (uc BotStoreUseCase) Execute(
 		input.Webhook,
 		input.Active,
 	)
-
 	if e != nil {
 		return id, NewByError(e)
 	}
@@ -161,6 +165,12 @@ func (uc BotStoreUseCase) Execute(
 	}
 	if duplicate {
 		return id, NewError(BotDuplicateError)
+	}
+
+	// ウェブフックの有効性チェック
+	ok, _ := uc.adapter.Check(entity.Webhook())
+	if !ok {
+		return id, NewError(BotWebhookInvalidError)
 	}
 
 	storeID, e := uc.repository.Store(entity)
@@ -188,6 +198,7 @@ type BotUpdateInput struct {
 // BotUpdateUseCase Bot更新ユースケース
 type BotUpdateUseCase struct {
 	repository     domain.BotRepository
+	adapter        domain.DiscordWebhookCheckAdapter
 	fileRepository domain.BotAtatarImageRepository
 	service        domain.BotService
 }
@@ -195,11 +206,13 @@ type BotUpdateUseCase struct {
 // NewBotUpdateUseCase コンストラクタ
 func NewBotUpdateUseCase(
 	repository domain.BotRepository,
+	adapter domain.DiscordWebhookCheckAdapter,
 	fileRepository domain.BotAtatarImageRepository,
 	service domain.BotService,
 ) BotUpdateUseCase {
 	return BotUpdateUseCase{
 		repository,
+		adapter,
 		fileRepository,
 		service,
 	}
@@ -237,6 +250,8 @@ func (uc BotUpdateUseCase) Execute(
 			entity.Atatar(),
 		)
 		avatar = avatarVO.Value()
+	} else {
+		avatar = entity.Atatar().Value()
 	}
 
 	e = entity.Update(
@@ -249,12 +264,19 @@ func (uc BotUpdateUseCase) Execute(
 		return NewByError(e)
 	}
 
+	// ウェブフックの重複チェック
 	duplicate, e := uc.service.IsDuplicateWithoutSelf(entity)
 	if e != nil {
 		return NewByError(e)
 	}
 	if duplicate {
 		return NewError(BotDuplicateError)
+	}
+
+	// ウェブフックの有効性チェック
+	ok, _ := uc.adapter.Check(entity.Webhook())
+	if !ok {
+		return NewError(BotWebhookInvalidError)
 	}
 
 	e = uc.repository.Update(entity)

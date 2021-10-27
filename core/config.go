@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -22,26 +21,32 @@ const (
 
 // App config
 type App struct {
-	Name    string
-	Host    string
-	Port    int
-	URL     string
+	Name    string `env:"APP_NAME"`
+	Host    string `env:"APP_HOST"`
+	Port    int    `env:"APP_PORT"`
+	URL     string `env:"APP_URL"`
 	Version string
-	Env     string
+	Env     string `env:"APP_ENV"`
 	Secret  string
 	Debug   bool
 	Config  string
 }
 
+// Time time locale config
+type Time struct {
+	Zone   string `env:"TIME_ZONE"`
+	Offset int    `env:"TIME_OFFSET"`
+}
+
 // DB config
 type DB struct {
-	Type       string
-	Host       string
-	Protocol   string
-	Port       int
-	Name       string
-	User       string
-	Pass       string
+	Type       string `env:"DB_TYPE"`
+	Host       string `env:"DB_HOST"`
+	Protocol   string `env:"DB_PROTOCOL"`
+	Port       int    `env:"DB_PORT"`
+	Name       string `env:"DB_NAME"`
+	User       string `env:"DB_USER"`
+	Pass       string `env:"DB_PASS"`
 	Charset    string
 	Collation  string
 	Connection struct {
@@ -82,12 +87,12 @@ type File struct {
 
 // SMTP config
 type SMTP struct {
-	Host       string
-	Port       int
+	Host       string `env:"SMTP_HOST"`
+	Port       int    `env:"SMTP_PORT"`
 	Identity   string
-	User       string
-	Pass       string
-	Encryption string
+	User       string `env:"SMTP_USER"`
+	Pass       string `env:"SMTP_USER"`
+	Encryption string `env:"SMTP_ENCRYPTION"`
 	From       struct {
 		Address string
 		Name    string
@@ -133,6 +138,7 @@ type Cors struct {
 // Config full config
 type Config struct {
 	App
+	Time
 	DB
 	Server
 	Log
@@ -156,10 +162,11 @@ var Conf = Config{}
 
 // NewConfig create configure
 func NewConfig(
-	path contract.ConfigPath,
+	configPath contract.ConfigPath,
+	current contract.CurrentDirectory,
 ) Config {
 	// config.yml
-	err := configor.Load(&Conf, string(path))
+	err := configor.Load(&Conf, string(configPath))
 	if err != nil {
 		log.Fatalf("fail to load config.yml : %v", err)
 	}
@@ -171,8 +178,7 @@ func NewConfig(
 	}
 
 	if Conf.File.Current == "" {
-		current, _ := os.Getwd()
-		Conf.File.Current = current
+		Conf.File.Current = string(current)
 	}
 
 	Conf.ConfigMapData = make(map[string]interface{})
@@ -185,7 +191,7 @@ func (c *Config) Load(key string) (map[string]interface{}, error) {
 		return mapValue.(map[string]interface{}), nil
 	}
 
-	path := path.Join(c.App.Config, key+".json")
+	path := path.Join(c.File.Current, c.App.Config, key+".json")
 	jsonString, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err

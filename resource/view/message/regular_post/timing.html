@@ -1,0 +1,161 @@
+{% extends 'layout/default.html' %}
+{% block title %}配信メッセージ｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':message.index.regular.edit' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('system/message/regular') second_label='配信タイミング:ID '|add:regular_post.id %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+
+        <form method="post" action="{{ url('system/message/regular/%d/timing/add', regular_post.id) }}" id="store">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">配信タイミング設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% include 'form/csrf.html' %}
+
+                    {% include 'form/select.html' with name='day_of_week' id="day_of_week" label='曜日' empty='--' list=day_of_weeks input=inputs.day_of_week error=errors.day_of_week required=true %}
+                    <div class="form-group">
+                        <label class="cursor-pointer required" for="hour_time">
+                            配信予定日時
+                        </label>
+                        <input type="text" class="form-control datetimepicker-input {% if errors.hour_time %}is-invalid{% endif %}" name="hour_time" value="{{ inputs.hour_time }}" id="hour_time"
+                        data-target="#hour_time" data-toggle="datetimepicker" required />
+                        {% if errors.hour_time %}
+                            <div class="invalid-feedback d-block">
+                                {{ errors.hour_time }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row border-bottom pb-3">
+                        <div class="col-12 col-sm-3 font-weight-bolder">メッセージ<br/>内容</div>
+                        <div class="col-12 col-sm-9">
+                            <small>{{ nl2br(regular_post.message|escape) }}</small>
+                        </div>
+                    </div>
+                    <div class="row border-bottom py-3">
+                        <div class="col-12 col-sm-3 font-weight-bolder">アクティブ<br/>状態</div>
+                        <div class="col-12 col-sm-9">
+                            {% if regular_post.active %}
+                                有効
+                            {% else %}
+                                無効
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <a href="{{ url('system/message/regular/%d/edit', regular_post.id) }}" class="btn btn-block btn-secondary">
+                        メッセージ編集
+                    </a>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="col-md-8">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">リスト</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            {% if regular_post.regular_timings|length > 0 %}
+            <div class="card-body p-0">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>曜日</th>
+                            <th>時間</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for timing in regular_post.regular_timings %}
+                        <tr>
+                            <td>
+                                <small>
+                                    {{ timing.day_of_week_name }}
+                                </small>
+                            </td>
+                            <td>
+                                {{ timing.hour_time_text }}
+                            </td>
+                            <td>
+                                <button data-class="js-dialog" data-type="delete" data-form="#{{ timing.id|stringformat:'delete-%d' }}" class="btn btn-danger btn-sm" name="submit">
+                                    <i class="fas fa-trash">
+                                    </i>
+                                </button>
+                                <form action="{{ url('system/message/regular/%d/timing/remove/%s/%s', regular_post.id, timing.day_of_week, timing.hour_time_text) }}" method="post" id="{{ timing.id|stringformat:'delete-%d' }}">
+                                    {% include 'form/csrf.html' %}
+                                    {% include 'form/method.html' with method='delete' %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <div class="alert alert-info alert-dismissible mb-0">
+                    <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                    配信タイミングを追加してください
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+{% block content_footer_right %}
+<button class="btn btn-primary px-5 " data-aire-component="button" type="submit" data-class="js-dialog" data-form="#store" data-type="store">
+	追加
+</button>
+{% endblock %}
+{% block footer_script %}
+<script>
+    $(() => {
+        $('#hour_time').datetimepicker({
+            icons: { time: 'far fa-clock' },
+            locale: 'ja',
+            format: 'HH:mm',
+            stepping: 5,
+        });
+    });
+</script>
+{% endblock %}

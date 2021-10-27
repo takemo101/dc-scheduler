@@ -19,7 +19,7 @@ type ZapLogger struct {
 }
 
 // NewLogger set up logger
-func NewLogger(config Config) Logger {
+func NewLogger(config Config, path Path) Logger {
 
 	zapConfig := zap.NewDevelopmentConfig()
 
@@ -28,7 +28,13 @@ func NewLogger(config Config) Logger {
 	}
 
 	if config.Log.Server != "" {
-		zapConfig.OutputPaths = []string{config.Log.Server}
+		zapConfig.OutputPaths = []string{
+			path.Current(config.Log.Server),
+		}
+	} else {
+		zapConfig.OutputPaths = []string{
+			path.Current("server.log"),
+		}
 	}
 
 	logger, _ := zapConfig.Build()

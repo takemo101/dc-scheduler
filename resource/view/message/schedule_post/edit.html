@@ -1,0 +1,128 @@
+{% extends 'layout/default.html' %}
+{% block title %}配信メッセージ｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':message.index.schedule.edit' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：予約配信' first_link=url('system/message/schedule') second_label='編集:ID '|add:schedule_post.id %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+
+        <form method="post" action="{{ url('system/message/schedule/%d/update', schedule_post.id) }}" id="update">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% include 'form/csrf.html' %}
+                    {% include 'form/method.html' with method='put' %}
+
+                    <div class="form-group">
+                        <label class="cursor-pointer required" for="reservation_at">
+                            配信予定日時
+                        </label>
+                        <input type="text" class="form-control datetimepicker-input {% if errors.reservation_at %}is-invalid{% endif %}" name="reservation_at" value="{% if inputs.reservation_at %}{{ inputs.reservation_at }}{% else %}{{ schedule_post.reservation_at|date:'2006-01-02 15:04' }}{% endif %}" id="reservation_at"
+                        data-target="#reservation_at" data-toggle="datetimepicker" required />
+                        {% if errors.reservation_at %}
+                            <div class="invalid-feedback d-block">
+                                {{ errors.reservation_at }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% include 'form/textarea.html' with name='message' value=schedule_post.message id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">対象ボット情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">ボット名</div>
+                    <div class="col-12 col-sm-9">
+                        <a href="{{ url('system/bot/%d/edit', schedule_post.bot.id) }}">
+                            {{ schedule_post.bot.name }}
+                        </a>
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">アバター</div>
+                    <div class="col-12 col-sm-9">
+                        {% if bot.avatar_url %}
+                            <img src="{{ schedule_post.bot.avatar_url }}" style="width:200px;">
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">日付情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ schedule_post.created_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ schedule_post.updated_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+{% block content_footer_right %}
+<button class="btn btn-primary px-5 " type="submit" data-class="js-dialog" data-form="#update" data-type="update">
+	更新
+</button>
+{% endblock %}
+{% block footer_script %}
+<script>
+    $(() => {
+        $('#reservation_at').datetimepicker({
+            icons: { time: 'far fa-clock' },
+            locale: 'ja',
+            format: 'YYYY-MM-DD HH:mm',
+            defaultDate: new Date(),
+            minDate: new Date(),
+            stepping: 5,
+        });
+    });
+</script>
+{% endblock %}

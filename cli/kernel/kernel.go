@@ -9,7 +9,8 @@ import (
 
 // AppOptions app boot options
 type CLIOptions struct {
-	ConfigPath           contract.ConfigPath
+	ConfigPath           string
+	CurrentDirectory     string
 	CommandOptions       cmd.CommandOptions
 	CLIBooterConstructor interface{}
 	FXOption             fx.Option
@@ -47,7 +48,10 @@ func Run(options CLIOptions) {
 		core.Module,
 		fx.Provide(
 			func() contract.ConfigPath {
-				return options.ConfigPath
+				return contract.ConfigPath(options.ConfigPath)
+			},
+			func() contract.CurrentDirectory {
+				return contract.CurrentDirectory(options.CurrentDirectory)
 			},
 			func() cmd.CommandOptions {
 				return options.CommandOptions

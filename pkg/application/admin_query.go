@@ -6,7 +6,7 @@ import (
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// --- AdminSearchQuery ---
+// --- AdminQuery ---
 
 // AdminQuery Admin参照
 type AdminQuery interface {
@@ -26,9 +26,10 @@ type AdminDetailDTO struct {
 
 // AdminSearchParameterDTO Admin一覧取得パラメータDTO
 type AdminSearchParameterDTO struct {
-	Page    int
-	Limit   int
-	OrderBy string
+	Page        int
+	Limit       int
+	OrderByKey  string
+	OrderByType OrderByType
 }
 
 // AdminSearchPaginatorDTO Admin一覧DTO

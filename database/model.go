@@ -11,4 +11,5 @@ var Models = []interface{}{
 	&infrastructure.PostMessage{},
 	&infrastructure.SentMessage{},
 	&infrastructure.ScheduleTiming{},
+	&infrastructure.RegularTiming{},
 }

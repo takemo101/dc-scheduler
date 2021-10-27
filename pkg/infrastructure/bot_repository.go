@@ -1,6 +1,13 @@
 package infrastructure
 
 import (
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/takemo101/dc-scheduler/core"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 	"gorm.io/gorm"
@@ -90,7 +97,7 @@ func (repo BotRepository) Store(entity domain.Bot) (vo domain.BotID, err error) 
 	model.Name = entity.Name().Value()
 	model.Atatar = entity.Atatar().Value()
 	model.Webhook = entity.Webhook().Value()
-	model.Active = entity.IsActive()
+	model.Active = sql.NullBool{Bool: entity.IsActive(), Valid: true}
 
 	if err = repo.db.GormDB.Create(&model).Error; err != nil {
 		return vo, err
@@ -105,11 +112,13 @@ func (repo BotRepository) Update(entity domain.Bot) error {
 
 	model.ID = entity.ID().Value()
 	model.Name = entity.Name().Value()
-	model.Atatar = entity.Atatar().Value()
+	if !entity.Atatar().IsEmpty() {
+		model.Atatar = entity.Atatar().Value()
+	}
 	model.Webhook = entity.Webhook().Value()
-	model.Active = entity.IsActive()
+	model.Active = sql.NullBool{Bool: entity.IsActive(), Valid: true}
 
-	return repo.db.GormDB.Save(&model).Error
+	return repo.db.GormDB.Updates(&model).Error
 }
 
 // FindByID BotIDからBotを取得する
@@ -125,7 +134,7 @@ func (repo BotRepository) FindByID(id domain.BotID) (entity domain.Bot, err erro
 
 // Delete BotIDからBotを削除する
 func (repo BotRepository) Delete(id domain.BotID) error {
-	return repo.db.GormDB.Where("id = ?", id.Value()).Delete(&Bot{}).Error
+	return repo.db.GormDB.Where("id = ?", id.Value()).Unscoped().Delete(&Bot{}).Error
 }
 
 // ExistsByWebhook BotDiscordWebhooklが重複しているBotがあるか
@@ -167,8 +176,67 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 		model.Name,
 		model.Atatar,
 		model.Webhook,
-		model.Active,
+		model.Active.Bool,
 	)
+}
+
+// ---- DiscordWebhookCheckAdapter ---
+
+// DiscordWebhookCheckAdapter Discordウェブフックをチェックするアダプター
+type DiscordWebhookCheckAdapter struct {
+	//
+}
+
+// NewDiscordWebhookCheckAdapter コンストラクタ
+func NewDiscordWebhookCheckAdapter(
+//
+) domain.DiscordWebhookCheckAdapter {
+	return DiscordWebhookCheckAdapter{}
+}
+
+// Check 指定したウェブフックがアクセス可能か
+func (ap DiscordWebhookCheckAdapter) Check(
+	webhook domain.BotDiscordWebhook,
+) (ok bool, err error) {
+	response, err := http.Get(webhook.Value())
+	if err != nil {
+		return false, err
+	}
+
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body)
+	bytes := []byte(body)
+
+	var checkResponse WebhookCheckResponse
+	err = json.Unmarshal(bytes, &checkResponse)
+	if err != nil {
+		return false, err
+	}
+
+	if response.StatusCode == 200 {
+		if webhook.ValidURL(
+			checkResponse.ID,
+			checkResponse.Token,
+		) {
+			return true, err
+		}
+
+		return false, errors.New("Webookとレスポンス値が一致しません")
+	}
+
+	return ok, errors.New(fmt.Sprintf("%#v", response))
+}
+
+type WebhookCheckResponse struct {
+	Type          int    `json:"type"`
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Avator        string `json:"avator"`
+	ChannelID     string `json:"channel_id"`
+	GuildID       string `json:"guild_id"`
+	ApplicationID string `json:"application_id"`
+	Token         string `json:"token"`
 }
 
 // --- Bot ---
@@ -176,8 +244,8 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 // Bot Gormモデル
 type Bot struct {
 	gorm.Model
-	Name    string `gorm:"type:varchar(191);index;not null"`
-	Atatar  string `gorm:"type:varchar(191);index"`
-	Webhook string `gorm:"type:text"`
-	Active  bool   `gorm:"index"`
+	Name    string       `gorm:"type:varchar(191);index;not null"`
+	Atatar  string       `gorm:"type:varchar(191);index"`
+	Webhook string       `gorm:"type:text"`
+	Active  sql.NullBool `gorm:"type:boolean;index"`
 }
