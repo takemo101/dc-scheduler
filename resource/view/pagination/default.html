@@ -20,7 +20,7 @@
                     {% else %}
                         {% if pagination.prev_url %}
                             <li class="paginate_button page-item ">
-                                <a class="page-link" href="{{ pagination.pref_url }}" rel="prev">&lsaquo;</a>
+                                <a class="page-link" href="{{ pagination.prev_url }}" rel="prev">&lsaquo;</a>
                             </li>
                         {% else %}
                             <li class="paginate_button page-item disabled" aria-disabled="true">
@@ -30,16 +30,16 @@
 
                         {% if pagination.elements|length > 1 %}
                             {% for element in pagination.elements %}
-                                {% if element.page == pagination.current_page %}
+                                {% if element.Page == pagination.current_page %}
                                 <li class="paginate_button page-item active" aria-current="page">
                                     <a class="page-link">
-                                        {{ element.page }}
+                                        {{ element.Page }}
                                     </a>
                                 </li>
                                 {% else %}
                                 <li class="paginate_button page-item">
-                                    <a class="page-link" href="{{ element.url }}">
-                                        {{ element.page }}
+                                    <a class="page-link" href="{{ element.URL }}">
+                                        {{ element.Page }}
                                     </a>
                                 </li>
                                 {% endif %}

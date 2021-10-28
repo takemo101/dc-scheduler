@@ -36,8 +36,15 @@ func StructToTagMap(tag string, data interface{}) map[string]interface{} {
 	size := elem.NumField()
 
 	for i := 0; i < size; i++ {
+		part := elem.Field(i)
+		var value interface{}
+		kind := part.Type().Kind()
+		if kind == reflect.Struct {
+			value = StructToTagMap(tag, value)
+		} else {
+			value = part.Interface()
+		}
 		field := elem.Type().Field(i).Tag.Get(tag)
-		value := elem.Field(i).Interface()
 		result[field] = value
 	}
 
