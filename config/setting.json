@@ -1,11 +1,21 @@
 {
-  "directory": {
-    "bot_avatar": "bot/avatar"
-  },
-  "resource": {
-    "empty_avatar": "image/logo.png"
-  },
-  "security_token": [
-    "xxx-xxxx"
-  ]
+    "directory": {
+        "bot_avatar": "bot/avatar"
+    },
+    "resource": {
+        "empty_avatar": "image/logo.png"
+    },
+    "security_token": [
+        "xxx-xxxx"
+    ],
+    "information": [
+        {
+            "date": "2021.10.28",
+            "text": "ボットの重複チェックをウェブフックURLとボット名の組み合わせに修正しました。"
+        },
+        {
+            "date": "2021.10.26",
+            "text": "Discordスケジューラ完成しました。"
+        }
+    ]
 }

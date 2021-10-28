@@ -60,6 +60,11 @@ func (vo BotName) Value() string {
 	return string(vo)
 }
 
+// Equals VOの値が一致するか
+func (vo BotName) Equals(eq BotName) bool {
+	return vo.Value() == eq.Value()
+}
+
 // --- BotAtatar ValueObject ---
 
 // BotAtatar Botのアバターパス
@@ -229,7 +234,7 @@ func (entity *Bot) ChangeActive(active bool) {
 
 // Equals Entityが同一か
 func (entity Bot) Equals(eq Bot) bool {
-	return entity.ID().Equals(eq.ID()) && entity.Webhook().Equals(eq.Webhook())
+	return entity.ID().Equals(eq.ID()) && entity.Name().Equals(eq.Name()) && entity.Webhook().Equals(eq.Webhook())
 }
 
 // --- BotAtatarImageFile ValueObject ---
@@ -350,13 +355,13 @@ func NewBotService(
 }
 
 // IsDuplicate Botが重複しているか
-func (service BotService) IsDuplicate(Bot Bot) (bool, error) {
-	return service.repository.ExistsByWebhook(Bot.Webhook())
+func (service BotService) IsDuplicate(bot Bot) (bool, error) {
+	return service.repository.ExistsByNameAndWebhook(bot.Name(), bot.Webhook())
 }
 
 // IsDuplicate 指定のBotを除き重複しているか
-func (service BotService) IsDuplicateWithoutSelf(Bot Bot) (bool, error) {
-	return service.repository.ExistsByIDWebhook(Bot.ID(), Bot.Webhook())
+func (service BotService) IsDuplicateWithoutSelf(bot Bot) (bool, error) {
+	return service.repository.ExistsByIDNameAndWebhook(bot.ID(), bot.Name(), bot.Webhook())
 }
 
 // --- BotAtatarImageRepository ---
@@ -376,8 +381,8 @@ type BotRepository interface {
 	Update(entity Bot) error
 	FindByID(id BotID) (Bot, error)
 	Delete(id BotID) error
-	ExistsByWebhook(webhook BotDiscordWebhook) (bool, error)
-	ExistsByIDWebhook(id BotID, webhook BotDiscordWebhook) (bool, error)
+	ExistsByNameAndWebhook(name BotName, webhook BotDiscordWebhook) (bool, error)
+	ExistsByIDNameAndWebhook(id BotID, name BotName, webhook BotDiscordWebhook) (bool, error)
 	NextIdentity() (BotID, error)
 }
 

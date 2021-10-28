@@ -33,6 +33,8 @@ func NewDashboardController(
 func (ctl DashboardController) Dashboard(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
 
+	informations := ctl.config.LoadToValueArray("setting", "information", []helper.DataMap{})
+
 	// 配信履歴直近10件
 	list, err := ctl.sentMessageQuery.RecentlyList(10)
 	if err != nil {
@@ -42,5 +44,6 @@ func (ctl DashboardController) Dashboard(c *fiber.Ctx) error {
 	return response.View("home", helper.DataMap{
 		"config":        ctl.config,
 		"sent_messages": vm.ToSentMessagesMap(list),
+		"informations":  informations,
 	})
 }

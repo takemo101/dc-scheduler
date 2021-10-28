@@ -39,9 +39,9 @@
                     <h6>Step3 スケジューラの設定</h6>
                     <p>
                         <small>
-                            予約配信と定期配信につきましては、定期的にアプリのAPIにアクセスするための設定が必要があります。<br/>
+                            予約配信と定期配信につきましては、定期的にアプリのAPIにアクセスする設定が必要です。<br/>
                             スケジューラにつきましては、クロンでも良いですが、GoogleCloudSchedulerを利用することをおすすめします。<br/>
-                            以下のAPIエンドポイントに5分おきにアクセスする設定を行ってください。<br/>
+                            以下のAPIエンドポイントへ5分おきにアクセスする設定を行ってください。<br/>
                             <a href="{{ url("api/message/send?token=xxx-xxxx") }}">
                                 {{ url("api/message/send?token=xxx-xxxx") }}
                             </a>
@@ -101,6 +101,50 @@
             <div class="alert alert-info alert-dismissible mb-0">
                 <h5><i class="icon fas fa-info-circle"></i> Info</h5>
                 配信されたメッセージはありません
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">お知らせ</h5>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        {% if informations|length > 0 %}
+        <div class="card-body p-0">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>日時</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for information in informations %}
+                    <tr>
+                        <td>
+                            <small>
+                                {{ information.date }}
+                            </small>
+                        </td>
+                        <td>
+                            <small>{{ nl2br(information.text|escape) }}</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-body">
+            <div class="alert alert-info alert-dismissible mb-0">
+                <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                お知らせはありません
             </div>
         </div>
         {% endif %}

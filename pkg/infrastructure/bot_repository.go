@@ -138,21 +138,21 @@ func (repo BotRepository) Delete(id domain.BotID) error {
 }
 
 // ExistsByWebhook BotDiscordWebhooklが重複しているBotがあるか
-func (repo BotRepository) ExistsByWebhook(webhook domain.BotDiscordWebhook) (bool, error) {
+func (repo BotRepository) ExistsByNameAndWebhook(name domain.BotName, webhook domain.BotDiscordWebhook) (bool, error) {
 	count := int64(0)
 	err := repo.db.GormDB.Model(&Bot{}).
-		Where("webhook = ?", webhook.Value()).
+		Where("name = ? AND webhook = ?", name.Value(), webhook.Value()).
 		Count(&count).
 		Error
 
 	return (count > 0), err
 }
 
-// ExistsByIDWebhook 指定したBotIDを除きBotDiscordWebhookが重複しているBotがあるか
-func (repo BotRepository) ExistsByIDWebhook(id domain.BotID, webhook domain.BotDiscordWebhook) (bool, error) {
+// ExistsByIDNameAndWebhook 指定したBotIDを除きBotDiscordWebhookが重複しているBotがあるか
+func (repo BotRepository) ExistsByIDNameAndWebhook(id domain.BotID, name domain.BotName, webhook domain.BotDiscordWebhook) (bool, error) {
 	count := int64(0)
 	err := repo.db.GormDB.Model(&Bot{}).
-		Where("id <> ? AND webhook = ?", id.Value(), webhook.Value()).
+		Where("id <> ? AND name = ? AND webhook = ?", id.Value(), name.Value(), webhook.Value()).
 		Count(&count).
 		Error
 
