@@ -3,6 +3,7 @@
 object bots {
     + id : pk <<auto_increment>>
     --
+    # user_id : fk
     * title : string
     * name : string
     * avatar : text
@@ -58,6 +59,25 @@ object admins {
     * updated_at
 }
 
+object users {
+    + id : pk <<auto_increment>>
+    --
+    * email : string
+    * password : bytes
+    * active : boolean
+    * created_at
+    * updated_at
+}
+
+object activate_keys {
+    + id : pk <<auto_increment>>
+    --
+    # user_id : fk unique
+    * key : string unique
+}
+
+users ||--o| activate_keys
+users ||--o{ bots
 bots ||--o{ post_messages
 post_messages ||--o{ regular_timings
 post_messages ||--o| schedule_timings

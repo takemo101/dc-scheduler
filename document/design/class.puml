@@ -4,11 +4,12 @@ package domain {
     package message {
         class Bot {
             id: BotID
+            userID: UserID
             name: BotName
             avatar: BotAtatar
             webhook: DiscordWebbook
             active : boolean
-            + {static} CreateBot(id: int, name: string, avatar: string, webhook: string, active: boolean): Bot
+            + {static} CreateBot(id: int, userID, int, name: string, avatar: string, webhook: string, active: boolean): Bot
             + Update(name: string, avatar: string, active: boolean)
             + ChangeActive(active: boolean)
             + IsActive(): boolean
@@ -189,6 +190,54 @@ package domain {
             + IsLogin(): boolean
         }
     }
+
+    package user {
+        class User {
+            id: UserID
+            name: Name
+            email: Email
+            hashPassword: HashPassword
+            activationKey: ActivationKey
+            active: boolean
+            + {static} CreateAuthenticatedUser(id: int, name: string, email: string, password): User
+            + {static} CreateTemporaryUser(id: int, name: string, email: string, password: string): User
+            + Activation(key: string): boolean
+            + IsActivated(): boolean
+            + Update(name: string, email: string, password: string)
+            + ComparePassword(plainPass: string): boolean
+            + CreateLoginAuth(user: User): UserAuth
+        }
+
+        class UserAuth {
+            id: UserID
+            name: Name
+            email: Email
+        }
+
+        class UserService {
+            + IsDuplicate(user: User): boolean
+            + IsDuplicateWithoutSelf(user: User): boolean
+        }
+
+        interface UserRepository {
+            + Store(user: User): UserID
+            + Update(user: User)
+            + FindByID(id: UserID): User
+            + FindByEmail(email Email): User
+            + Delete(id: UserID)
+            + ExistsByEmail(email: Email): bool
+            + ExistsByIDEmail(id UserID, email Email): bool
+            + NextIdentity(): UserID
+        }
+
+        interface UserAuthContext {
+            + Login(auth: UserAuth)
+            + Logout()
+            + UserAuth(): UserAuth
+            + IsLogin(): boolean
+        }
+
+    }
 }
 
 Bot -o PostMessage
@@ -220,7 +269,14 @@ AdminAuth -- Admin
 AdminRepository -- Admin
 AdminService -- AdminRepository
 AdminService -- AdminAuth
-
 AdminAuthContext -- AdminAuth
+
+UserAuth -- User
+UserRepository -- User
+UserService -- UserRepository
+UserService -- UserAuth
+UserAuthContext -- UserAuth
+User -- Bot
+
 
 @enduml
