@@ -3,6 +3,7 @@ package application
 import (
 	"time"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
@@ -31,11 +32,11 @@ type BotSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // BotSearchPaginatorDTO Bot一覧DTO
 type BotSearchPaginatorDTO struct {
-	Bots       []BotDetailDTO `json:"bots"`
-	Pagination Paginator      `json:"pagination"`
+	Bots       []BotDetailDTO   `json:"bots"`
+	Pagination common.Paginator `json:"pagination"`
 }

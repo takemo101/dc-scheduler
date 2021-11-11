@@ -3,12 +3,14 @@ package application
 import (
 	"time"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
+	query "github.com/takemo101/dc-scheduler/pkg/application/query"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
 // --- AppErrorType ---
 
-const RegularTimingDuplicateError AppErrorType = "配信タイミングが重複しています"
+const RegularTimingDuplicateError common.AppErrorType = "配信タイミングが重複しています"
 
 // --- RegularPostSearchInput ---
 
@@ -22,12 +24,12 @@ type RegularPostSearchInput struct {
 
 // RegularPostSearchUseCase RegularPost一覧ユースケース
 type RegularPostSearchUseCase struct {
-	query RegularPostQuery
+	query query.RegularPostQuery
 }
 
 // NewRegularPostSearchUseCase コンストラクタ
 func NewRegularPostSearchUseCase(
-	query RegularPostQuery,
+	query query.RegularPostQuery,
 ) RegularPostSearchUseCase {
 	return RegularPostSearchUseCase{
 		query,
@@ -37,18 +39,18 @@ func NewRegularPostSearchUseCase(
 // Execute RegularPost一覧取得を実行
 func (uc RegularPostSearchUseCase) Execute(
 	input RegularPostSearchInput,
-) (paginator RegularPostSearchPaginatorDTO, err AppError) {
+) (paginator query.RegularPostSearchPaginatorDTO, err common.AppError) {
 
-	parameter := RegularPostSearchParameterDTO{
+	parameter := query.RegularPostSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -85,21 +87,21 @@ func NewRegularPostStoreUseCase(
 func (uc RegularPostStoreUseCase) Execute(
 	botID uint,
 	input RegularPostStoreInput,
-) (id uint, err AppError) {
+) (id uint, err common.AppError) {
 
 	botIDVO, e := domain.NewBotID(botID)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	bot, e := uc.botRepository.FindByID(botIDVO)
 	if e != nil {
-		return id, NewError(NotFoundDataError)
+		return id, common.NewError(common.NotFoundDataError)
 	}
 
 	nextID, e := uc.repository.NextIdentity()
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	entity, e := domain.CreateRegularPost(
@@ -109,13 +111,13 @@ func (uc RegularPostStoreUseCase) Execute(
 		input.Active,
 	)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// 情報を保存
 	storeID, e := uc.repository.Store(entity)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	return storeID.Value(), err
@@ -126,13 +128,13 @@ func (uc RegularPostStoreUseCase) Execute(
 // RegularPostEditFormUseCase RegularPost編集フォームユースケース
 type RegularPostEditFormUseCase struct {
 	repository domain.RegularPostRepository
-	query      RegularPostQuery
+	query      query.RegularPostQuery
 }
 
 // NewPostMessageCreateFormUseCase コンストラクタ
 func NewRegularPostEditFormUseCase(
 	repository domain.RegularPostRepository,
-	query RegularPostQuery,
+	query query.RegularPostQuery,
 ) RegularPostEditFormUseCase {
 	return RegularPostEditFormUseCase{
 		repository,
@@ -141,15 +143,15 @@ func NewRegularPostEditFormUseCase(
 }
 
 // Execute フォーム表示のためのRegularPost取得を実行
-func (uc RegularPostEditFormUseCase) Execute(id uint) (detail RegularPostDetailDTO, err AppError) {
+func (uc RegularPostEditFormUseCase) Execute(id uint) (detail query.RegularPostDetailDTO, err common.AppError) {
 	findID, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	return detail, err
@@ -183,16 +185,16 @@ func NewRegularPostUpdateUseCase(
 func (uc RegularPostUpdateUseCase) Execute(
 	id uint,
 	input RegularPostUpdateInput,
-) (err AppError) {
+) (err common.AppError) {
 
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
-		return NewError(NotFoundDataError)
+		return common.NewError(common.NotFoundDataError)
 	}
 
 	e = entity.Update(
@@ -200,13 +202,13 @@ func (uc RegularPostUpdateUseCase) Execute(
 		input.Active,
 	)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	// 配信状態の情報を保存
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -240,16 +242,16 @@ func NewRegularTimingAddUseCase(
 func (uc RegularTimingAddUseCase) Execute(
 	id uint,
 	input RegularTimingInput,
-) (err AppError) {
+) (err common.AppError) {
 
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
-		return NewError(NotFoundDataError)
+		return common.NewError(common.NotFoundDataError)
 	}
 
 	e = entity.AddTiming(
@@ -257,13 +259,13 @@ func (uc RegularTimingAddUseCase) Execute(
 		input.HourTime,
 	)
 	if e != nil {
-		return NewError(RegularTimingDuplicateError)
+		return common.NewError(RegularTimingDuplicateError)
 	}
 
 	// 更新情報を保存
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -289,16 +291,16 @@ func NewRegularTimingRemoveUseCase(
 func (uc RegularTimingRemoveUseCase) Execute(
 	id uint,
 	input RegularTimingInput,
-) (err AppError) {
+) (err common.AppError) {
 
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
-		return NewError(NotFoundDataError)
+		return common.NewError(common.NotFoundDataError)
 	}
 
 	e = entity.RemoveTiming(
@@ -306,13 +308,13 @@ func (uc RegularTimingRemoveUseCase) Execute(
 		input.HourTime,
 	)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	// 更新情報を保存
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -340,11 +342,11 @@ func NewRegularPostSendUseCase(
 // Execute RegularPost配信を実行
 func (uc RegularPostSendUseCase) Execute(
 	now time.Time,
-) (err AppError) {
+) (err common.AppError) {
 	timing := domain.CreateRegularTimingByTime(now)
 	messages, e := uc.repository.SendList(timing)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	for _, entity := range messages {
@@ -352,19 +354,19 @@ func (uc RegularPostSendUseCase) Execute(
 		// 配信状態にする
 		send, e := entity.Send(now)
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 		// 配信状態のメッセージをディスコードで配信
 		e = uc.adapter.SendMessage(entity.Bot(), send.Message())
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 		// 配信状態の情報を保存
 		e = uc.repository.Update(entity)
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 	}

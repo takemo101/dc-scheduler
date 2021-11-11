@@ -3,12 +3,13 @@ package application
 import (
 	"time"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
 // --- RegularPostQuery ---
 
-// RegularPostQuery RegularPost参照
+// RegularPostQuery RegularPost参照
 type RegularPostQuery interface {
 	Search(RegularPostSearchParameterDTO) (RegularPostSearchPaginatorDTO, error)
 	FindByID(domain.PostMessageID) (RegularPostDetailDTO, error)
@@ -37,11 +38,11 @@ type RegularPostSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // RegularPostSearchPaginatorDTO RegularPost一覧DTO
 type RegularPostSearchPaginatorDTO struct {
 	RegularPosts []RegularPostDetailDTO `json:"messages"`
-	Pagination   Paginator              `json:"pagination"`
+	Pagination   common.Paginator       `json:"pagination"`
 }

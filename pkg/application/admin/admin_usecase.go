@@ -1,12 +1,14 @@
 package application
 
 import (
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
+	query "github.com/takemo101/dc-scheduler/pkg/application/query"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
 // --- AppErrorType ---
 
-const AdminDuplicateError AppErrorType = "アカウント情報が重複しています"
+const AdminDuplicateError common.AppErrorType = "アカウント情報が重複しています"
 
 // --- AdminSearchInput ---
 
@@ -20,12 +22,12 @@ type AdminSearchInput struct {
 
 // AdminSearchUseCase Admin一覧ユースケース
 type AdminSearchUseCase struct {
-	query AdminQuery
+	query query.AdminQuery
 }
 
 // NewAdminSearchUseCase コンストラクタ
 func NewAdminSearchUseCase(
-	query AdminQuery,
+	query query.AdminQuery,
 ) AdminSearchUseCase {
 	return AdminSearchUseCase{
 		query,
@@ -35,18 +37,18 @@ func NewAdminSearchUseCase(
 // Execute Admin一覧取得を実行
 func (uc AdminSearchUseCase) Execute(
 	input AdminSearchInput,
-) (paginator AdminSearchPaginatorDTO, err AppError) {
+) (paginator query.AdminSearchPaginatorDTO, err common.AppError) {
 
-	parameter := AdminSearchParameterDTO{
+	parameter := query.AdminSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -56,12 +58,12 @@ func (uc AdminSearchUseCase) Execute(
 
 // AdminDetailUseCase Admin詳細ユースケース
 type AdminDetailUseCase struct {
-	query AdminQuery
+	query query.AdminQuery
 }
 
 // NewAdminDetailUseCase コンストラクタ
 func NewAdminDetailUseCase(
-	query AdminQuery,
+	query query.AdminQuery,
 ) AdminDetailUseCase {
 	return AdminDetailUseCase{
 		query,
@@ -69,15 +71,15 @@ func NewAdminDetailUseCase(
 }
 
 // Execute Admin詳細取得を実行
-func (uc AdminDetailUseCase) Execute(id uint) (detail AdminDetailDTO, err AppError) {
+func (uc AdminDetailUseCase) Execute(id uint) (detail query.AdminDetailDTO, err common.AppError) {
 	findID, e := domain.NewAdminID(id)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewError(NotFoundDataError)
+		return detail, common.NewError(common.NotFoundDataError)
 	}
 
 	return detail, err
@@ -115,11 +117,11 @@ func NewAdminStoreUseCase(
 // Execute Admin追加を実行
 func (uc AdminStoreUseCase) Execute(
 	input AdminStoreInput,
-) (id uint, err AppError) {
+) (id uint, err common.AppError) {
 
 	nextID, e := uc.repository.NextIdentity()
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	entity, e := domain.CreateAdmin(
@@ -130,21 +132,21 @@ func (uc AdminStoreUseCase) Execute(
 		input.Role,
 	)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// メールアドレスの重複チェック
 	duplicate, e := uc.service.IsDuplicate(entity)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 	if duplicate {
-		return id, NewError(AdminDuplicateError)
+		return id, common.NewError(AdminDuplicateError)
 	}
 
 	storeID, e := uc.repository.Store(entity)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	return storeID.Value(), err
@@ -183,15 +185,15 @@ func NewAdminUpdateUseCase(
 func (uc AdminUpdateUseCase) Execute(
 	id uint,
 	input AdminUpdateInput,
-) (err AppError) {
+) (err common.AppError) {
 	findID, e := domain.NewAdminID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(findID)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	e = entity.Update(
@@ -201,20 +203,20 @@ func (uc AdminUpdateUseCase) Execute(
 		input.Role,
 	)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	duplicate, e := uc.service.IsDuplicateWithoutSelf(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 	if duplicate {
-		return NewError(AdminDuplicateError)
+		return common.NewError(AdminDuplicateError)
 	}
 
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -237,16 +239,16 @@ func NewAdminDeleteUseCase(
 }
 
 // Execute Admin削除を実行
-func (uc AdminDeleteUseCase) Execute(id uint) (err AppError) {
+func (uc AdminDeleteUseCase) Execute(id uint) (err common.AppError) {
 
 	deleteID, e := domain.NewAdminID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	e = uc.repository.Delete(deleteID)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -265,12 +267,12 @@ type MyAccountUpdateInput struct {
 
 // MyAccountDetailUseCase アカウント取得ユースケース
 type MyAccountDetailUseCase struct {
-	query AdminQuery
+	query query.AdminQuery
 }
 
 // NewMyAccountDetailUseCase コンストラクタ
 func NewMyAccountDetailUseCase(
-	query AdminQuery,
+	query query.AdminQuery,
 ) MyAccountDetailUseCase {
 	return MyAccountDetailUseCase{
 		query,
@@ -280,16 +282,16 @@ func NewMyAccountDetailUseCase(
 // Execute アカウント詳細取得を実行
 func (uc MyAccountDetailUseCase) Execute(
 	context domain.AdminAuthContext,
-) (detail AdminDetailDTO, err AppError) {
+) (detail query.AdminDetailDTO, err common.AppError) {
 
 	auth, e := context.AdminAuth()
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	detail, e = uc.query.FindByID(auth.ID())
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	return detail, err
@@ -318,16 +320,16 @@ func NewMyAccountUpdateUseCase(
 func (uc MyAccountUpdateUseCase) Execute(
 	context domain.AdminAuthContext,
 	input MyAccountUpdateInput,
-) (err AppError) {
+) (err common.AppError) {
 
 	auth, e := context.AdminAuth()
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(auth.ID())
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	e = entity.Update(
@@ -337,15 +339,15 @@ func (uc MyAccountUpdateUseCase) Execute(
 		auth.Role().Value(),
 	)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	duplicate, e := uc.service.IsDuplicateWithoutSelf(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 	if duplicate {
-		return NewError(AdminDuplicateError)
+		return common.NewError(AdminDuplicateError)
 	}
 
 	admin := entity.CreateLoginAuth()
@@ -353,13 +355,13 @@ func (uc MyAccountUpdateUseCase) Execute(
 	// DBへ永続化
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	// セッションへ永続化
 	e = context.Login(admin)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err

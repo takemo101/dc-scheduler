@@ -3,6 +3,8 @@ package application
 import (
 	"time"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
+	query "github.com/takemo101/dc-scheduler/pkg/application/query"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
@@ -18,12 +20,12 @@ type PostMessageSearchInput struct {
 
 // PostMessageSearchUseCase PostMessage一覧ユースケース
 type PostMessageSearchUseCase struct {
-	query PostMessageQuery
+	query query.PostMessageQuery
 }
 
 // NewPostMessageSearchUseCase コンストラクタ
 func NewPostMessageSearchUseCase(
-	query PostMessageQuery,
+	query query.PostMessageQuery,
 ) PostMessageSearchUseCase {
 	return PostMessageSearchUseCase{
 		query,
@@ -33,18 +35,18 @@ func NewPostMessageSearchUseCase(
 // Execute PostMessage一覧取得を実行
 func (uc PostMessageSearchUseCase) Execute(
 	input PostMessageSearchInput,
-) (paginator PostMessageSearchPaginatorDTO, err AppError) {
+) (paginator query.PostMessageSearchPaginatorDTO, err common.AppError) {
 
-	parameter := PostMessageSearchParameterDTO{
+	parameter := query.PostMessageSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -55,13 +57,13 @@ func (uc PostMessageSearchUseCase) Execute(
 // PostMessageCreateFormUseCase Bot作成フォームユースケース
 type PostMessageCreateFormUseCase struct {
 	repository domain.BotRepository
-	query      BotQuery
+	query      query.BotQuery
 }
 
 // NewPostMessageCreateFormUseCase コンストラクタ
 func NewPostMessageCreateFormUseCase(
 	repository domain.BotRepository,
-	query BotQuery,
+	query query.BotQuery,
 ) PostMessageCreateFormUseCase {
 	return PostMessageCreateFormUseCase{
 		repository,
@@ -70,15 +72,15 @@ func NewPostMessageCreateFormUseCase(
 }
 
 // Execute フォーム表示のためのBot取得を実行
-func (uc PostMessageCreateFormUseCase) Execute(botID uint) (detail BotDetailDTO, err AppError) {
+func (uc PostMessageCreateFormUseCase) Execute(botID uint) (detail query.BotDetailDTO, err common.AppError) {
 	findID, e := domain.NewBotID(botID)
 	if e != nil {
-		return detail, NewError(NotFoundDataError)
+		return detail, common.NewError(common.NotFoundDataError)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	return detail, err
@@ -101,16 +103,16 @@ func NewPostMessageDeleteUseCase(
 }
 
 // Execute PostMessage削除を実行
-func (uc PostMessageDeleteUseCase) Execute(id uint) (err AppError) {
+func (uc PostMessageDeleteUseCase) Execute(id uint) (err common.AppError) {
 
 	deleteID, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	e = uc.repository.Delete(deleteID)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -128,12 +130,12 @@ type SentMessageHistoryInput struct {
 
 // SentMessageHistoryUseCase PostMessage削除ユースケース
 type SentMessageHistoryUseCase struct {
-	query SentMessageQuery
+	query query.SentMessageQuery
 }
 
 // NewSentMessageHistoryUseCase コンストラクタ
 func NewSentMessageHistoryUseCase(
-	query SentMessageQuery,
+	query query.SentMessageQuery,
 ) SentMessageHistoryUseCase {
 	return SentMessageHistoryUseCase{
 		query,
@@ -143,18 +145,18 @@ func NewSentMessageHistoryUseCase(
 // Execute SentMessage一覧取得（配信メッセージ履歴取得）を実行
 func (uc SentMessageHistoryUseCase) Execute(
 	input SentMessageHistoryInput,
-) (paginator SentMessageSearchPaginatorDTO, err AppError) {
+) (paginator query.SentMessageSearchPaginatorDTO, err common.AppError) {
 
-	parameter := SentMessageSearchParameterDTO{
+	parameter := query.SentMessageSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -172,12 +174,12 @@ type ImmediatePostSearchInput struct {
 
 // ImmediatePostSearchUseCase ImmediatePost一覧ユースケース
 type ImmediatePostSearchUseCase struct {
-	query ImmediatePostQuery
+	query query.ImmediatePostQuery
 }
 
 // NewImmediatePostSearchUseCase コンストラクタ
 func NewImmediatePostSearchUseCase(
-	query ImmediatePostQuery,
+	query query.ImmediatePostQuery,
 ) ImmediatePostSearchUseCase {
 	return ImmediatePostSearchUseCase{
 		query,
@@ -187,18 +189,18 @@ func NewImmediatePostSearchUseCase(
 // Execute ImmediatePost一覧取得を実行
 func (uc ImmediatePostSearchUseCase) Execute(
 	input ImmediatePostSearchInput,
-) (paginator ImmediatePostSearchPaginatorDTO, err AppError) {
+) (paginator query.ImmediatePostSearchPaginatorDTO, err common.AppError) {
 
-	parameter := ImmediatePostSearchParameterDTO{
+	parameter := query.ImmediatePostSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -237,21 +239,21 @@ func NewImmediatePostStoreUseCase(
 func (uc ImmediatePostStoreUseCase) Execute(
 	botID uint,
 	input ImmediatePostStoreInput,
-) (id uint, err AppError) {
+) (id uint, err common.AppError) {
 
 	botIDVO, e := domain.NewBotID(botID)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	bot, e := uc.botRepository.FindByID(botIDVO)
 	if e != nil {
-		return id, NewError(NotFoundDataError)
+		return id, common.NewError(common.NotFoundDataError)
 	}
 
 	nextID, e := uc.repository.NextIdentity()
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	entity, e := domain.CreateImmediatePost(
@@ -260,25 +262,25 @@ func (uc ImmediatePostStoreUseCase) Execute(
 		bot,
 	)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// 配信状態にする
 	send, e := entity.Send(time.Now())
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// 配信状態のメッセージをディスコードで配信
 	e = uc.adapter.SendMessage(entity.Bot(), send.Message())
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// 配信状態の情報を保存
 	storeID, e := uc.repository.Store(entity)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	return storeID.Value(), err
@@ -296,12 +298,12 @@ type SchedulePostSearchInput struct {
 
 // SchedulePostSearchUseCase SchedulePost一覧ユースケース
 type SchedulePostSearchUseCase struct {
-	query SchedulePostQuery
+	query query.SchedulePostQuery
 }
 
 // NewSchedulePostSearchUseCase コンストラクタ
 func NewSchedulePostSearchUseCase(
-	query SchedulePostQuery,
+	query query.SchedulePostQuery,
 ) SchedulePostSearchUseCase {
 	return SchedulePostSearchUseCase{
 		query,
@@ -311,18 +313,18 @@ func NewSchedulePostSearchUseCase(
 // Execute SchedulePost一覧取得を実行
 func (uc SchedulePostSearchUseCase) Execute(
 	input SchedulePostSearchInput,
-) (paginator SchedulePostSearchPaginatorDTO, err AppError) {
+) (paginator query.SchedulePostSearchPaginatorDTO, err common.AppError) {
 
-	parameter := SchedulePostSearchParameterDTO{
+	parameter := query.SchedulePostSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -359,21 +361,21 @@ func NewSchedulePostStoreUseCase(
 func (uc SchedulePostStoreUseCase) Execute(
 	botID uint,
 	input SchedulePostStoreInput,
-) (id uint, err AppError) {
+) (id uint, err common.AppError) {
 
 	botIDVO, e := domain.NewBotID(botID)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	bot, e := uc.botRepository.FindByID(botIDVO)
 	if e != nil {
-		return id, NewError(NotFoundDataError)
+		return id, common.NewError(common.NotFoundDataError)
 	}
 
 	nextID, e := uc.repository.NextIdentity()
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	entity, e := domain.CreateSchedulePost(
@@ -384,13 +386,13 @@ func (uc SchedulePostStoreUseCase) Execute(
 		time.Now(),
 	)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// 配信状態の情報を保存
 	storeID, e := uc.repository.Store(entity)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	return storeID.Value(), err
@@ -401,13 +403,13 @@ func (uc SchedulePostStoreUseCase) Execute(
 // SchedulePostEditFormUseCase SchedulePost編集フォームユースケース
 type SchedulePostEditFormUseCase struct {
 	repository domain.SchedulePostRepository
-	query      SchedulePostQuery
+	query      query.SchedulePostQuery
 }
 
 // NewPostMessageCreateFormUseCase コンストラクタ
 func NewSchedulePostEditFormUseCase(
 	repository domain.SchedulePostRepository,
-	query SchedulePostQuery,
+	query query.SchedulePostQuery,
 ) SchedulePostEditFormUseCase {
 	return SchedulePostEditFormUseCase{
 		repository,
@@ -416,22 +418,22 @@ func NewSchedulePostEditFormUseCase(
 }
 
 // Execute フォーム表示のためのSchedulePost取得を実行
-func (uc SchedulePostEditFormUseCase) Execute(id uint) (detail SchedulePostDetailDTO, err AppError) {
+func (uc SchedulePostEditFormUseCase) Execute(id uint) (detail query.SchedulePostDetailDTO, err common.AppError) {
 	findID, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	} else if entity.IsSended() {
-		return detail, NewError(NotFoundDataError)
+		return detail, common.NewError(common.NotFoundDataError)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	return detail, err
@@ -465,16 +467,16 @@ func NewSchedulePostUpdateUseCase(
 func (uc SchedulePostUpdateUseCase) Execute(
 	id uint,
 	input SchedulePostUpdateInput,
-) (err AppError) {
+) (err common.AppError) {
 
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
-		return NewError(NotFoundDataError)
+		return common.NewError(common.NotFoundDataError)
 	}
 
 	e = entity.Update(
@@ -483,13 +485,13 @@ func (uc SchedulePostUpdateUseCase) Execute(
 		time.Now(),
 	)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	// 配信状態の情報を保存
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -517,10 +519,10 @@ func NewSchedulePostSendUseCase(
 // Execute SchedulePost配信を実行
 func (uc SchedulePostSendUseCase) Execute(
 	now time.Time,
-) (err AppError) {
+) (err common.AppError) {
 	messages, e := uc.repository.SendList(domain.NewMessageSendedAt(now))
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	for _, entity := range messages {
@@ -528,19 +530,19 @@ func (uc SchedulePostSendUseCase) Execute(
 		// 配信状態にする
 		send, e := entity.Send(now)
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 		// 配信状態のメッセージをディスコードで配信
 		e = uc.adapter.SendMessage(entity.Bot(), send.Message())
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 		// 配信状態の情報を保存
 		e = uc.repository.Update(entity)
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 	}

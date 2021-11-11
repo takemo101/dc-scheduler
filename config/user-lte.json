@@ -2,37 +2,25 @@
     "menus": [
         {
             "is_header": true,
-            "name": "USER",
-            "role": "system"
-        },
-        {
-            "key": ":admin",
-            "name": "管理者",
-            "icon": "fas fa-users",
-            "path": "#",
-            "role": "system",
-            "menus": [
-                {
-                    "key": ":admin.index",
-                    "name": "検索",
-                    "path": "system/admin"
-                },
-                {
-                    "key": ":admin.create",
-                    "name": "追加",
-                    "path": "system/admin/create"
-                }
-            ]
-        },
-        {
-            "is_header": true,
             "name": "FUNCTION"
         },
         {
             "key": ":bot",
             "name": "ボット",
             "icon": "fas fa-robot",
-            "path": "system/bot"
+            "path": "#",
+            "menus": [
+                {
+                    "key": ":bot.index",
+                    "name": "検索",
+                    "path": "bot"
+                },
+                {
+                    "key": ":bot.create",
+                    "name": "追加",
+                    "path": "bot/create"
+                }
+            ]
         },
         {
             "key": ":message",
@@ -48,24 +36,24 @@
                         {
                             "key": ":message.index.immediate",
                             "name": "即時配信",
-                            "path": "system/message/immediate"
+                            "path": "message/immediate"
                         },
                         {
                             "key": ":message.index.schedule",
                             "name": "予約配信",
-                            "path": "system/message/schedule"
+                            "path": "message/schedule"
                         },
                         {
                             "key": ":message.index.regular",
                             "name": "定期配信",
-                            "path": "system/message/regular"
+                            "path": "message/regular"
                         }
                     ]
                 },
                 {
                     "key": ":message.history",
                     "name": "配信履歴",
-                    "path": "system/message/history"
+                    "path": "message/history"
                 }
             ]
         }

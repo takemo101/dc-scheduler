@@ -3,13 +3,15 @@ package application
 import (
 	"mime/multipart"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
+	query "github.com/takemo101/dc-scheduler/pkg/application/query"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
 // --- AppErrorType ---
 
-const BotDuplicateError AppErrorType = "ボット情報が重複しています"
-const BotWebhookInvalidError AppErrorType = "ボットURLが無効です"
+const BotDuplicateError common.AppErrorType = "ボット情報が重複しています"
+const BotWebhookInvalidError common.AppErrorType = "ボットURLが無効です"
 
 // --- BotSearchInput ---
 
@@ -23,12 +25,12 @@ type BotSearchInput struct {
 
 // BotSearchUseCase Bot一覧ユースケース
 type BotSearchUseCase struct {
-	query BotQuery
+	query query.BotQuery
 }
 
 // NewBotSearchUseCase コンストラクタ
 func NewBotSearchUseCase(
-	query BotQuery,
+	query query.BotQuery,
 ) BotSearchUseCase {
 	return BotSearchUseCase{
 		query,
@@ -38,18 +40,18 @@ func NewBotSearchUseCase(
 // Execute Bot一覧取得を実行
 func (uc BotSearchUseCase) Execute(
 	input BotSearchInput,
-) (paginator BotSearchPaginatorDTO, err AppError) {
+) (paginator query.BotSearchPaginatorDTO, err common.AppError) {
 
-	parameter := BotSearchParameterDTO{
+	parameter := query.BotSearchParameterDTO{
 		Page:        input.Page,
 		Limit:       input.Limit,
 		OrderByKey:  "id",
-		OrderByType: OrderByTypeDesc,
+		OrderByType: common.OrderByTypeDesc,
 	}
 
 	paginator, e := uc.query.Search(parameter)
 	if e != nil {
-		return paginator, NewByError(e)
+		return paginator, common.NewByError(e)
 	}
 
 	return paginator, err
@@ -59,12 +61,12 @@ func (uc BotSearchUseCase) Execute(
 
 // BotDetailUseCase Bot詳細ユースケース
 type BotDetailUseCase struct {
-	query BotQuery
+	query query.BotQuery
 }
 
 // NewBotDetailUseCase コンストラクタ
 func NewBotDetailUseCase(
-	query BotQuery,
+	query query.BotQuery,
 ) BotDetailUseCase {
 	return BotDetailUseCase{
 		query,
@@ -72,15 +74,15 @@ func NewBotDetailUseCase(
 }
 
 // Execute Bot詳細取得を実行
-func (uc BotDetailUseCase) Execute(id uint) (detail BotDetailDTO, err AppError) {
+func (uc BotDetailUseCase) Execute(id uint) (detail query.BotDetailDTO, err common.AppError) {
 	findID, e := domain.NewBotID(id)
 	if e != nil {
-		return detail, NewByError(e)
+		return detail, common.NewByError(e)
 	}
 
 	detail, e = uc.query.FindByID(findID)
 	if e != nil {
-		return detail, NewError(NotFoundDataError)
+		return detail, common.NewError(common.NotFoundDataError)
 	}
 
 	return detail, err
@@ -125,7 +127,7 @@ func NewBotStoreUseCase(
 // Execute Bot追加を実行
 func (uc BotStoreUseCase) Execute(
 	input BotStoreInput,
-) (id uint, err AppError) {
+) (id uint, err common.AppError) {
 	var avatar string
 
 	// アバターがアップロードされている場合
@@ -135,7 +137,7 @@ func (uc BotStoreUseCase) Execute(
 			input.AtatarDirectory,
 		)
 		if e != nil {
-			return id, NewByError(e)
+			return id, common.NewByError(e)
 		}
 
 		avatarVO, e := uc.fileRepository.Store(avatarEntity)
@@ -144,7 +146,7 @@ func (uc BotStoreUseCase) Execute(
 
 	nextID, e := uc.repository.NextIdentity()
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	entity, e := domain.CreateBot(
@@ -155,28 +157,28 @@ func (uc BotStoreUseCase) Execute(
 		input.Active,
 	)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	// ウェブフックの重複チェック
 	duplicate, e := uc.service.IsDuplicate(entity)
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 	if duplicate {
-		return id, NewError(BotDuplicateError)
+		return id, common.NewError(BotDuplicateError)
 	}
 
 	// ウェブフックの有効性チェック
 	ok, _ := uc.adapter.Check(entity.Webhook())
 	if !ok {
-		return id, NewError(BotWebhookInvalidError)
+		return id, common.NewError(BotWebhookInvalidError)
 	}
 
 	storeID, e := uc.repository.Store(entity)
 
 	if e != nil {
-		return id, NewByError(e)
+		return id, common.NewByError(e)
 	}
 
 	return storeID.Value(), err
@@ -222,15 +224,15 @@ func NewBotUpdateUseCase(
 func (uc BotUpdateUseCase) Execute(
 	id uint,
 	input BotUpdateInput,
-) (err AppError) {
+) (err common.AppError) {
 	findID, e := domain.NewBotID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(findID)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	var avatar string
@@ -242,7 +244,7 @@ func (uc BotUpdateUseCase) Execute(
 			input.AtatarDirectory,
 		)
 		if e != nil {
-			return NewByError(e)
+			return common.NewByError(e)
 		}
 
 		avatarVO, e := uc.fileRepository.Update(
@@ -261,27 +263,27 @@ func (uc BotUpdateUseCase) Execute(
 		input.Active,
 	)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	// ウェブフックの重複チェック
 	duplicate, e := uc.service.IsDuplicateWithoutSelf(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 	if duplicate {
-		return NewError(BotDuplicateError)
+		return common.NewError(BotDuplicateError)
 	}
 
 	// ウェブフックの有効性チェック
 	ok, _ := uc.adapter.Check(entity.Webhook())
 	if !ok {
-		return NewError(BotWebhookInvalidError)
+		return common.NewError(BotWebhookInvalidError)
 	}
 
 	e = uc.repository.Update(entity)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -307,26 +309,26 @@ func NewBotDeleteUseCase(
 }
 
 // Execute Bot削除を実行
-func (uc BotDeleteUseCase) Execute(id uint) (err AppError) {
+func (uc BotDeleteUseCase) Execute(id uint) (err common.AppError) {
 
 	deleteID, e := domain.NewBotID(id)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	entity, e := uc.repository.FindByID(deleteID)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	e = uc.repository.Delete(deleteID)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	e = uc.fileRepository.Delete(entity.Atatar())
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err

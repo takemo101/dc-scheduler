@@ -2,7 +2,7 @@ package vm
 
 import (
 	"github.com/takemo101/dc-scheduler/app/helper"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/query"
 )
 
 // ToAdminIndexMap AdminのIndexデータ

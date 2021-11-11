@@ -9,7 +9,7 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
 )
 
 // PostMessageController 配信関連コントローラ
@@ -65,7 +65,7 @@ func (ctl PostMessageController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("message/index", helper.DataMap(vm.ToPostMessageIndexMap(dto)))
+	return response.View("admin/message/index", helper.DataMap(vm.ToPostMessageIndexMap(dto)))
 }
 
 // Delete 削除処理
@@ -111,5 +111,5 @@ func (ctl PostMessageController) History(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("message/history", helper.DataMap(vm.ToSentMessageHistoryMap(dto)))
+	return response.View("admin/message/history", helper.DataMap(vm.ToSentMessageHistoryMap(dto)))
 }

@@ -139,20 +139,20 @@ func (r AdminRoute) Setup() {
 			{
 				bot.Get("/", r.botController.Index)
 				// bot.Get("/:id/detail", r.botController.Detail)
-				bot.Get("/create", r.botController.Create)
-				bot.Post("/store", r.botController.Store)
+				// bot.Get("/create", r.botController.Create)
+				// bot.Post("/store", r.botController.Store)
 				bot.Get("/:id/edit", r.botController.Edit)
 				bot.Put("/:id/update", r.botController.Update)
 				bot.Delete("/:id/delete", r.botController.Delete)
 
-				bot.Get("/:id/immediate/create", r.immediateController.Create)
-				bot.Post("/:id/immediate/store", r.immediateController.Store)
+				// bot.Get("/:id/immediate/create", r.immediateController.Create)
+				// bot.Post("/:id/immediate/store", r.immediateController.Store)
 
-				bot.Get("/:id/schedule/create", r.scheduleController.Create)
-				bot.Post("/:id/schedule/store", r.scheduleController.Store)
+				// bot.Get("/:id/schedule/create", r.scheduleController.Create)
+				// bot.Post("/:id/schedule/store", r.scheduleController.Store)
 
-				bot.Get("/:id/regular/create", r.regularController.Create)
-				bot.Post("/:id/regular/store", r.regularController.Store)
+				// bot.Get("/:id/regular/create", r.regularController.Create)
+				// bot.Post("/:id/regular/store", r.regularController.Store)
 			}
 			// message route
 			message := system.Group("/message")

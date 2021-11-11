@@ -1,12 +1,13 @@
 package application
 
 import (
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
 // --- AppErrorType ---
 
-const AdminNotFoundAccountError AppErrorType = "アカウントが見つかりません"
+const AdminNotFoundAccountError common.AppErrorType = "アカウントが見つかりません"
 
 // --- AdminLoginInput ---
 
@@ -36,9 +37,9 @@ func NewAdminLoginUseCase(
 func (uc AdminLoginUseCase) Execute(
 	context domain.AdminAuthContext,
 	input AdminLoginInput,
-) (err AppError) {
+) (err common.AppError) {
 
-	loginError := NewError(AdminNotFoundAccountError)
+	loginError := common.NewError(AdminNotFoundAccountError)
 
 	// メールアドレスからAdminを取得
 	entity, e := uc.repository.FindByEmail(domain.AdminEmail(input.Email))
@@ -49,7 +50,7 @@ func (uc AdminLoginUseCase) Execute(
 	// パスワードチェック
 	ok, e := entity.ComparePassword(input.Password)
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	if !ok {
@@ -59,7 +60,7 @@ func (uc AdminLoginUseCase) Execute(
 	// ログイン
 	e = context.Login(entity.CreateLoginAuth())
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err
@@ -76,10 +77,10 @@ func NewAdminLogoutUseCase() AdminLogoutUseCase {
 }
 
 // Execute ログアウトを実行
-func (uc AdminLogoutUseCase) Execute(context domain.AdminAuthContext) (err AppError) {
+func (uc AdminLogoutUseCase) Execute(context domain.AdminAuthContext) (err common.AppError) {
 	e := context.Logout()
 	if e != nil {
-		return NewByError(e)
+		return common.NewByError(e)
 	}
 
 	return err

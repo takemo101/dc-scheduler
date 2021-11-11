@@ -6,21 +6,21 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	query "github.com/takemo101/dc-scheduler/pkg/application/query"
 )
 
 // DashboardController is home dashboard
 type DashboardController struct {
 	config           core.Config
 	value            support.ContextValue
-	sentMessageQuery application.SentMessageQuery
+	sentMessageQuery query.SentMessageQuery
 }
 
 // NewDashboardController is create dashboard
 func NewDashboardController(
 	config core.Config,
 	value support.ContextValue,
-	sentMessageQuery application.SentMessageQuery,
+	sentMessageQuery query.SentMessageQuery,
 ) DashboardController {
 	return DashboardController{
 		config,
@@ -41,7 +41,7 @@ func (ctl DashboardController) Dashboard(c *fiber.Ctx) error {
 		return response.Error(err)
 	}
 
-	return response.View("home", helper.DataMap{
+	return response.View("admin/home", helper.DataMap{
 		"config":        ctl.config,
 		"sent_messages": vm.ToSentMessagesMap(list),
 		"informations":  informations,

@@ -3,12 +3,13 @@ package application
 import (
 	"time"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
 // --- PostMessageQuery ---
 
-// PostMessageQuery PostMessage参照
+// PostMessageQuery PostMessage参照
 type PostMessageQuery interface {
 	Search(PostMessageSearchParameterDTO) (PostMessageSearchPaginatorDTO, error)
 	FindByID(domain.PostMessageID) (PostMessageDetailDTO, error)
@@ -29,13 +30,13 @@ type PostMessageSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // PostMessageSearchPaginatorDTO PostMessage一覧DTO
 type PostMessageSearchPaginatorDTO struct {
 	PostMessages []PostMessageDetailDTO `json:"messages"`
-	Pagination   Paginator              `json:"pagination"`
+	Pagination   common.Paginator       `json:"pagination"`
 }
 
 // --- SentMessageQuery --
@@ -59,13 +60,13 @@ type SentMessageSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // SentMessageSearchPaginatorDTO SentMessage一覧DTO
 type SentMessageSearchPaginatorDTO struct {
 	SentMessages []SentMessageDetailDTO `json:"messages"`
-	Pagination   Paginator              `json:"pagination"`
+	Pagination   common.Paginator       `json:"pagination"`
 }
 
 // --- ImmediatePostQuery ---
@@ -89,13 +90,13 @@ type ImmediatePostSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // ImmediatePostSearchPaginatorDTO ImmediatePost一覧DTO
 type ImmediatePostSearchPaginatorDTO struct {
 	ImmediatePosts []ImmediatePostDetailDTO `json:"messages"`
-	Pagination     Paginator                `json:"pagination"`
+	Pagination     common.Paginator         `json:"pagination"`
 }
 
 // --- SchedulePostQuery ---
@@ -122,11 +123,11 @@ type SchedulePostSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // SchedulePostSearchPaginatorDTO SchedulePost一覧DTO
 type SchedulePostSearchPaginatorDTO struct {
 	SchedulePosts []SchedulePostDetailDTO `json:"messages"`
-	Pagination    Paginator               `json:"pagination"`
+	Pagination    common.Paginator        `json:"pagination"`
 }

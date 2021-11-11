@@ -3,6 +3,7 @@ package application
 import (
 	"time"
 
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
@@ -29,11 +30,11 @@ type AdminSearchParameterDTO struct {
 	Page        int
 	Limit       int
 	OrderByKey  string
-	OrderByType OrderByType
+	OrderByType common.OrderByType
 }
 
 // AdminSearchPaginatorDTO Admin一覧DTO
 type AdminSearchPaginatorDTO struct {
 	Admins     []AdminDetailDTO `json:"admins"`
-	Pagination Paginator        `json:"pagination"`
+	Pagination common.Paginator `json:"pagination"`
 }

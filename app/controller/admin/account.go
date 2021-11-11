@@ -7,7 +7,7 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
 )
 
 // AccountController アカウント
@@ -54,7 +54,7 @@ func (ctl AccountController) Edit(c *fiber.Ctx) error {
 		return response.Error(err)
 	}
 
-	return response.View("account/edit", helper.DataMap{
+	return response.View("admin/account/edit", helper.DataMap{
 		"content_footer": true,
 		"admin":          vm.ToAdminDetailMap(dto),
 	})
