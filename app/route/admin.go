@@ -23,6 +23,7 @@ type AdminRoute struct {
 	authController      controller.SessionAuthController
 	dashboardController controller.DashboardController
 	adminController     controller.AdminController
+	userController      controller.UserController
 	accountController   controller.AccountController
 	botController       controller.BotController
 	messageController   controller.PostMessageController
@@ -46,6 +47,7 @@ func NewAdminRoute(
 	authController controller.SessionAuthController,
 	dashboardController controller.DashboardController,
 	adminController controller.AdminController,
+	userController controller.UserController,
 	accountController controller.AccountController,
 	botController controller.BotController,
 	messageController controller.PostMessageController,
@@ -67,6 +69,7 @@ func NewAdminRoute(
 		authController:      authController,
 		dashboardController: dashboardController,
 		adminController:     adminController,
+		userController:      userController,
 		accountController:   accountController,
 		botController:       botController,
 		messageController:   messageController,
@@ -132,6 +135,17 @@ func (r AdminRoute) Setup() {
 			{
 				account.Get("/edit", r.accountController.Edit)
 				account.Put("/update", r.accountController.Update)
+			}
+
+			// user route
+			user := system.Group("/user")
+			{
+				user.Get("/", r.userController.Index)
+				user.Get("/create", r.userController.Create)
+				user.Post("/store", r.userController.Store)
+				user.Get("/:id/edit", r.userController.Edit)
+				user.Put("/:id/update", r.userController.Update)
+				user.Delete("/:id/delete", r.userController.Delete)
 			}
 
 			// bot route

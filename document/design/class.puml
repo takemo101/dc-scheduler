@@ -150,7 +150,7 @@ package domain {
             + {static} CreateAdmin(id: int, name: string, email: string, password string, role: string): Admin
             + Update(name: string, email: string, password string, role: string)
             + ComparePassword(plainPass: string): boolean
-            + CreateLoginAuth(admin Admin): AdminAuth
+            + CreateLoginAuth(): AdminAuth
         }
 
         enum AdminRole {
@@ -199,19 +199,25 @@ package domain {
             hashPassword: HashPassword
             activationKey: ActivationKey
             active: boolean
-            + {static} CreateActivatedUser(id: int, name: string, email: string, password): User
+            + {static} CreateUser(id: int, name: string, email: string, password, active: boolean): User
             + {static} CreateTemporaryUser(id: int, name: string, email: string, password: string): User
             + Activation(key: string): boolean
             + IsActivated(): boolean
             + Update(name: string, email: string, password: string)
             + ComparePassword(plainPass: string): boolean
-            + CreateLoginAuth(user: User): UserAuth
+            + CreateLoginAuth(): UserAuth
+            + CreateSignature(): UserSignature
         }
 
         class UserAuth {
             id: UserID
             name: Name
             email: Email
+        }
+
+        class UserSignature {
+            email: Email,
+            activationKey: ActivationKey,
         }
 
         class UserService {
@@ -237,6 +243,27 @@ package domain {
             + IsLogin(): boolean
         }
 
+        interface UserActivationSignatureCrypter {
+            + Encrypt(user: UserSignature): string
+            + Decrypt(signagure: string): UserSignature
+        }
+
+        class UserActivationNotify {
+            + {static} NewUserActivationNotify(user User): UserActivationNotify
+        }
+
+    }
+
+    package mail {
+        interface TemplateMailNotify {
+            + ToEmailAddress(): string
+            + Key(): string
+            + Data(): Map
+        }
+
+        interface TemplateMailSender {
+            + Send(notify: TemplateMailNotify)
+        }
     }
 }
 
@@ -272,11 +299,17 @@ AdminService -- AdminAuth
 AdminAuthContext -- AdminAuth
 
 UserAuth -- User
+UserSignature -- User
 UserRepository -- User
 UserService -- UserRepository
 UserService -- UserAuth
 UserAuthContext -- UserAuth
+UserActivationSignatureCrypter -- UserSignature
 User -- Bot
+UserActivationNotify -- User
 
+TemplateMailNotify -- TemplateMailSender
+
+TemplateMailNotify <|-- UserActivationNotify
 
 @enduml

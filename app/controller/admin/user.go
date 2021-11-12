@@ -11,33 +11,32 @@ import (
 	"github.com/takemo101/dc-scheduler/core"
 	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
 	common "github.com/takemo101/dc-scheduler/pkg/application/common"
-	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// AdminController 管理者コントローラ
-type AdminController struct {
+// UserController 管理者コントローラ
+type UserController struct {
 	value         support.ContextValue
 	toastr        support.ToastrMessage
 	sessionStore  core.SessionStore
-	searchUseCase application.AdminSearchUseCase
-	detailUseCase application.AdminDetailUseCase
-	storeUseCase  application.AdminStoreUseCase
-	updateUseCase application.AdminUpdateUseCase
-	deleteUseCase application.AdminDeleteUseCase
+	searchUseCase application.UserSearchUseCase
+	detailUseCase application.UserDetailUseCase
+	storeUseCase  application.UserStoreUseCase
+	updateUseCase application.UserUpdateUseCase
+	deleteUseCase application.UserDeleteUseCase
 }
 
-// NewAdminController コンストラクタ
-func NewAdminController(
+// NewUserController コンストラクタ
+func NewUserController(
 	value support.ContextValue,
 	toastr support.ToastrMessage,
 	sessionStore core.SessionStore,
-	searchUseCase application.AdminSearchUseCase,
-	detailUseCase application.AdminDetailUseCase,
-	storeUseCase application.AdminStoreUseCase,
-	updateUseCase application.AdminUpdateUseCase,
-	deleteUseCase application.AdminDeleteUseCase,
-) AdminController {
-	return AdminController{
+	searchUseCase application.UserSearchUseCase,
+	detailUseCase application.UserDetailUseCase,
+	storeUseCase application.UserStoreUseCase,
+	updateUseCase application.UserUpdateUseCase,
+	deleteUseCase application.UserDeleteUseCase,
+) UserController {
+	return UserController{
 		value,
 		toastr,
 		sessionStore,
@@ -50,8 +49,8 @@ func NewAdminController(
 }
 
 // Index 一覧表示
-func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
-	var form form.AdminSearch
+func (ctl UserController) Index(c *fiber.Ctx) (err error) {
+	var form form.UserSearch
 	response := ctl.value.GetResponseHelper(c)
 
 	if err := c.QueryParser(&form); err != nil {
@@ -59,7 +58,7 @@ func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
 	}
 
 	dto, appError := ctl.searchUseCase.Execute(
-		application.AdminSearchInput{
+		application.UserSearchInput{
 			Page:  form.Page,
 			Limit: 20,
 		},
@@ -70,22 +69,21 @@ func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/admin/index", helper.DataMap(vm.ToAdminIndexMap(dto)))
+	return response.View("admin/user/index", helper.DataMap(vm.ToUserIndexMap(dto)))
 }
 
 // Create 追加フォーム
-func (ctl AdminController) Create(c *fiber.Ctx) error {
+func (ctl UserController) Create(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
 
-	return response.View("admin/admin/create", helper.DataMap{
+	return response.View("admin/user/create", helper.DataMap{
 		"content_footer": true,
-		"roles":          vm.ToKeyValueMap(domain.AdminRoleToArray()),
 	})
 }
 
 // Store 追加処理
-func (ctl AdminController) Store(c *fiber.Ctx) (err error) {
-	var form form.AdminCreate
+func (ctl UserController) Store(c *fiber.Ctx) (err error) {
+	var form form.UserCreate
 	response := ctl.value.GetResponseHelper(c)
 
 	if err := c.BodyParser(&form); err != nil {
@@ -105,14 +103,14 @@ func (ctl AdminController) Store(c *fiber.Ctx) (err error) {
 		return response.Back(c)
 	}
 
-	_, appError := ctl.storeUseCase.Execute(application.AdminStoreInput{
+	_, appError := ctl.storeUseCase.Execute(application.UserStoreInput{
 		Name:     form.Name,
 		Email:    form.Email,
-		Role:     form.Role,
 		Password: form.Password,
+		Active:   form.ActiveToBool(),
 	})
 	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.AdminDuplicateError) {
+		if appError.HaveType(application.UserDuplicateError) {
 			ctl.sessionStore.SetErrorResource(
 				c,
 				helper.ErrorToMap("email", appError),
@@ -130,11 +128,11 @@ func (ctl AdminController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/admin")
+	return response.Redirect(c, "system/user")
 }
 
 // Edit 編集フォーム
-func (ctl AdminController) Edit(c *fiber.Ctx) (err error) {
+func (ctl UserController) Edit(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -150,16 +148,15 @@ func (ctl AdminController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("admin/admin/edit", helper.DataMap{
+	return response.View("admin/user/edit", helper.DataMap{
 		"content_footer": true,
-		"admin":          vm.ToAdminDetailMap(dto),
-		"roles":          vm.ToKeyValueMap(domain.AdminRoleToArray()),
+		"user":           vm.ToUserDetailMap(dto),
 	})
 }
 
 // Update 更新処理
-func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
-	var form form.AdminUpdate
+func (ctl UserController) Update(c *fiber.Ctx) (err error) {
+	var form form.UserUpdate
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -184,13 +181,13 @@ func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
 		return response.Back(c)
 	}
 
-	if appError := ctl.updateUseCase.Execute(uint(id), application.AdminUpdateInput{
+	if appError := ctl.updateUseCase.Execute(uint(id), application.UserUpdateInput{
 		Name:     form.Name,
 		Email:    form.Email,
-		Role:     form.Role,
 		Password: form.Password,
+		Active:   form.ActiveToBool(),
 	}); appError != nil && appError.HasError() {
-		if appError.HaveType(application.AdminDuplicateError) {
+		if appError.HaveType(application.UserDuplicateError) {
 			ctl.sessionStore.SetErrorResource(
 				c,
 				helper.ErrorToMap("email", appError),
@@ -212,7 +209,7 @@ func (ctl AdminController) Update(c *fiber.Ctx) (err error) {
 }
 
 // Delete 削除処理
-func (ctl AdminController) Delete(c *fiber.Ctx) (err error) {
+func (ctl UserController) Delete(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
 
 	id, err := strconv.Atoi(c.Params("id"))
@@ -230,5 +227,5 @@ func (ctl AdminController) Delete(c *fiber.Ctx) (err error) {
 		support.ToastrDelete.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/admin")
+	return response.Redirect(c, "system/user")
 }

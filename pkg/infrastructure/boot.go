@@ -10,6 +10,12 @@ var Module = fx.Options(
 	fx.Provide(NewAdminRepository),
 	fx.Provide(NewAdminQuery),
 
+	// User
+	fx.Provide(NewUserAuthContext),
+	fx.Provide(NewUserRepository),
+	fx.Provide(NewUserActivationSignatureCrypter),
+	fx.Provide(NewUserQuery),
+
 	// Bot
 	fx.Provide(NewBotAtatarImageRepository),
 	fx.Provide(NewBotRepository),
@@ -30,4 +36,7 @@ var Module = fx.Options(
 
 	// Adapter
 	fx.Provide(NewPublicStorageUploadAdapter),
+
+	// Mail
+	fx.Provide(NewTemplateMailSender),
 )

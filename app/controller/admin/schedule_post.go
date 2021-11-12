@@ -63,7 +63,7 @@ func (ctl SchedulePostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
+	return response.View("admin/message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
 }
 
 // Edit 編集フォーム
@@ -83,7 +83,7 @@ func (ctl SchedulePostController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("message/schedule_post/edit", helper.DataMap{
+	return response.View("admin/message/schedule_post/edit", helper.DataMap{
 		"content_footer": true,
 		"schedule_post":  vm.ToSchedulePostDetailMap(dto),
 	})

@@ -17,6 +17,13 @@ var Module = fx.Options(
 	fx.Provide(admin.NewAdminLoginUseCase),
 	fx.Provide(admin.NewAdminLogoutUseCase),
 
+	// --- User UseCase by admin --
+	fx.Provide(admin.NewUserStoreUseCase),
+	fx.Provide(admin.NewUserUpdateUseCase),
+	fx.Provide(admin.NewUserDeleteUseCase),
+	fx.Provide(admin.NewUserDetailUseCase),
+	fx.Provide(admin.NewUserSearchUseCase),
+
 	// --- Bot UseCase by admin ---
 	fx.Provide(admin.NewBotUpdateUseCase),
 	fx.Provide(admin.NewBotDeleteUseCase),

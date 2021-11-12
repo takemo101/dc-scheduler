@@ -65,18 +65,11 @@ object users {
     * email : string
     * password : bytes
     * active : boolean
+    * activation_key : string unique
     * created_at
     * updated_at
 }
 
-object activate_keys {
-    + id : pk <<auto_increment>>
-    --
-    # user_id : fk unique
-    * key : string unique
-}
-
-users ||--o| activate_keys
 users ||--o{ bots
 bots ||--o{ post_messages
 post_messages ||--o{ regular_timings
