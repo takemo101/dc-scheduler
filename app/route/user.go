@@ -10,19 +10,17 @@ import (
 )
 
 // AdminRoute 管理者ルート
-type AdminRoute struct {
+type UserRoute struct {
 	logger              core.Logger
 	app                 core.Application
 	path                core.Path
 	sessionStore        core.SessionStore
 	csrf                middleware.Csrf
 	value               support.ContextValue
-	auth                middleware.SessionAdminAuth
-	role                middleware.SessionAdminRole
+	auth                middleware.SessionUserAuth
 	render              middleware.ViewRender
 	authController      controller.SessionAuthController
 	dashboardController controller.DashboardController
-	adminController     controller.AdminController
 	userController      controller.UserController
 	accountController   controller.AccountController
 	botController       controller.BotController
@@ -33,20 +31,18 @@ type AdminRoute struct {
 	timingController    controller.RegularTimingController
 }
 
-// NewAdminRoute コンストラクタ
-func NewAdminRoute(
+// NewUserRoute コンストラクタ
+func NewUserRoute(
 	logger core.Logger,
 	app core.Application,
 	path core.Path,
 	sessionStore core.SessionStore,
 	csrf middleware.Csrf,
 	value support.ContextValue,
-	auth middleware.SessionAdminAuth,
-	role middleware.SessionAdminRole,
+	auth middleware.SessionUserAuth,
 	render middleware.ViewRender,
 	authController controller.SessionAuthController,
 	dashboardController controller.DashboardController,
-	adminController controller.AdminController,
 	userController controller.UserController,
 	accountController controller.AccountController,
 	botController controller.BotController,
@@ -55,8 +51,8 @@ func NewAdminRoute(
 	scheduleController controller.SchedulePostController,
 	regularController controller.RegularPostController,
 	timingController controller.RegularTimingController,
-) AdminRoute {
-	return AdminRoute{
+) UserRoute {
+	return UserRoute{
 		logger:              logger,
 		app:                 app,
 		path:                path,
@@ -64,11 +60,9 @@ func NewAdminRoute(
 		csrf:                csrf,
 		value:               value,
 		auth:                auth,
-		role:                role,
 		render:              render,
 		authController:      authController,
 		dashboardController: dashboardController,
-		adminController:     adminController,
 		userController:      userController,
 		accountController:   accountController,
 		botController:       botController,
@@ -81,21 +75,19 @@ func NewAdminRoute(
 }
 
 // Setup ルートのセットアップ
-func (r AdminRoute) Setup() {
-	r.logger.Info("setup admin-route")
+func (r UserRoute) Setup() {
+	r.logger.Info("setup user-route")
 
 	app := r.app.App
 
 	// root redirect
-	/*
-		app.Get("/", func(c *fiber.Ctx) error {
-			return c.Redirect(r.path.URL("system"))
-		})
-	*/
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Redirect(r.path.URL("login"))
+	})
 
-	// admin http route
+	// user http route
 	http := app.Group(
-		"/system",
+		"/",
 		r.csrf.CreateHandler("form:csrf_token"),
 		r.render.CreateHandler(r.ViewRenderCreateHandler),
 	)
@@ -103,7 +95,7 @@ func (r AdminRoute) Setup() {
 		// auth login route
 		auth := http.Group(
 			"/auth",
-			r.auth.CreateHandler(false, "system"),
+			r.auth.CreateHandler(false, "home"),
 		)
 		{
 			auth.Get("/login", r.authController.LoginForm)
@@ -117,20 +109,7 @@ func (r AdminRoute) Setup() {
 		)
 		{
 			// dashboard route
-			system.Get("/", r.dashboardController.Dashboard)
-
-			// admin route
-			admin := system.Group("/admin", r.role.CreateHandler(
-				[]string{"system"},
-			))
-			{
-				admin.Get("/", r.adminController.Index)
-				admin.Get("/create", r.adminController.Create)
-				admin.Post("/store", r.adminController.Store)
-				admin.Get("/:id/edit", r.adminController.Edit)
-				admin.Put("/:id/update", r.adminController.Update)
-				admin.Delete("/:id/delete", r.adminController.Delete)
-			}
+			system.Get("/home", r.dashboardController.Dashboard)
 
 			// account route
 			account := system.Group("/account")
@@ -198,9 +177,9 @@ func (r AdminRoute) Setup() {
 }
 
 // ViewRenderCreateHandler Viewへのデータを設定する
-func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender) (err error) {
+func (r UserRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender) (err error) {
 	// load Context list
-	adminlte, err := r.app.Config.Load("admin-lte")
+	adminlte, err := r.app.Config.Load("user-lte")
 	if err == nil {
 		for k, v := range map[string]string{
 			"adminlte_menus":   "menus",
@@ -217,7 +196,7 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 	}
 
 	// load meta
-	meta, err := r.app.Config.Load("admin-meta")
+	meta, err := r.app.Config.Load("user-meta")
 	if err == nil {
 		vr.SetData(helper.DataMap{
 			"site_meta": meta,
@@ -238,20 +217,19 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 	// session messages
 	messages, _ := r.sessionStore.GetSessionMessages(c)
 
-	// admin auth
+	// user auth
 	var auth helper.DataMap
-	adminContext, create := support.CreateSessionAdminAuthContext(
+	userContext, create := support.CreateSessionUserAuthContext(
 		c,
 		r.sessionStore,
 	)
 
 	if create == nil {
-		adminAuth, _ := adminContext.AdminAuth()
+		userAuth, _ := userContext.UserAuth()
 		auth = helper.DataMap{
-			"id":    adminAuth.ID().Value(),
-			"name":  adminAuth.Name().Value(),
-			"email": adminAuth.Email().Value(),
-			"role":  adminAuth.Role().Value(),
+			"id":    userAuth.ID().Value(),
+			"name":  userAuth.Name().Value(),
+			"email": userAuth.Email().Value(),
 		}
 	}
 

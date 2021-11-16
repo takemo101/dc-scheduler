@@ -2,6 +2,7 @@ package application
 
 import (
 	admin "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	user "github.com/takemo101/dc-scheduler/pkg/application/user"
 	"go.uber.org/fx"
 )
 
@@ -45,4 +46,31 @@ var Module = fx.Options(
 	fx.Provide(admin.NewRegularTimingAddUseCase),
 	fx.Provide(admin.NewRegularTimingRemoveUseCase),
 	fx.Provide(admin.NewRegularPostSendUseCase),
+
+	// --- User UseCase by user --
+	fx.Provide(user.NewUserRegistUseCase),
+	fx.Provide(user.NewUserActivationUseCase),
+	fx.Provide(user.NewMyAccountDetailUseCase),
+	fx.Provide(user.NewMyAccountUpdateUseCase),
+	fx.Provide(user.NewUserLoginUseCase),
+	fx.Provide(user.NewUserLogoutUseCase),
+
+	// --- Bot UseCase by user ---
+	fx.Provide(user.NewBotUpdateUseCase),
+	fx.Provide(user.NewBotDeleteUseCase),
+	fx.Provide(user.NewBotDetailUseCase),
+	fx.Provide(user.NewBotSearchUseCase),
+
+	// --- Message UseCase by user ---
+	fx.Provide(user.NewPostMessageDeleteUseCase),
+	fx.Provide(user.NewSentMessageHistoryUseCase),
+	fx.Provide(user.NewImmediatePostSearchUseCase),
+	fx.Provide(user.NewSchedulePostSearchUseCase),
+	fx.Provide(user.NewSchedulePostEditFormUseCase),
+	fx.Provide(user.NewSchedulePostUpdateUseCase),
+	fx.Provide(user.NewRegularPostSearchUseCase),
+	fx.Provide(user.NewRegularPostEditFormUseCase),
+	fx.Provide(user.NewRegularPostUpdateUseCase),
+	fx.Provide(user.NewRegularTimingAddUseCase),
+	fx.Provide(user.NewRegularTimingRemoveUseCase),
 )

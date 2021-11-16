@@ -53,11 +53,50 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 	return dto, err
 }
 
+// Search UserのBot一覧取得
+func (query BotQuery) SearchByUserID(parameter application.BotSearchParameterDTO, userID domain.UserID) (dto application.BotSearchPaginatorDTO, err error) {
+	var models []Bot
+
+	paging := NewGormPaging(
+		query.db.GormDB.Where("user_id = ?", userID.Value()),
+		parameter.Page,
+		parameter.Limit,
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+	)
+
+	paginator, err := paging.Paging(&models)
+	if err != nil {
+		return dto, err
+	}
+
+	dto.Pagination = paginator
+
+	bots := make([]application.BotDetailDTO, len(models))
+	for i, m := range models {
+		bots[i] = CreateBotDetailDTOFromModel(query.upload, m)
+	}
+
+	dto.Bots = bots
+
+	return dto, err
+}
+
 // FindByID Botの詳細取得
 func (query BotQuery) FindByID(id domain.BotID) (dto application.BotDetailDTO, err error) {
 	model := Bot{}
 
 	if err = query.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+		return dto, err
+	}
+
+	return CreateBotDetailDTOFromModel(query.upload, model), err
+}
+
+// FindByID UserのBot詳細取得
+func (query BotQuery) FindByIDAndUserID(id domain.BotID, userID domain.UserID) (dto application.BotDetailDTO, err error) {
+	model := Bot{}
+
+	if err = query.db.GormDB.Where("id = ? AND user_id = ?", id.Value(), userID.Value()).First(&model).Error; err != nil {
 		return dto, err
 	}
 

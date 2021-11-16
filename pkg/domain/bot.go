@@ -125,6 +125,7 @@ type Bot struct {
 	avatar  BotAtatar
 	webhook BotDiscordWebhook
 	active  bool
+	userID  UserID
 }
 
 // NewBot コンストラクタ
@@ -134,6 +135,7 @@ func NewBot(
 	avatar string,
 	webhook string,
 	active bool,
+	userID uint,
 ) Bot {
 	return Bot{
 		id: BotID{
@@ -143,6 +145,9 @@ func NewBot(
 		avatar:  BotAtatar(avatar),
 		webhook: BotDiscordWebhook(webhook),
 		active:  active,
+		userID: UserID{
+			ID: Identity(userID),
+		},
 	}
 }
 
@@ -153,6 +158,7 @@ func CreateBot(
 	avatar string,
 	webhook string,
 	active bool,
+	userID UserID,
 ) (entity Bot, err error) {
 
 	idVO, err := NewBotID(id)
@@ -178,6 +184,7 @@ func CreateBot(
 		avatar:  avatarVO,
 		webhook: webhookVO,
 		active:  active,
+		userID:  userID,
 	}, err
 }
 
@@ -207,6 +214,26 @@ func (entity *Bot) Update(
 	return err
 }
 
+// Update UserのBotを更新
+func (entity *Bot) UpdateUsers(
+	name string,
+	avatar string,
+	webhook string,
+	active bool,
+	userID UserID,
+) error {
+	if !entity.UserID().Equals(userID) {
+		return errors.New("対象UserのBotでは無いので更新できません")
+	}
+
+	return entity.Update(
+		name,
+		avatar,
+		webhook,
+		active,
+	)
+}
+
 func (entity Bot) ID() BotID {
 	return entity.id
 }
@@ -225,6 +252,15 @@ func (entity Bot) Webhook() BotDiscordWebhook {
 
 func (entity Bot) IsActive() bool {
 	return entity.active
+}
+
+func (entity Bot) UserID() UserID {
+	return entity.userID
+}
+
+// IsMine User自身のBotかどうか
+func (entity Bot) IsMine(userID UserID) bool {
+	return entity.UserID().Equals(userID)
 }
 
 // ChangeActive アクティブ状態を変更

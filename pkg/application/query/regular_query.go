@@ -12,7 +12,9 @@ import (
 // RegularPostQuery RegularPost参照
 type RegularPostQuery interface {
 	Search(RegularPostSearchParameterDTO) (RegularPostSearchPaginatorDTO, error)
+	SearchByUserID(RegularPostSearchParameterDTO, domain.UserID) (RegularPostSearchPaginatorDTO, error)
 	FindByID(domain.PostMessageID) (RegularPostDetailDTO, error)
+	FindByIDAndUserID(domain.PostMessageID, domain.UserID) (RegularPostDetailDTO, error)
 }
 
 // RegularPostDetailDTO RegularPost詳細DTO

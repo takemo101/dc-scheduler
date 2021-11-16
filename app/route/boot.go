@@ -10,6 +10,7 @@ import (
 var Module = fx.Options(
 	fx.Provide(NewApiRoute),
 	fx.Provide(NewAdminRoute),
+	fx.Provide(NewUserRoute),
 	fx.Provide(NewRoute),
 )
 
@@ -21,10 +22,12 @@ func NewRoute(
 	config core.Config,
 	api ApiRoute,
 	admin AdminRoute,
+	user UserRoute,
 ) Routes {
 	return Routes{
 		api,
 		admin,
+		user,
 	}
 }
 

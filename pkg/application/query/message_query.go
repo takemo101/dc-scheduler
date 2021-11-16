@@ -44,7 +44,9 @@ type PostMessageSearchPaginatorDTO struct {
 // SentMessageQuery
 type SentMessageQuery interface {
 	Search(SentMessageSearchParameterDTO) (SentMessageSearchPaginatorDTO, error)
-	RecentlyList(limit uint) ([]SentMessageDetailDTO, error)
+	SearchByUserID(SentMessageSearchParameterDTO, domain.UserID) (SentMessageSearchPaginatorDTO, error)
+	RecentlyList(uint) ([]SentMessageDetailDTO, error)
+	RecentlyListByUserID(domain.UserID, uint) ([]SentMessageDetailDTO, error)
 }
 
 // SentMessageDetailDTO PostMessage詳細DTO
@@ -74,6 +76,7 @@ type SentMessageSearchPaginatorDTO struct {
 // ImmediatePostQuery ImmediatePost参照
 type ImmediatePostQuery interface {
 	Search(ImmediatePostSearchParameterDTO) (ImmediatePostSearchPaginatorDTO, error)
+	SearchByUserID(ImmediatePostSearchParameterDTO, domain.UserID) (ImmediatePostSearchPaginatorDTO, error)
 }
 
 // ImmediatePostDetailDTO ImmediatePost詳細DTO
@@ -104,7 +107,9 @@ type ImmediatePostSearchPaginatorDTO struct {
 // SchedulePostQuery SchedulePost参照
 type SchedulePostQuery interface {
 	Search(SchedulePostSearchParameterDTO) (SchedulePostSearchPaginatorDTO, error)
+	SearchByUserID(SchedulePostSearchParameterDTO, domain.UserID) (SchedulePostSearchPaginatorDTO, error)
 	FindByID(domain.PostMessageID) (SchedulePostDetailDTO, error)
+	FindByIDAndUserID(domain.PostMessageID, domain.UserID) (SchedulePostDetailDTO, error)
 }
 
 // SchedulePostDetailDTO SchedulePost詳細DTO

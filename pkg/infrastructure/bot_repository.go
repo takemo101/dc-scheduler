@@ -177,6 +177,7 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 		model.Atatar,
 		model.Webhook,
 		model.Active.Bool,
+		model.UserID,
 	)
 }
 
@@ -248,4 +249,6 @@ type Bot struct {
 	Atatar  string       `gorm:"type:varchar(191);index"`
 	Webhook string       `gorm:"type:text"`
 	Active  sql.NullBool `gorm:"type:boolean;index"`
+	UserID  uint         `gorm:"index;not null"`
+	User    User         `gorm:"constraint:OnDelete:CASCADE;"`
 }

@@ -260,6 +260,11 @@ func (entity PostMessage) SentMessages() []SentMessage {
 	return entity.sentMessages
 }
 
+// IsMine User自身のPostMessageかどうか
+func (entity PostMessage) IsMine(userID UserID) bool {
+	return entity.Bot().IsMine(userID)
+}
+
 // Send メッセージを配信する
 func (entity *PostMessage) Send(now time.Time) (send SentMessage, err error) {
 	if !entity.CanSent() {
@@ -546,6 +551,7 @@ func (entity *SchedulePost) Send(now time.Time) (send SentMessage, err error) {
 
 type PostMessageRepository interface {
 	SaveSendedMessage(id PostMessageID, entity SentMessage) error
+	FindBaseByID(id PostMessageID) (PostMessage, error)
 	Delete(id PostMessageID) error
 	NextIdentity() (PostMessageID, error)
 }
