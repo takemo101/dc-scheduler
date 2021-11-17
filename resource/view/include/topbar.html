@@ -5,7 +5,7 @@
             <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-            <a href="{{ url('system') }}" class="nav-link">Home</a>
+            <a href="{{ url(adminlte_links.home) }}" class="nav-link">Home</a>
         </li>
     </ul>
     <ul class="navbar-nav ml-auto">
@@ -14,7 +14,7 @@
                 <i class="fa fa-fw fa-power-off"></i>
                 Logout
             </a>
-            <form id="logout-form" action="{{ url('system/logout') }}" method="post" style="display: none;">
+            <form id="logout-form" action="{{ url(adminlte_links.logout) }}" method="post" style="display: none;">
                 {% include 'form/csrf.html' %}
             </form>
         </li>

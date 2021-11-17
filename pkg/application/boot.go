@@ -56,6 +56,7 @@ var Module = fx.Options(
 	fx.Provide(user.NewUserLogoutUseCase),
 
 	// --- Bot UseCase by user ---
+	fx.Provide(user.NewBotStoreUseCase),
 	fx.Provide(user.NewBotUpdateUseCase),
 	fx.Provide(user.NewBotDeleteUseCase),
 	fx.Provide(user.NewBotDetailUseCase),
@@ -65,10 +66,13 @@ var Module = fx.Options(
 	fx.Provide(user.NewPostMessageDeleteUseCase),
 	fx.Provide(user.NewSentMessageHistoryUseCase),
 	fx.Provide(user.NewImmediatePostSearchUseCase),
+	fx.Provide(user.NewImmediatePostStoreUseCase),
 	fx.Provide(user.NewSchedulePostSearchUseCase),
+	fx.Provide(user.NewSchedulePostStoreUseCase),
 	fx.Provide(user.NewSchedulePostEditFormUseCase),
 	fx.Provide(user.NewSchedulePostUpdateUseCase),
 	fx.Provide(user.NewRegularPostSearchUseCase),
+	fx.Provide(user.NewRegularPostStoreUseCase),
 	fx.Provide(user.NewRegularPostEditFormUseCase),
 	fx.Provide(user.NewRegularPostUpdateUseCase),
 	fx.Provide(user.NewRegularTimingAddUseCase),

@@ -18,14 +18,15 @@ type BotQuery interface {
 
 // BotDetailDTO Bot詳細DTO
 type BotDetailDTO struct {
-	ID         uint      `json:"id"`
-	Name       string    `json:"name"`
-	AtatarURL  string    `json:"avatar_url"`
-	AtatarPath string    `json:"avatar_path"`
-	Webhook    string    `json:"webhook"`
-	Active     bool      `json:"active"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID         uint          `json:"id"`
+	Name       string        `json:"name"`
+	AtatarURL  string        `json:"avatar_url"`
+	AtatarPath string        `json:"avatar_path"`
+	Webhook    string        `json:"webhook"`
+	Active     bool          `json:"active"`
+	User       UserDetailDTO `json:"user"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
 // BotSearchParameterDTO Bot一覧取得パラメータDTO

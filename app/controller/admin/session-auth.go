@@ -35,6 +35,7 @@ func NewSessionAuthController(
 // LoginForm render login form
 func (ctl SessionAuthController) LoginForm(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
+
 	return response.View("admin/auth/login", helper.DataMap{})
 }
 

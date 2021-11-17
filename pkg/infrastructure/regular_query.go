@@ -31,7 +31,7 @@ func (query RegularPostQuery) Search(parameter application.RegularPostSearchPara
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("RegularTimings").Preload("Bot").Where("message_type = ?", domain.MessageTypeRegularPost),
+		query.db.GormDB.Preload("RegularTimings").Preload("Bot.User").Where("message_type = ?", domain.MessageTypeRegularPost),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},

@@ -30,7 +30,7 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 	var models []Bot
 
 	paging := NewGormPaging(
-		query.db.GormDB,
+		query.db.GormDB.Preload("User"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
@@ -85,7 +85,7 @@ func (query BotQuery) SearchByUserID(parameter application.BotSearchParameterDTO
 func (query BotQuery) FindByID(id domain.BotID) (dto application.BotDetailDTO, err error) {
 	model := Bot{}
 
-	if err = query.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+	if err = query.db.GormDB.Preload("User").Where("id = ?", id.Value()).First(&model).Error; err != nil {
 		return dto, err
 	}
 
@@ -110,6 +110,7 @@ func CreateBotDetailDTOFromModel(
 		AtatarPath: avatarPath,
 		Webhook:    model.Webhook,
 		Active:     model.Active.Bool,
+		User:       CreateUserDetailDTOFromModel(model.User),
 		CreatedAt:  model.CreatedAt,
 		UpdatedAt:  model.UpdatedAt,
 	}

@@ -1,0 +1,74 @@
+{% extends 'layout/default.html' %}
+{% block title %}配信履歴｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':message.history' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='配信履歴' function='FUNCTION' first_label='配信履歴' %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">リスト</h3>
+            </div>
+            <!-- /.card-header -->
+            {% if sent_messages|length > 0 %}
+            <div class="card-body table-responsive p-0">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>
+                                配信日時
+                            </th>
+                            <th>
+                                対象ボット<br/>
+                                配信タイプ
+                            </th>
+                            <th>
+                                メッセージ内容
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in sent_messages %}
+                        <tr>
+                            <td>{{ message.id }}</td>
+                            <td>
+                                <small>
+                                    {{ message.sended_at|date:'2006.01.02 15:04' }}
+                                </small>
+                            </td>
+                            <td>
+                                <a href="{{ url('system/bot/%d/edit', message.post_message.bot.id) }}">
+                                    {{ message.post_message.bot.name }}
+                                </a><br/>
+                                {{ message.post_message.message_type_name }}
+                            </td>
+                            <td>
+                                <small>{{ nl2br(message.message|escape) }}</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+            {% include 'pagination/default.html' %}
+            {% else %}
+            <div class="card-body">
+                <div class="alert alert-info alert-dismissible mb-0">
+                    <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                    その条件のリストはありません
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- /.card -->
+
+    </div>
+</div>
+{% endblock %}

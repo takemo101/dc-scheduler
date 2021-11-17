@@ -9,6 +9,7 @@ services:
     build:
       context: ./docker/db
       dockerfile: Dockerfile
+    platform: linux/x86_64
     ports:
       - 3306:3306
     environment:
@@ -38,7 +39,11 @@ services:
       - fiber
   # Redis
   redis:
-    image: redis:3.0
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./docker/redis/data:/data"
     networks:
       - fiber
   # Mailhog

@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/gofiber/fiber/v2"
-	controller "github.com/takemo101/dc-scheduler/app/controller/admin"
+	controller "github.com/takemo101/dc-scheduler/app/controller/user"
 	"github.com/takemo101/dc-scheduler/app/helper"
 	"github.com/takemo101/dc-scheduler/app/middleware"
 	"github.com/takemo101/dc-scheduler/app/support"
@@ -82,12 +82,12 @@ func (r UserRoute) Setup() {
 
 	// root redirect
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Redirect(r.path.URL("login"))
+		return c.Redirect(r.path.URL("user/auth/login"))
 	})
 
 	// user http route
 	http := app.Group(
-		"/",
+		"/user",
 		r.csrf.CreateHandler("form:csrf_token"),
 		r.render.CreateHandler(r.ViewRenderCreateHandler),
 	)
@@ -95,64 +95,61 @@ func (r UserRoute) Setup() {
 		// auth login route
 		auth := http.Group(
 			"/auth",
-			r.auth.CreateHandler(false, "home"),
+			r.auth.CreateHandler(false, "user"),
+			// エラーページのビューパスを変更
+			func(c *fiber.Ctx) error {
+				response := r.value.GetResponseHelper(c)
+				response.SetErrorViewPath("error/auth")
+				return c.Next()
+			},
 		)
 		{
 			auth.Get("/login", r.authController.LoginForm)
 			auth.Post("/login", r.authController.Login)
+			auth.Get("/regist", r.userController.RegistFrom)
+			auth.Post("/regist", r.userController.Regist)
+			auth.Get("/activation/:signature", r.userController.Activation)
 		}
 
 		// after login route
-		system := http.Group(
+		user := http.Group(
 			"/",
-			r.auth.CreateHandler(true, "system/auth/login"),
+			r.auth.CreateHandler(true, "user/auth/login"),
 		)
 		{
 			// dashboard route
-			system.Get("/home", r.dashboardController.Dashboard)
+			user.Get("/", r.dashboardController.Dashboard)
 
 			// account route
-			account := system.Group("/account")
+			account := user.Group("/account")
 			{
 				account.Get("/edit", r.accountController.Edit)
 				account.Put("/update", r.accountController.Update)
 			}
 
-			// user route
-			user := system.Group("/user")
-			{
-				user.Get("/", r.userController.Index)
-				user.Get("/create", r.userController.Create)
-				user.Post("/store", r.userController.Store)
-				user.Get("/:id/edit", r.userController.Edit)
-				user.Put("/:id/update", r.userController.Update)
-				user.Delete("/:id/delete", r.userController.Delete)
-			}
-
 			// bot route
-			bot := system.Group("/bot")
+			bot := user.Group("/bot")
 			{
 				bot.Get("/", r.botController.Index)
-				// bot.Get("/:id/detail", r.botController.Detail)
-				// bot.Get("/create", r.botController.Create)
-				// bot.Post("/store", r.botController.Store)
+				bot.Get("/create", r.botController.Create)
+				bot.Post("/store", r.botController.Store)
 				bot.Get("/:id/edit", r.botController.Edit)
 				bot.Put("/:id/update", r.botController.Update)
 				bot.Delete("/:id/delete", r.botController.Delete)
 
-				// bot.Get("/:id/immediate/create", r.immediateController.Create)
-				// bot.Post("/:id/immediate/store", r.immediateController.Store)
+				bot.Get("/:id/immediate/create", r.immediateController.Create)
+				bot.Post("/:id/immediate/store", r.immediateController.Store)
 
-				// bot.Get("/:id/schedule/create", r.scheduleController.Create)
-				// bot.Post("/:id/schedule/store", r.scheduleController.Store)
+				bot.Get("/:id/schedule/create", r.scheduleController.Create)
+				bot.Post("/:id/schedule/store", r.scheduleController.Store)
 
-				// bot.Get("/:id/regular/create", r.regularController.Create)
-				// bot.Post("/:id/regular/store", r.regularController.Store)
+				bot.Get("/:id/regular/create", r.regularController.Create)
+				bot.Post("/:id/regular/store", r.regularController.Store)
 			}
+
 			// message route
-			message := system.Group("/message")
+			message := user.Group("/message")
 			{
-				// message.Get("/", r.messageController.Index)
 				message.Get("/immediate", r.immediateController.Index)
 
 				message.Get("/schedule", r.scheduleController.Index)
@@ -171,7 +168,7 @@ func (r UserRoute) Setup() {
 			}
 
 			// auth logout route
-			system.Post("/logout", r.authController.Logout)
+			user.Post("/logout", r.authController.Logout)
 		}
 	}
 }
@@ -184,6 +181,7 @@ func (r UserRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender) 
 		for k, v := range map[string]string{
 			"adminlte_menus":   "menus",
 			"adminlte_plugins": "plugins",
+			"adminlte_links":   "links",
 		} {
 			if value, ok := adminlte[v]; ok {
 				vr.SetData(helper.DataMap{

@@ -15,7 +15,7 @@ import (
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// RegularTimingController 即時配信コントローラ
+// RegularTimingController 定期タイミングコントローラ
 type RegularTimingController struct {
 	value           support.ContextValue
 	toastr          support.ToastrMessage

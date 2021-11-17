@@ -18,7 +18,7 @@
                 {
                     "key": ":bot.create",
                     "name": "追加",
-                    "path": "bot/create"
+                    "path": "user/bot/create"
                 }
             ]
         },
@@ -36,24 +36,24 @@
                         {
                             "key": ":message.index.immediate",
                             "name": "即時配信",
-                            "path": "message/immediate"
+                            "path": "user/message/immediate"
                         },
                         {
                             "key": ":message.index.schedule",
                             "name": "予約配信",
-                            "path": "message/schedule"
+                            "path": "user/message/schedule"
                         },
                         {
                             "key": ":message.index.regular",
                             "name": "定期配信",
-                            "path": "message/regular"
+                            "path": "user/message/regular"
                         }
                     ]
                 },
                 {
                     "key": ":message.history",
                     "name": "配信履歴",
-                    "path": "message/history"
+                    "path": "user/message/history"
                 }
             ]
         }
@@ -138,5 +138,10 @@
                 "file": "plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"
             }
         ]
+    },
+    "links": {
+        "account": "user/account/edit",
+        "home": "user",
+        "logout": "user/logout"
     }
 }

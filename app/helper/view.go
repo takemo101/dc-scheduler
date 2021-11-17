@@ -46,12 +46,13 @@ func (v *ViewRender) SetName(name string) {
 	v.data.name = name
 }
 
-func (v *ViewRender) Error(message string, code int) error {
+func (v *ViewRender) Error(name string, message string, code int) error {
 	v.data.err = fiber.Error{
 		Message: message,
 		Code:    code,
 	}
-	v.SetName("error/error")
+
+	v.SetName(name)
 	return nil
 }
 

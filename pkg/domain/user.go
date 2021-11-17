@@ -352,7 +352,7 @@ func (entity *User) Activation(activationKey UserActivationKey) (ok bool, err er
 	}
 
 	// キーの一致をチェックする
-	if entity.ActivationKey().Equals(activationKey) {
+	if !entity.ActivationKey().Equals(activationKey) {
 		return false, err
 	}
 

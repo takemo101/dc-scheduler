@@ -104,6 +104,12 @@ func (r AdminRoute) Setup() {
 		auth := http.Group(
 			"/auth",
 			r.auth.CreateHandler(false, "system"),
+			// エラーページのビューパスを変更
+			func(c *fiber.Ctx) error {
+				response := r.value.GetResponseHelper(c)
+				response.SetErrorViewPath("error/auth")
+				return c.Next()
+			},
 		)
 		{
 			auth.Get("/login", r.authController.LoginForm)
@@ -154,7 +160,6 @@ func (r AdminRoute) Setup() {
 			bot := system.Group("/bot")
 			{
 				bot.Get("/", r.botController.Index)
-				// bot.Get("/:id/detail", r.botController.Detail)
 				// bot.Get("/create", r.botController.Create)
 				// bot.Post("/store", r.botController.Store)
 				bot.Get("/:id/edit", r.botController.Edit)
@@ -205,6 +210,7 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 		for k, v := range map[string]string{
 			"adminlte_menus":   "menus",
 			"adminlte_plugins": "plugins",
+			"adminlte_links":   "links",
 		} {
 			if value, ok := adminlte[v]; ok {
 				vr.SetData(helper.DataMap{
@@ -256,11 +262,12 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 	}
 
 	data := helper.DataMap{
-		"csrf_token": csrfToken,
-		"errors":     errors,
-		"inputs":     inputs,
-		"messages":   messages,
-		"auth":       auth,
+		"csrf_token":   csrfToken,
+		"errors":       errors,
+		"inputs":       inputs,
+		"messages":     messages,
+		"auth":         auth,
+		"account_link": "system/account/edit",
 	}
 
 	vr.SetData(data)

@@ -13,7 +13,7 @@ import (
 	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 )
 
-// SchedulePostController 即時配信コントローラ
+// SchedulePostController 予約配信コントローラ
 type SchedulePostController struct {
 	value           support.ContextValue
 	toastr          support.ToastrMessage

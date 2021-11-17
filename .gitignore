@@ -14,5 +14,8 @@ config.testing.yml
 /.ssh
 package-lock.json
 
+# docker
+/docker/db/data/*
+/docker/redis/data/*
 # other
 memo.txt

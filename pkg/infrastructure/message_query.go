@@ -181,9 +181,9 @@ func (query SentMessageQuery) RecentlyListByUserID(userID domain.UserID, limit u
 	var models []SentMessage
 
 	err = query.db.GormDB.Preload("PostMessage.Bot").Joins(
-		"PostMessage.Bot",
-		query.db.GormDB.Where(&Bot{UserID: userID.Value()}),
-	).Order("id DESC").Limit(int(limit)).Find(&models).Error
+		"PostMessage",
+		query.db.GormDB.Joins("Bot", query.db.GormDB.Where(&Bot{UserID: userID.Value()})),
+	).Order("sent_messages.id DESC").Limit(int(limit)).Find(&models).Error
 	if err != nil {
 		return list, err
 	}
@@ -327,7 +327,7 @@ func (query SchedulePostQuery) Search(parameter application.SchedulePostSearchPa
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("ScheduleTiming").Preload("Bot").Where("message_type = ?", domain.MessageTypeSchedulePost).Joins("ScheduleTiming"),
+		query.db.GormDB.Preload("ScheduleTiming").Preload("Bot.User").Where("message_type = ?", domain.MessageTypeSchedulePost).Joins("ScheduleTiming"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery("post_messages." + parameter.OrderByKey)},
@@ -385,7 +385,7 @@ func (query SchedulePostQuery) SearchByUserID(parameter application.SchedulePost
 func (query SchedulePostQuery) FindByID(id domain.PostMessageID) (dto application.SchedulePostDetailDTO, err error) {
 	model := PostMessage{}
 
-	if err = query.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).Preload("ScheduleTiming").Preload("Bot").First(&model).Error; err != nil {
+	if err = query.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).Preload("ScheduleTiming").Preload("Bot.User").First(&model).Error; err != nil {
 		return dto, err
 	}
 

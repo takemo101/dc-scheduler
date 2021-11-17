@@ -2,5 +2,9 @@
     "test": {
         "subject": "test message {{ message }}",
         "path": "mail/test"
+    },
+    "user-activation": {
+        "subject": "利用者登録はまだ完了しておりません！",
+        "path": "mail/user-activation"
     }
 }

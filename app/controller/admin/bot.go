@@ -72,28 +72,6 @@ func (ctl BotController) Index(c *fiber.Ctx) (err error) {
 	return response.View("admin/bot/index", helper.DataMap(vm.ToBotIndexMap(dto)))
 }
 
-// Detail 詳細
-func (ctl BotController) Detail(c *fiber.Ctx) (err error) {
-	response := ctl.value.GetResponseHelper(c)
-
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return response.Error(err)
-	}
-
-	dto, appError := ctl.detailUseCase.Execute(uint(id))
-	if appError != nil {
-		if appError.HaveType(common.NotFoundDataError) {
-			return response.Error(appError, fiber.StatusNotFound)
-		}
-		return response.Error(appError)
-	}
-
-	return response.View("admin/bot/detail", helper.DataMap{
-		"bot": vm.ToBotDetailMap(dto),
-	})
-}
-
 // Edit 編集フォーム
 func (ctl BotController) Edit(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
