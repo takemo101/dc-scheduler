@@ -12,7 +12,6 @@ import (
 const (
 	BotDuplicateError      common.AppErrorType = "ボット情報が重複しています"
 	BotWebhookInvalidError common.AppErrorType = "ボットURLが無効です"
-	BotNotMineError        common.AppErrorType = "ボット情報は対象Userのものではありません"
 )
 
 // --- BotSearchInput ---
@@ -68,14 +67,17 @@ func (uc BotSearchUseCase) Execute(
 
 // BotDetailUseCase Bot詳細ユースケース
 type BotDetailUseCase struct {
-	query query.BotQuery
+	repository domain.BotRepository
+	query      query.BotQuery
 }
 
 // NewBotDetailUseCase コンストラクタ
 func NewBotDetailUseCase(
+	repository domain.BotRepository,
 	query query.BotQuery,
 ) BotDetailUseCase {
 	return BotDetailUseCase{
+		repository,
 		query,
 	}
 }
@@ -85,17 +87,26 @@ func (uc BotDetailUseCase) Execute(
 	context domain.UserAuthContext,
 	id uint,
 ) (detail query.BotDetailDTO, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return detail, common.NewByError(e)
-	}
-
 	findID, e := domain.NewBotID(id)
 	if e != nil {
 		return detail, common.NewByError(e)
 	}
 
-	detail, e = uc.query.FindByIDAndUserID(findID, auth.ID())
+	entity, e := uc.repository.FindByID(findID)
+	if e != nil {
+		return detail, common.NewError(common.NotFoundDataError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserBotPolicy(context)
+	ok, e := policy.Detail(entity)
+	if e != nil {
+		return detail, common.NewByError(e)
+	} else if !ok {
+		return detail, common.NewError(common.NotTargetOwnerError)
+	}
+
+	detail, e = uc.query.FindByID(findID)
 	if e != nil {
 		return detail, common.NewError(common.NotFoundDataError)
 	}
@@ -248,11 +259,6 @@ func (uc BotUpdateUseCase) Execute(
 	id uint,
 	input BotUpdateInput,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	findID, e := domain.NewBotID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -263,9 +269,13 @@ func (uc BotUpdateUseCase) Execute(
 		return common.NewByError(e)
 	}
 
-	// 自身のボットかどうか
-	if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	// ポリシーチェック
+	policy := domain.NewUserBotPolicy(context)
+	ok, e := policy.Update(entity)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	var avatar string
@@ -309,7 +319,7 @@ func (uc BotUpdateUseCase) Execute(
 	}
 
 	// ウェブフックの有効性チェック
-	ok, _ := uc.adapter.Check(entity.Webhook())
+	ok, _ = uc.adapter.Check(entity.Webhook())
 	if !ok {
 		return common.NewError(BotWebhookInvalidError)
 	}
@@ -346,11 +356,6 @@ func (uc BotDeleteUseCase) Execute(
 	context domain.UserAuthContext,
 	id uint,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	deleteID, e := domain.NewBotID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -361,8 +366,13 @@ func (uc BotDeleteUseCase) Execute(
 		return common.NewByError(e)
 	}
 
-	if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	// ポリシーチェック
+	policy := domain.NewUserBotPolicy(context)
+	ok, e := policy.Delete(entity)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	e = uc.repository.Delete(deleteID)

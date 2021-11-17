@@ -52,40 +52,6 @@ func (uc PostMessageSearchUseCase) Execute(
 	return paginator, err
 }
 
-// --- PostMessageCreateFormUseCase ---
-
-// PostMessageCreateFormUseCase Bot作成フォームユースケース
-type PostMessageCreateFormUseCase struct {
-	repository domain.BotRepository
-	query      query.BotQuery
-}
-
-// NewPostMessageCreateFormUseCase コンストラクタ
-func NewPostMessageCreateFormUseCase(
-	repository domain.BotRepository,
-	query query.BotQuery,
-) PostMessageCreateFormUseCase {
-	return PostMessageCreateFormUseCase{
-		repository,
-		query,
-	}
-}
-
-// Execute フォーム表示のためのBot取得を実行
-func (uc PostMessageCreateFormUseCase) Execute(botID uint) (detail query.BotDetailDTO, err common.AppError) {
-	findID, e := domain.NewBotID(botID)
-	if e != nil {
-		return detail, common.NewError(common.NotFoundDataError)
-	}
-
-	detail, e = uc.query.FindByID(findID)
-	if e != nil {
-		return detail, common.NewByError(e)
-	}
-
-	return detail, err
-}
-
 // --- PostMessageDeleteUseCase ---
 
 // PostMessageDeleteUseCase PostMessage削除ユースケース

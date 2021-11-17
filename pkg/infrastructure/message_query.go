@@ -392,20 +392,6 @@ func (query SchedulePostQuery) FindByID(id domain.PostMessageID) (dto applicatio
 	return CreateSchedulePostDetailDTOFromModel(query.upload, model), err
 }
 
-// FindByIDAndUserID SchedulePostの詳細取得
-func (query SchedulePostQuery) FindByIDAndUserID(id domain.PostMessageID, userID domain.UserID) (dto application.SchedulePostDetailDTO, err error) {
-	model := PostMessage{}
-
-	if err = query.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).Preload("ScheduleTiming").Preload("Bot").Joins(
-		"Bot",
-		query.db.GormDB.Where(&Bot{UserID: userID.Value()}),
-	).First(&model).Error; err != nil {
-		return dto, err
-	}
-
-	return CreateSchedulePostDetailDTOFromModel(query.upload, model), err
-}
-
 // CreateSchedulePostDetailDTOFromModel PostMessageからSchedulePostDetailDTOを生成する
 func CreateSchedulePostDetailDTOFromModel(
 	upload UploadAdapter,

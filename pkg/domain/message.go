@@ -260,9 +260,9 @@ func (entity PostMessage) SentMessages() []SentMessage {
 	return entity.sentMessages
 }
 
-// IsMine User自身のPostMessageかどうか
-func (entity PostMessage) IsMine(userID UserID) bool {
-	return entity.Bot().IsMine(userID)
+// IsOwner User自身のPostMessageかどうか
+func (entity PostMessage) IsOwner(userID UserID) bool {
+	return entity.Bot().IsOwner(userID)
 }
 
 // Send メッセージを配信する
@@ -545,6 +545,52 @@ func (entity *SchedulePost) Send(now time.Time) (send SentMessage, err error) {
 	entity.sended = true
 
 	return send, err
+}
+
+// --- UserMessagePolicy ---
+
+// UserBotPolicy
+type UserMessagePolicy struct {
+	context UserAuthContext
+}
+
+// NewUserMessagePolicy コンストラクタ
+func NewUserMessagePolicy(
+	context UserAuthContext,
+) UserMessagePolicy {
+	return UserMessagePolicy{
+		context,
+	}
+}
+
+// Update Userが対象PostMessageをCreateできるか
+func (policy UserMessagePolicy) Create(bot Bot) (ok bool, err error) {
+	auth, err := policy.context.UserAuth()
+	if err != nil {
+		return ok, err
+	}
+
+	return bot.IsOwner(auth.ID()), err
+}
+
+// Update Userが対象PostMessageをDetail閲覧できるか
+func (policy UserMessagePolicy) Detail(message PostMessage) (ok bool, err error) {
+	auth, err := policy.context.UserAuth()
+	if err != nil {
+		return ok, err
+	}
+
+	return message.IsOwner(auth.ID()), err
+}
+
+// Update Userが対象PostMessageをUpdateできるか
+func (policy UserMessagePolicy) Update(message PostMessage) (ok bool, err error) {
+	return policy.Detail(message)
+}
+
+// Delete Userが対象PostMessageをDeleteできるか
+func (policy UserMessagePolicy) Delete(message PostMessage) (ok bool, err error) {
+	return policy.Detail(message)
 }
 
 // --- PostMessageRepository ---

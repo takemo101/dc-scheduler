@@ -258,8 +258,8 @@ func (entity Bot) UserID() UserID {
 	return entity.userID
 }
 
-// IsMine User自身のBotかどうか
-func (entity Bot) IsMine(userID UserID) bool {
+// IsOwner User自身のBotかどうか
+func (entity Bot) IsOwner(userID UserID) bool {
 	return entity.UserID().Equals(userID)
 }
 
@@ -398,6 +398,42 @@ func (service BotService) IsDuplicate(bot Bot) (bool, error) {
 // IsDuplicate 指定のBotを除き重複しているか
 func (service BotService) IsDuplicateWithoutSelf(bot Bot) (bool, error) {
 	return service.repository.ExistsByIDNameAndWebhook(bot.ID(), bot.Name(), bot.Webhook())
+}
+
+// --- UserBotPolicy ---
+
+// UserBotPolicy
+type UserBotPolicy struct {
+	context UserAuthContext
+}
+
+// NewUserBotPolicy コンストラクタ
+func NewUserBotPolicy(
+	context UserAuthContext,
+) UserBotPolicy {
+	return UserBotPolicy{
+		context,
+	}
+}
+
+// Detail Userが対象Botを閲覧できるか
+func (policy UserBotPolicy) Detail(bot Bot) (ok bool, err error) {
+	auth, err := policy.context.UserAuth()
+	if err != nil {
+		return ok, err
+	}
+
+	return bot.IsOwner(auth.ID()), err
+}
+
+// Update Userが対象BotをUpdateできるか
+func (policy UserBotPolicy) Update(bot Bot) (ok bool, err error) {
+	return policy.Detail(bot)
+}
+
+// Update Userが対象BotをDeleteできるか
+func (policy UserBotPolicy) Delete(bot Bot) (ok bool, err error) {
+	return policy.Detail(bot)
 }
 
 // --- BotAtatarImageRepository ---

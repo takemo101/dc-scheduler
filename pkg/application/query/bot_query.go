@@ -9,12 +9,11 @@ import (
 
 // --- BotQuery ---
 
-// BotQuery Bot参照
+// BotQuery Bot参照
 type BotQuery interface {
 	Search(BotSearchParameterDTO) (BotSearchPaginatorDTO, error)
 	SearchByUserID(BotSearchParameterDTO, domain.UserID) (BotSearchPaginatorDTO, error)
 	FindByID(domain.BotID) (BotDetailDTO, error)
-	FindByIDAndUserID(domain.BotID, domain.UserID) (BotDetailDTO, error)
 }
 
 // BotDetailDTO Bot詳細DTO

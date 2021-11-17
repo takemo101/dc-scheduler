@@ -94,11 +94,6 @@ func (uc RegularPostStoreUseCase) Execute(
 	botID uint,
 	input RegularPostStoreInput,
 ) (id uint, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return id, common.NewByError(e)
-	}
-
 	botIDVO, e := domain.NewBotID(botID)
 	if e != nil {
 		return id, common.NewByError(e)
@@ -109,9 +104,13 @@ func (uc RegularPostStoreUseCase) Execute(
 		return id, common.NewError(common.NotFoundDataError)
 	}
 
-	// ログインUserのBotかどうか
-	if !bot.IsMine(auth.ID()) {
-		return id, common.NewError(BotNotMineError)
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Create(bot)
+	if e != nil {
+		return id, common.NewByError(e)
+	} else if !ok {
+		return id, common.NewError(common.NotTargetOwnerError)
 	}
 
 	nextID, e := uc.repository.NextIdentity()
@@ -146,7 +145,7 @@ type RegularPostEditFormUseCase struct {
 	query      query.RegularPostQuery
 }
 
-// NewPostMessageCreateFormUseCase コンストラクタ
+// NewRegularPostEditFormUseCase コンストラクタ
 func NewRegularPostEditFormUseCase(
 	repository domain.RegularPostRepository,
 	query query.RegularPostQuery,
@@ -162,19 +161,28 @@ func (uc RegularPostEditFormUseCase) Execute(
 	context domain.UserAuthContext,
 	id uint,
 ) (detail query.RegularPostDetailDTO, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return detail, common.NewByError(e)
-	}
-
 	findID, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return detail, common.NewByError(e)
 	}
 
-	detail, e = uc.query.FindByIDAndUserID(findID, auth.ID())
+	entity, e := uc.repository.FindByID(findID)
+	if e != nil {
+		return detail, common.NewError(common.NotFoundDataError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Detail(entity.PostMessage)
 	if e != nil {
 		return detail, common.NewByError(e)
+	} else if !ok {
+		return detail, common.NewError(common.NotTargetOwnerError)
+	}
+
+	detail, e = uc.query.FindByID(findID)
+	if e != nil {
+		return detail, common.NewError(common.NotFoundDataError)
 	}
 
 	return detail, err
@@ -210,11 +218,6 @@ func (uc RegularPostUpdateUseCase) Execute(
 	id uint,
 	input RegularPostUpdateInput,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -223,8 +226,15 @@ func (uc RegularPostUpdateUseCase) Execute(
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
 		return common.NewError(common.NotFoundDataError)
-	} else if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Update(entity.PostMessage)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	e = entity.Update(
@@ -274,11 +284,6 @@ func (uc RegularTimingAddUseCase) Execute(
 	id uint,
 	input RegularTimingInput,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -287,8 +292,15 @@ func (uc RegularTimingAddUseCase) Execute(
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
 		return common.NewError(common.NotFoundDataError)
-	} else if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Update(entity.PostMessage)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	e = entity.AddTiming(
@@ -330,11 +342,6 @@ func (uc RegularTimingRemoveUseCase) Execute(
 	id uint,
 	input RegularTimingInput,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -343,8 +350,15 @@ func (uc RegularTimingRemoveUseCase) Execute(
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
 		return common.NewError(common.NotFoundDataError)
-	} else if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Delete(entity.PostMessage)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	e = entity.RemoveTiming(

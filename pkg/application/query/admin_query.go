@@ -9,7 +9,7 @@ import (
 
 // --- AdminQuery ---
 
-// AdminQuery Admin参照
+// AdminQuery Admin参照
 type AdminQuery interface {
 	Search(AdminSearchParameterDTO) (AdminSearchPaginatorDTO, error)
 	FindByID(domain.AdminID) (AdminDetailDTO, error)

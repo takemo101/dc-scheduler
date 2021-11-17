@@ -109,7 +109,6 @@ type SchedulePostQuery interface {
 	Search(SchedulePostSearchParameterDTO) (SchedulePostSearchPaginatorDTO, error)
 	SearchByUserID(SchedulePostSearchParameterDTO, domain.UserID) (SchedulePostSearchPaginatorDTO, error)
 	FindByID(domain.PostMessageID) (SchedulePostDetailDTO, error)
-	FindByIDAndUserID(domain.PostMessageID, domain.UserID) (SchedulePostDetailDTO, error)
 }
 
 // SchedulePostDetailDTO SchedulePost詳細DTO

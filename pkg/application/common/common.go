@@ -12,8 +12,11 @@ import (
 type AppErrorType string
 
 // AppByError エラーからのエラー
-const AppByError AppErrorType = "error by error"
-const NotFoundDataError AppErrorType = "not found data"
+const (
+	AppByError          AppErrorType = "error by error"
+	NotFoundDataError   AppErrorType = "not found data"
+	NotTargetOwnerError AppErrorType = "not target owner"
+)
 
 // String 文字列変換
 func (errType AppErrorType) String() string {

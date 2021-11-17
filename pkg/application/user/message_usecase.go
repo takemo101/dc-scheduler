@@ -8,48 +8,6 @@ import (
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// --- PostMessageCreateFormUseCase ---
-
-// PostMessageCreateFormUseCase Bot作成フォームユースケース
-type PostMessageCreateFormUseCase struct {
-	repository domain.BotRepository
-	query      query.BotQuery
-}
-
-// NewPostMessageCreateFormUseCase コンストラクタ
-func NewPostMessageCreateFormUseCase(
-	repository domain.BotRepository,
-	query query.BotQuery,
-) PostMessageCreateFormUseCase {
-	return PostMessageCreateFormUseCase{
-		repository,
-		query,
-	}
-}
-
-// Execute フォーム表示のためのBot取得を実行
-func (uc PostMessageCreateFormUseCase) Execute(
-	context domain.UserAuthContext,
-	botID uint,
-) (detail query.BotDetailDTO, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return detail, common.NewByError(e)
-	}
-
-	findID, e := domain.NewBotID(botID)
-	if e != nil {
-		return detail, common.NewError(common.NotFoundDataError)
-	}
-
-	detail, e = uc.query.FindByIDAndUserID(findID, auth.ID())
-	if e != nil {
-		return detail, common.NewByError(e)
-	}
-
-	return detail, err
-}
-
 // --- PostMessageDeleteUseCase ---
 
 // PostMessageDeleteUseCase PostMessage削除ユースケース
@@ -71,11 +29,6 @@ func (uc PostMessageDeleteUseCase) Execute(
 	context domain.UserAuthContext,
 	id uint,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	deleteID, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -84,8 +37,15 @@ func (uc PostMessageDeleteUseCase) Execute(
 	entity, e := uc.repository.FindBaseByID(deleteID)
 	if e != nil {
 		return common.NewByError(e)
-	} else if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Delete(entity)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	e = uc.repository.Delete(deleteID)
@@ -229,11 +189,6 @@ func (uc ImmediatePostStoreUseCase) Execute(
 	botID uint,
 	input ImmediatePostStoreInput,
 ) (id uint, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return id, common.NewByError(e)
-	}
-
 	botIDVO, e := domain.NewBotID(botID)
 	if e != nil {
 		return id, common.NewByError(e)
@@ -242,8 +197,15 @@ func (uc ImmediatePostStoreUseCase) Execute(
 	bot, e := uc.botRepository.FindByID(botIDVO)
 	if e != nil {
 		return id, common.NewError(common.NotFoundDataError)
-	} else if !bot.IsMine(auth.ID()) {
-		return id, common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Create(bot)
+	if e != nil {
+		return id, common.NewByError(e)
+	} else if !ok {
+		return id, common.NewError(common.NotTargetOwnerError)
 	}
 
 	nextID, e := uc.repository.NextIdentity()
@@ -363,11 +325,6 @@ func (uc SchedulePostStoreUseCase) Execute(
 	botID uint,
 	input SchedulePostStoreInput,
 ) (id uint, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return id, common.NewByError(e)
-	}
-
 	botIDVO, e := domain.NewBotID(botID)
 	if e != nil {
 		return id, common.NewByError(e)
@@ -376,8 +333,15 @@ func (uc SchedulePostStoreUseCase) Execute(
 	bot, e := uc.botRepository.FindByID(botIDVO)
 	if e != nil {
 		return id, common.NewError(common.NotFoundDataError)
-	} else if !bot.IsMine(auth.ID()) {
-		return id, common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Create(bot)
+	if e != nil {
+		return id, common.NewByError(e)
+	} else if !ok {
+		return id, common.NewError(common.NotTargetOwnerError)
 	}
 
 	nextID, e := uc.repository.NextIdentity()
@@ -413,7 +377,7 @@ type SchedulePostEditFormUseCase struct {
 	query      query.SchedulePostQuery
 }
 
-// NewPostMessageCreateFormUseCase コンストラクタ
+// NewSchedulePostEditFormUseCase コンストラクタ
 func NewSchedulePostEditFormUseCase(
 	repository domain.SchedulePostRepository,
 	query query.SchedulePostQuery,
@@ -429,11 +393,6 @@ func (uc SchedulePostEditFormUseCase) Execute(
 	context domain.UserAuthContext,
 	id uint,
 ) (detail query.SchedulePostDetailDTO, err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return detail, common.NewByError(e)
-	}
-
 	findID, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return detail, common.NewByError(e)
@@ -442,10 +401,17 @@ func (uc SchedulePostEditFormUseCase) Execute(
 	entity, e := uc.repository.FindByID(findID)
 	if e != nil {
 		return detail, common.NewByError(e)
-	} else if !entity.IsMine(auth.ID()) {
-		return detail, common.NewError(BotNotMineError)
 	} else if entity.IsSended() {
 		return detail, common.NewError(common.NotFoundDataError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Detail(entity.PostMessage)
+	if e != nil {
+		return detail, common.NewByError(e)
+	} else if !ok {
+		return detail, common.NewError(common.NotTargetOwnerError)
 	}
 
 	detail, e = uc.query.FindByID(findID)
@@ -486,11 +452,6 @@ func (uc SchedulePostUpdateUseCase) Execute(
 	id uint,
 	input SchedulePostUpdateInput,
 ) (err common.AppError) {
-	auth, e := context.UserAuth()
-	if e != nil {
-		return common.NewByError(e)
-	}
-
 	idVO, e := domain.NewPostMessageID(id)
 	if e != nil {
 		return common.NewByError(e)
@@ -499,8 +460,15 @@ func (uc SchedulePostUpdateUseCase) Execute(
 	entity, e := uc.repository.FindByID(idVO)
 	if e != nil {
 		return common.NewError(common.NotFoundDataError)
-	} else if !entity.IsMine(auth.ID()) {
-		return common.NewError(BotNotMineError)
+	}
+
+	// ポリシーチェック
+	policy := domain.NewUserMessagePolicy(context)
+	ok, e := policy.Update(entity.PostMessage)
+	if e != nil {
+		return common.NewByError(e)
+	} else if !ok {
+		return common.NewError(common.NotTargetOwnerError)
 	}
 
 	e = entity.Update(

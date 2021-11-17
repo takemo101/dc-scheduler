@@ -92,17 +92,6 @@ func (query BotQuery) FindByID(id domain.BotID) (dto application.BotDetailDTO, e
 	return CreateBotDetailDTOFromModel(query.upload, model), err
 }
 
-// FindByID UserのBot詳細取得
-func (query BotQuery) FindByIDAndUserID(id domain.BotID, userID domain.UserID) (dto application.BotDetailDTO, err error) {
-	model := Bot{}
-
-	if err = query.db.GormDB.Where("id = ? AND user_id = ?", id.Value(), userID.Value()).First(&model).Error; err != nil {
-		return dto, err
-	}
-
-	return CreateBotDetailDTOFromModel(query.upload, model), err
-}
-
 // CreateBotDetailDTOFromModel BotからBotDetailDTOを生成する
 func CreateBotDetailDTOFromModel(
 	upload UploadAdapter,
