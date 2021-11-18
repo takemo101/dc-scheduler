@@ -84,8 +84,8 @@ jobs:
       - name: Build Go
         run: |
           mkdir -p ./${{ env.BINARY_DIRECTORY }}
-          go build -a -o ./${{ env.BINARY_DIRECTORY }}/linux-app ./main.go
-          go build -a -o ./${{ env.BINARY_DIRECTORY }}/linux-app-cli ./cli/main.go
+          go build --ldflags '-extldflags "-static"' -a -o ./${{ env.BINARY_DIRECTORY }}/linux-app ./main.go
+          go build --ldflags '-extldflags "-static"' -a -o ./${{ env.BINARY_DIRECTORY }}/linux-app-cli ./cli/main.go
 
       - name: SCP
         uses: appleboy/scp-action@master
