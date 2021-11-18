@@ -43,7 +43,7 @@ svg/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
 
 BINARY_DIRECTORY = bin
 LOLI_SSH_KEY = .ssh/id_rsa
-LOLI_SSH_PORT = 35135
+LOLI_SSH_PORT = 43582
 LOLI_SSH_USER = proud-iki-7985
 LOLI_SSH_HOST = ssh-1.mc.lolipop.jp
 LOLI_PROJECT_DIRECTORY = /var/app/dc-scheduler
@@ -95,4 +95,4 @@ app-loli-deploy-copy:
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app-cli ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 
 loli-login:
-	ssh -p 35135 -i .ssh/id_rsa proud-iki-7985@ssh-1.mc.lolipop.jp
+	ssh -p ${LOLI_SSH_PORT} -i .ssh/id_rsa ${LOLI_SSH_USER}@${LOLI_SSH_HOST}
