@@ -1,15 +1,20 @@
 name: ManualTestAndDeploy
 
 on:
-  push:
-    branches: [develop]
-
   workflow_dispatch:
     inputs:
       branch:
         description: "Deploy Branch"
         required: true
         default: "develop"
+
+env:
+  BINARY_DIRECTORY: "bin"
+  DEPLOY_DIRECTORY: "/var/app/dc-scheduler"
+  SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  SSH_PORT: 35135
 
 jobs:
   testing:
@@ -31,11 +36,58 @@ jobs:
       - name: Run TestCode
         run: go test -v ./test
 
-  deploy:
-    name: Deploy
+  preparation:
+    name: Preparation
     needs: testing
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
-          echo "Log level: ${{ github.event.inputs.branch }}"
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USERNAME }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          script: |
+            cd ${{ env.DEPLOY_DIRECTORY }}
+            mkdir -p ./${{ env.BINARY_DIRECTORY }}
+            git fetch origin
+            git reset --hard origin/${{ github.event.inputs.branch }}
+
+      - name: Echo DeployBranch
+        run: |
+          echo "DeployBranch: ${{ github.event.inputs.branch }}"
+
+  deploy:
+    name: Deploy
+    needs: preparation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: SetUp Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Build Go
+        run: |
+          mkdir -p ./${{ env.BINARY_DIRECTORY }}
+          go build -a -o ./${{ env.BINARY_DIRECTORY }}/linux-app ./main.go
+          go build -a -o ./${{ env.BINARY_DIRECTORY }}/linux-app-cli ./cli/main.go
+
+      - name: SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USERNAME }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          source: "./${{ env.BINARY_DIRECTORY }}/linux-app,./${{ env.BINARY_DIRECTORY }}/linux-app-cli"
+          target: ${{ env.DEPLOY_DIRECTORY }}/${{ env.BINARY_DIRECTORY }}/
