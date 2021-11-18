@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
+        description: "Deploy Branch"
         required: true
         default: "develop"
 
@@ -26,3 +27,12 @@ jobs:
 
       - name: Run TestCode
         run: go test -v ./test
+
+  deploy:
+    name: Deploy
+    needs: testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          echo "Log level: ${{ github.event.inputs.branch }}"
