@@ -103,5 +103,5 @@ func (ctl PostMessageController) History(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/message/history", helper.DataMap(vm.ToSentMessageHistoryMap(dto)))
+	return response.View("user/message/history", helper.DataMap(vm.ToSentMessageHistoryMap(dto)))
 }

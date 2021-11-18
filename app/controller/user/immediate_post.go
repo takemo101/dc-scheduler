@@ -73,7 +73,7 @@ func (ctl ImmediatePostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/message/immediate_post/index", helper.DataMap(vm.ToImmediatePostIndexMap(dto)))
+	return response.View("user/message/immediate_post/index", helper.DataMap(vm.ToImmediatePostIndexMap(dto)))
 }
 
 // Create 追加フォーム

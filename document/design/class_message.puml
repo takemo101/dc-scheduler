@@ -1,4 +1,4 @@
-@startuml class
+@startuml class_message
 
 package domain {
     package message {
@@ -13,6 +13,7 @@ package domain {
             + Update(name: string, avatar: string, active: boolean)
             + ChangeActive(active: boolean)
             + IsActive(): boolean
+            + IsOwner(userID: UserID): boolean
         }
 
         class BotAtatarImage {
@@ -31,6 +32,7 @@ package domain {
             + ChangeMessage(message: string)
             + HasSentMessage(): boolean
             + CanSent(): boolean
+            + IsOwner(userID: UserID): boolean
         }
 
         enum MessageType {
@@ -90,6 +92,19 @@ package domain {
             + IsDuplicateWithoutSelf(bot Bot): boolean
         }
 
+        class UserBotPolicy {
+            + Detail(bot: Bot): boolean
+            + Update(bot: Bot): boolean
+            + Delete(bot: Bot): boolean
+        }
+
+        class UserMessagePolicy {
+            + Store(bot: Bot): boolean
+            + Detail(message: PostMessage): boolean
+            + Update(message: PostMessage): boolean
+            + Delete(message: PostMessage): boolean
+        }
+
         interface BotRepository {
             + FindByID(id: BotID): Bot
             + Store(bot: Bot): BotID
@@ -139,133 +154,11 @@ package domain {
             + SendMessage(bot: Bot, message: Message)
         }
     }
-
-    package admin {
-        class Admin {
-            id: AdminID
-            name: Name
-            email: Email
-            hashPassword: HashPassword
-            role: AdminRole
-            + {static} CreateAdmin(id: int, name: string, email: string, password string, role: string): Admin
-            + Update(name: string, email: string, password string, role: string)
-            + ComparePassword(plainPass: string): boolean
-            + CreateLoginAuth(): AdminAuth
-        }
-
-        enum AdminRole {
-            System
-            Normal
-            + String(): string
-        }
-
-        class AdminAuth {
-            id: AdminID
-            name: Name
-            email: Email
-            role: AdminRole
-            + {static} HaveRole(role: string): boolean
-        }
-
-        class AdminService {
-            + IsDuplicate(admin: Admin): boolean
-            + IsDuplicateWithoutSelf(admin: Admin): boolean
-        }
-
-        interface AdminRepository {
-            + Store(admin: Admin): AdminID
-            + Update(admin: Admin)
-            + FindByID(id: AdminID): Admin
-            + FindByEmail(email Email): Admin
-            + Delete(id: AdminID)
-            + ExistsByEmail(email: Email): bool
-            + ExistsByIDEmail(id AdminID, email Email): bool
-            + NextIdentity(): AdminID
-        }
-
-        interface AdminAuthContext {
-            + Login(auth: AdminAuth)
-            + Logout()
-            + AdminAuth(): AdminAuth
-            + IsLogin(): boolean
-        }
-    }
-
-    package user {
-        class User {
-            id: UserID
-            name: Name
-            email: Email
-            hashPassword: HashPassword
-            activationKey: ActivationKey
-            active: boolean
-            + {static} CreateUser(id: int, name: string, email: string, password, active: boolean): User
-            + {static} CreateTemporaryUser(id: int, name: string, email: string, password: string): User
-            + Activation(key: string): boolean
-            + IsActivated(): boolean
-            + Update(name: string, email: string, password: string)
-            + ComparePassword(plainPass: string): boolean
-            + CreateLoginAuth(): UserAuth
-            + CreateSignature(): UserSignature
-        }
-
-        class UserAuth {
-            id: UserID
-            name: Name
-            email: Email
-        }
-
-        class UserSignature {
-            email: Email,
-            activationKey: ActivationKey,
-        }
-
-        class UserService {
-            + IsDuplicate(user: User): boolean
-            + IsDuplicateWithoutSelf(user: User): boolean
-        }
-
-        interface UserRepository {
-            + Store(user: User): UserID
-            + Update(user: User)
-            + FindByID(id: UserID): User
-            + FindByEmail(email Email): User
-            + Delete(id: UserID)
-            + ExistsByEmail(email: Email): bool
-            + ExistsByIDEmail(id UserID, email Email): bool
-            + NextIdentity(): UserID
-        }
-
-        interface UserAuthContext {
-            + Login(auth: UserAuth)
-            + Logout()
-            + UserAuth(): UserAuth
-            + IsLogin(): boolean
-        }
-
-        interface UserActivationSignatureCrypter {
-            + Encrypt(user: UserSignature): string
-            + Decrypt(signagure: string): UserSignature
-        }
-
-        class UserActivationNotify {
-            + {static} NewUserActivationNotify(user User): UserActivationNotify
-        }
-
-    }
-
-    package mail {
-        interface TemplateMailNotify {
-            + ToEmailAddress(): string
-            + Key(): string
-            + Data(): Map
-        }
-
-        interface TemplateMailSender {
-            + Send(notify: TemplateMailNotify)
-        }
-    }
 }
+
+UserBotPolicy -- Bot
+UserMessagePolicy -- Bot
+UserMessagePolicy -- PostMessage
 
 Bot -o PostMessage
 PostMessage - MessageType
@@ -275,7 +168,6 @@ PostMessage <|-- SchedulePost
 PostMessage <|-- RegularPost
 RegularPost *-- RegularTiming
 RegularTiming - DayOfWeek
-Admin - AdminRole
 
 BotRepository -- Bot
 BotAtatarImageRepository -- BotAtatarImage
@@ -292,24 +184,5 @@ RegularPostRepository --|> PostMessageRepository
 ImmediatePostRepository -- ImmediatePost
 SchedulePostRepository -- SchedulePost
 RegularPostRepository -- RegularPost
-AdminAuth -- Admin
-AdminRepository -- Admin
-AdminService -- AdminRepository
-AdminService -- AdminAuth
-AdminAuthContext -- AdminAuth
-
-UserAuth -- User
-UserSignature -- User
-UserRepository -- User
-UserService -- UserRepository
-UserService -- UserAuth
-UserAuthContext -- UserAuth
-UserActivationSignatureCrypter -- UserSignature
-User -- Bot
-UserActivationNotify -- User
-
-TemplateMailNotify -- TemplateMailSender
-
-TemplateMailNotify <|-- UserActivationNotify
 
 @enduml

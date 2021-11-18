@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"net/url"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/takemo101/dc-scheduler/app/form"
 	"github.com/takemo101/dc-scheduler/app/helper"
@@ -90,13 +88,7 @@ func (ctl UserController) Regist(c *fiber.Ctx) error {
 func (ctl UserController) Activation(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
 
-	signature := c.Params("signature")
-
-	// URLデコード
-	signature, err := url.QueryUnescape(signature)
-	if err != nil {
-		return response.Error(err)
-	}
+	signature := c.Params("+")
 
 	if appError := ctl.activationUseCase.Execute(signature); appError != nil && appError.HasError() {
 		return response.Error(appError)

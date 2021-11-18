@@ -108,7 +108,7 @@ func (r UserRoute) Setup() {
 			auth.Post("/login", r.authController.Login)
 			auth.Get("/regist", r.userController.RegistFrom)
 			auth.Post("/regist", r.userController.Regist)
-			auth.Get("/activation/:signature", r.userController.Activation)
+			auth.Get("/activation/+", r.userController.Activation)
 		}
 
 		// after login route

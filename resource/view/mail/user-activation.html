@@ -4,7 +4,7 @@
 
 以下のURLにアクセスすることでアクティベーションが完了します。
 
-URL : {{ url('user/auth/activation/%s', signature|urlencode) }}
+URL : {{ url('user/auth/activation/%s', signature) }}
 
 アクティベーションが完了しましたら、
 設定していただいたアカウント情報でサービスを利用することができます。
@@ -14,5 +14,5 @@ URL : {{ url('user/auth/activation/%s', signature|urlencode) }}
 
 ------------
 DiscordScheduler
-URL : {{ url('/') }}
+URL : {{ url('') }}
 ------------

@@ -1,0 +1,63 @@
+@startuml class_admin
+
+package domain {
+    package admin {
+        class Admin {
+            id: AdminID
+            name: Name
+            email: Email
+            hashPassword: HashPassword
+            role: AdminRole
+            + {static} CreateAdmin(id: int, name: string, email: string, password string, role: string): Admin
+            + Update(name: string, email: string, password string, role: string)
+            + ComparePassword(plainPass: string): boolean
+            + CreateLoginAuth(): AdminAuth
+        }
+
+        enum AdminRole {
+            System
+            Normal
+            + String(): string
+        }
+
+        class AdminAuth {
+            id: AdminID
+            name: Name
+            email: Email
+            role: AdminRole
+            + {static} HaveRole(role: string): boolean
+        }
+
+        class AdminService {
+            + IsDuplicate(admin: Admin): boolean
+            + IsDuplicateWithoutSelf(admin: Admin): boolean
+        }
+
+        interface AdminRepository {
+            + Store(admin: Admin): AdminID
+            + Update(admin: Admin)
+            + FindByID(id: AdminID): Admin
+            + FindByEmail(email Email): Admin
+            + Delete(id: AdminID)
+            + ExistsByEmail(email: Email): bool
+            + ExistsByIDEmail(id AdminID, email Email): bool
+            + NextIdentity(): AdminID
+        }
+
+        interface AdminAuthContext {
+            + Login(auth: AdminAuth)
+            + Logout()
+            + AdminAuth(): AdminAuth
+            + IsLogin(): boolean
+        }
+    }
+}
+
+AdminAuth -- Admin
+AdminRepository -- Admin
+AdminService -- AdminRepository
+AdminService -- AdminAuth
+AdminAuthContext -- AdminAuth
+Admin - AdminRole
+
+@enduml

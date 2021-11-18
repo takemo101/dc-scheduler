@@ -1,0 +1,93 @@
+@startuml class_user
+
+package domain {
+    package user {
+        class User {
+            id: UserID
+            name: Name
+            email: Email
+            hashPassword: HashPassword
+            activationKey: ActivationKey
+            active: boolean
+            + {static} CreateUser(id: int, name: string, email: string, password, active: boolean): User
+            + {static} CreateTemporaryUser(id: int, name: string, email: string, password: string): User
+            + Activation(key: string): boolean
+            + IsActivated(): boolean
+            + Update(name: string, email: string, password: string)
+            + ComparePassword(plainPass: string): boolean
+            + CreateLoginAuth(): UserAuth
+            + CreateSignature(): UserSignature
+        }
+
+        class UserAuth {
+            id: UserID
+            name: Name
+            email: Email
+        }
+
+        class UserSignature {
+            email: Email,
+            activationKey: ActivationKey,
+        }
+
+        class UserService {
+            + IsDuplicate(user: User): boolean
+            + IsDuplicateWithoutSelf(user: User): boolean
+        }
+
+        interface UserRepository {
+            + Store(user: User): UserID
+            + Update(user: User)
+            + FindByID(id: UserID): User
+            + FindByEmail(email Email): User
+            + Delete(id: UserID)
+            + ExistsByEmail(email: Email): bool
+            + ExistsByIDEmail(id UserID, email Email): bool
+            + NextIdentity(): UserID
+        }
+
+        interface UserAuthContext {
+            + Login(auth: UserAuth)
+            + Logout()
+            + UserAuth(): UserAuth
+            + IsLogin(): boolean
+        }
+
+        interface UserActivationSignatureCrypter {
+            + Encrypt(user: UserSignature): string
+            + Decrypt(signagure: string): UserSignature
+        }
+
+        class UserActivationNotify {
+            + {static} NewUserActivationNotify(user User): UserActivationNotify
+        }
+
+    }
+
+    package mail {
+        interface TemplateMailNotify {
+            + ToEmailAddress(): string
+            + Key(): string
+            + Data(): Map
+        }
+
+        interface TemplateMailSender {
+            + Send(notify: TemplateMailNotify)
+        }
+    }
+}
+
+UserAuth -- User
+UserSignature -- User
+UserRepository -- User
+UserService -- UserRepository
+UserService -- UserAuth
+UserAuthContext -- UserAuth
+UserActivationSignatureCrypter -- UserSignature
+UserActivationNotify -- User
+
+TemplateMailNotify -- TemplateMailSender
+
+TemplateMailNotify <|-- UserActivationNotify
+
+@enduml
