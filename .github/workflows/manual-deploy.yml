@@ -1,5 +1,3 @@
-name: ManualTestAndDeploy
-
 on:
   workflow_dispatch:
     inputs:
