@@ -24,6 +24,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: git checkout ${{ github.event.inputs.branch }}
+        if: ${{ github.event.inputs.branch != '' }}
 
       - name: SetUp Go
         uses: actions/setup-go@v2
@@ -42,9 +46,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: SSH
         uses: appleboy/ssh-action@master
         with:
@@ -70,6 +71,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - run: git checkout ${{ github.event.inputs.branch }}
+        if: ${{ github.event.inputs.branch != '' }}
 
       - name: SetUp Go
         uses: actions/setup-go@v2
