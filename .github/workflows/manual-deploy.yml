@@ -90,4 +90,4 @@ jobs:
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
           source: "./${{ env.BINARY_DIRECTORY }}/linux-app,./${{ env.BINARY_DIRECTORY }}/linux-app-cli"
-          target: ${{ env.DEPLOY_DIRECTORY }}/${{ env.BINARY_DIRECTORY }}/
+          target: ${{ env.DEPLOY_DIRECTORY }}/
