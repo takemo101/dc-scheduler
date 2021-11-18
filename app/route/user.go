@@ -169,6 +169,12 @@ func (r UserRoute) Setup() {
 
 			// auth logout route
 			user.Post("/logout", r.authController.Logout)
+
+			// not found
+			user.All("*", func(c *fiber.Ctx) error {
+				response := r.value.GetResponseHelper(c)
+				return response.Error(fiber.ErrNotFound)
+			})
 		}
 	}
 }

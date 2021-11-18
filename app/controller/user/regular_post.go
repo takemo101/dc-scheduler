@@ -86,7 +86,7 @@ func (ctl RegularPostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/message/regular_post/index", helper.DataMap(vm.ToRegularPostIndexMap(dto)))
+	return response.View("user/message/regular_post/index", helper.DataMap(vm.ToRegularPostIndexMap(dto)))
 }
 
 // Create 追加フォーム
@@ -115,7 +115,7 @@ func (ctl RegularPostController) Create(c *fiber.Ctx) error {
 		return response.Error(appError)
 	}
 
-	return response.View("message/regular_post/create", helper.DataMap{
+	return response.View("user/message/regular_post/create", helper.DataMap{
 		"content_footer": true,
 		"bot":            vm.ToBotDetailMap(dto),
 	})
@@ -181,7 +181,7 @@ func (ctl RegularPostController) Store(c *fiber.Ctx) (err error) {
 
 	return response.Redirect(
 		c,
-		fmt.Sprintf("system/message/regular/%d/timing/edit", storeID),
+		fmt.Sprintf("user/message/regular/%d/timing/edit", storeID),
 	)
 }
 
@@ -211,7 +211,7 @@ func (ctl RegularPostController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("admin/message/regular_post/edit", helper.DataMap{
+	return response.View("user/message/regular_post/edit", helper.DataMap{
 		"content_footer": true,
 		"regular_post":   vm.ToRegularPostDetailMap(dto),
 	})

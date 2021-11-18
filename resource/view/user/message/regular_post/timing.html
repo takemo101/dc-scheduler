@@ -4,13 +4,13 @@
     {% include 'include/sidebar.html' with active_key=':message.index.regular.edit' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('system/message/regular') second_label='配信タイミング:ID '|add:regular_post.id %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('user/message/regular') second_label='配信タイミング:ID '|add:regular_post.id %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-4">
 
-        <form method="post" action="{{ url('system/message/regular/%d/timing/add', regular_post.id) }}" id="store">
+        <form method="post" action="{{ url('user/message/regular/%d/timing/add', regular_post.id) }}" id="store">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">配信タイミング設定</h3>
@@ -71,7 +71,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <a href="{{ url('system/message/regular/%d/edit', regular_post.id) }}" class="btn btn-block btn-secondary">
+                    <a href="{{ url('user/message/regular/%d/edit', regular_post.id) }}" class="btn btn-block btn-secondary">
                         メッセージ編集
                     </a>
                 </div>
@@ -118,7 +118,7 @@
                                     <i class="fas fa-trash">
                                     </i>
                                 </button>
-                                <form action="{{ url('system/message/regular/%d/timing/remove/%s/%s', regular_post.id, timing.day_of_week, timing.hour_time_text) }}" method="post" id="{{ timing.id|stringformat:'delete-%d' }}">
+                                <form action="{{ url('user/message/regular/%d/timing/remove/%s/%s', regular_post.id, timing.day_of_week, timing.hour_time_text) }}" method="post" id="{{ timing.id|stringformat:'delete-%d' }}">
                                     {% include 'form/csrf.html' %}
                                     {% include 'form/method.html' with method='delete' %}
                                 </form>

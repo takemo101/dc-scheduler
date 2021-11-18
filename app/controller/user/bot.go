@@ -82,14 +82,14 @@ func (ctl BotController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/bot/index", helper.DataMap(vm.ToBotIndexMap(dto)))
+	return response.View("user/bot/index", helper.DataMap(vm.ToBotIndexMap(dto)))
 }
 
 // Create 追加フォーム
 func (ctl BotController) Create(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
 
-	return response.View("bot/create", helper.DataMap{
+	return response.View("user/bot/create", helper.DataMap{
 		"content_footer": true,
 	})
 }
@@ -164,7 +164,7 @@ func (ctl BotController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/bot")
+	return response.Redirect(c, "user/bot")
 }
 
 // Edit 編集フォーム
@@ -193,7 +193,7 @@ func (ctl BotController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("admin/bot/edit", helper.DataMap{
+	return response.View("user/bot/edit", helper.DataMap{
 		"content_footer": true,
 		"bot":            vm.ToBotDetailMap(dto),
 	})
@@ -308,5 +308,5 @@ func (ctl BotController) Delete(c *fiber.Ctx) (err error) {
 		support.ToastrDelete.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/bot")
+	return response.Redirect(c, "user/bot")
 }

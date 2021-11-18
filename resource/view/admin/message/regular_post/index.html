@@ -38,7 +38,7 @@
                                 更新日時
                             </th>
                             <th>
-                                対象ボット<br/>
+                                対象ボット／利用者<br/>
                                 配信タイミング [アクティブ状態]
                             </th>
                             <th>
@@ -58,22 +58,35 @@
                                 </small>
                             </td>
                             <td>
-                                <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
-                                    {{ message.bot.name }}
-                                </a><br/>
-                                {% if message.regular_timings|length %}
-                                {{ message.regular_timings|length }}タイミング
+                                {% if message.bot %}
+                                    <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
+                                        {{ message.bot.name }}
+                                    </a>
                                 {% else %}
-                                タイミングは追加されてません
+                                    --
+                                {% endif %}
+                                ／
+                                {% if message.bot.user %}
+                                    <a href="{{ url('system/user/%d/edit', message.bot.user.id) }}">
+                                        {{ message.bot.user.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                <br/>
+                                {% if message.regular_timings|length %}
+                                    {{ message.regular_timings|length }}タイミング
+                                {% else %}
+                                    タイミングは追加されてません
                                 {% endif %}
                                 {% if message.active %}
-                                <span class="badge badge-primary">
-                                    有効
-                                </span>
+                                    <span class="badge badge-primary">
+                                        有効
+                                    </span>
                                 {% else %}
-                                <span class="badge badge-secondary">
-                                    無効
-                                </span>
+                                    <span class="badge badge-secondary">
+                                        無効
+                                    </span>
                                 {% endif %}
                             </td>
                             <td>

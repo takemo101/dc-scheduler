@@ -79,7 +79,7 @@ func (ctl SchedulePostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
+	return response.View("user/message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
 }
 
 // Create 追加フォーム
@@ -108,7 +108,7 @@ func (ctl SchedulePostController) Create(c *fiber.Ctx) error {
 		return response.Error(appError)
 	}
 
-	return response.View("message/schedule_post/create", helper.DataMap{
+	return response.View("user/message/schedule_post/create", helper.DataMap{
 		"content_footer": true,
 		"bot":            vm.ToBotDetailMap(dto),
 	})
@@ -171,7 +171,7 @@ func (ctl SchedulePostController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/message/schedule")
+	return response.Redirect(c, "user/message/schedule")
 }
 
 // Edit 編集フォーム
@@ -200,7 +200,7 @@ func (ctl SchedulePostController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("admin/message/schedule_post/edit", helper.DataMap{
+	return response.View("user/message/schedule_post/edit", helper.DataMap{
 		"content_footer": true,
 		"schedule_post":  vm.ToSchedulePostDetailMap(dto),
 	})

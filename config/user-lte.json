@@ -13,7 +13,7 @@
                 {
                     "key": ":bot.index",
                     "name": "検索",
-                    "path": "bot"
+                    "path": "user/bot"
                 },
                 {
                     "key": ":bot.create",

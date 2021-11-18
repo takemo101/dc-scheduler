@@ -25,8 +25,8 @@
                                 配信日時
                             </th>
                             <th>
-                                対象ボット<br/>
-                                配信タイプ
+                                対象ボット [配信タイプ]<br/>
+                                利用者
                             </th>
                             <th>
                                 メッセージ内容
@@ -43,10 +43,22 @@
                                 </small>
                             </td>
                             <td>
+                                {% if message.post_message.bot %}
                                 <a href="{{ url('system/bot/%d/edit', message.post_message.bot.id) }}">
                                     {{ message.post_message.bot.name }}
-                                </a><br/>
-                                {{ message.post_message.message_type_name }}
+                                </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                [{{ message.post_message.message_type_name }}]
+                                <br/>
+                                {% if message.post_message.bot.user %}
+                                    <a href="{{ url('system/user/%d/edit', message.post_message.bot.user.id) }}">
+                                        {{ message.post_message.bot.user.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
                             </td>
                             <td>
                                 <small>{{ nl2br(message.message|escape) }}</small>

@@ -40,6 +40,9 @@
                             <th>
                                 ボット名 [アクティブ状態]
                             </th>
+                            <th>
+                                利用者
+                            </th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -63,6 +66,15 @@
                                 <span class="badge badge-secondary">
                                     無効
                                 </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if bot.user %}
+                                    <a href="{{ url('system/user/%d/edit', bot.user.id) }}">
+                                        {{ bot.user.name }}
+                                    </a>
+                                {% else %}
+                                    --
                                 {% endif %}
                             </td>
                             <td>

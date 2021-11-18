@@ -38,7 +38,8 @@
                                 更新日時
                             </th>
                             <th>
-                                対象ボット
+                                対象ボット<br/>
+                                利用者
                             </th>
                             <th>
                                 メッセージ内容
@@ -57,9 +58,21 @@
                                 </small>
                             </td>
                             <td>
-                                <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
-                                    {{ message.bot.name }}
-                                </a>
+                                {% if message.bot %}
+                                    <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
+                                        {{ message.bot.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                <br/>
+                                {% if message.bot.user %}
+                                    <a href="{{ url('system/user/%d/edit', message.bot.user.id) }}">
+                                        {{ message.bot.user.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
                             </td>
                             <td>
                                 <small>{{ nl2br(message.message|escape) }}</small>

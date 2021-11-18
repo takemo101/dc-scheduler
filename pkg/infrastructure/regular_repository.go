@@ -35,7 +35,7 @@ func NewRegularPostRepository(
 func (repo RegularPostRepository) SendList(at domain.RegularTiming) ([]domain.RegularPost, error) {
 	models := []PostMessage{}
 
-	if err := repo.db.GormDB.Preload("RegularTimings").Where("message_type = ? AND hour_time = ? AND day_of_week = ? AND post_messages.active = ? AND Bot.active = ?", domain.MessageTypeRegularPost, at.HourTime().Value(), at.DayOfWeek().Value(), true, true).Joins("Bot").Joins("left join regular_timings on regular_timings.post_message_id = post_messages.id").Find(&models).Error; err != nil {
+	if err := repo.db.GormDB.Preload("RegularTimings").Where("message_type = ? AND hour_time = ? AND day_of_week = ? AND post_messages.active = ? AND Bot.active = ?", domain.MessageTypeRegularPost, at.HourTime().Value(), at.DayOfWeek().Value(), true, true).Joins("Bot").Joins("LEFT JOIN regular_timings ON regular_timings.post_message_id = post_messages.id").Find(&models).Error; err != nil {
 		return []domain.RegularPost{}, err
 	}
 

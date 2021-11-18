@@ -39,6 +39,41 @@
 
         <div class="card">
             <div class="card-header">
+                <h3 class="card-title">利用者情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">名前</div>
+                    <div class="col-12 col-sm-9">
+                        {% if bot.user %}
+                            <a href="{{ url('system/user/%d/edit', bot.user.id) }}">
+                                {{ bot.user.name }}
+                            </a>
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">メール</div>
+                    <div class="col-12 col-sm-9">
+                        {% if bot.user %}
+                            {{ bot.user.email }}
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
                 <h3 class="card-title">日付情報</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">

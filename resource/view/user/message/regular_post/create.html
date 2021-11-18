@@ -4,13 +4,13 @@
     {% include 'include/sidebar.html' with active_key=':message.create' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('system/message/regular') second_label='追加' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('user/message/regular') second_label='追加' %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-8">
 
-        <form method="post" action="{{ url('system/bot/%d/regular/store', bot.id) }}" id="store">
+        <form method="post" action="{{ url('user/bot/%d/regular/store', bot.id) }}" id="store">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">基本設定</h3>

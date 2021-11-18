@@ -4,13 +4,13 @@
     {% include 'include/sidebar.html' with active_key=':message.create' %}
 {% endblock %}
 {% block content_header %}
-    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：予約配信' first_link=url('system/message/schedule') second_label='追加' %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：予約配信' first_link=url('user/message/schedule') second_label='追加' %}
 {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-8">
 
-        <form method="post" action="{{ url('system/bot/%d/schedule/store', bot.id) }}" id="store">
+        <form method="post" action="{{ url('user/bot/%d/schedule/store', bot.id) }}" id="store">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">基本設定</h3>
@@ -59,7 +59,7 @@
                 <div class="row border-bottom pb-3">
                     <div class="col-12 col-sm-3 font-weight-bolder">ボット名</div>
                     <div class="col-12 col-sm-9">
-                        <a href="{{ url('system/bot/%d/edit', bot.id) }}">
+                        <a href="{{ url('user/bot/%d/edit', bot.id) }}">
                             {{ bot.name }}
                         </a>
                     </div>

@@ -60,12 +60,12 @@ func (query RegularPostQuery) SearchByUserID(parameter application.RegularPostSe
 
 	paging := NewGormPaging(
 		query.db.GormDB.Preload("RegularTimings").Preload("Bot").Joins(
-			"Bot",
-			query.db.GormDB.Where(&Bot{UserID: userID.Value()}),
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
 		).Where("message_type = ?", domain.MessageTypeRegularPost),
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+		[]string{parameter.OrderByType.ToQuery("post_messages." + parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)

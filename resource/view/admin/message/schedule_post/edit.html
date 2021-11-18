@@ -68,8 +68,20 @@
                 <div class="row border-bottom py-3">
                     <div class="col-12 col-sm-3 font-weight-bolder">アバター</div>
                     <div class="col-12 col-sm-9">
-                        {% if bot.avatar_url %}
+                        {% if schedule_post.bot.avatar_url %}
                             <img src="{{ schedule_post.bot.avatar_url }}" style="width:200px;">
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">利用者</div>
+                    <div class="col-12 col-sm-9">
+                        {% if schedule_post.bot.user %}
+                            <a href="{{ url('system/user/%d/edit', schedule_post.bot.user.id) }}">
+                                {{ schedule_post.bot.user.name }}
+                            </a>
                         {% else %}
                             --
                         {% endif %}

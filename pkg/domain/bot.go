@@ -392,12 +392,21 @@ func NewBotService(
 
 // IsDuplicate Botが重複しているか
 func (service BotService) IsDuplicate(bot Bot) (bool, error) {
-	return service.repository.ExistsByNameAndWebhook(bot.Name(), bot.Webhook())
+	return service.repository.ExistsByNameAndWebhookAndUserID(
+		bot.Name(),
+		bot.Webhook(),
+		bot.UserID(),
+	)
 }
 
 // IsDuplicate 指定のBotを除き重複しているか
 func (service BotService) IsDuplicateWithoutSelf(bot Bot) (bool, error) {
-	return service.repository.ExistsByIDNameAndWebhook(bot.ID(), bot.Name(), bot.Webhook())
+	return service.repository.ExistsByIDNameAndWebhookAndUserID(
+		bot.ID(),
+		bot.Name(),
+		bot.Webhook(),
+		bot.UserID(),
+	)
 }
 
 // --- UserBotPolicy ---
@@ -453,8 +462,8 @@ type BotRepository interface {
 	Update(entity Bot) error
 	FindByID(id BotID) (Bot, error)
 	Delete(id BotID) error
-	ExistsByNameAndWebhook(name BotName, webhook BotDiscordWebhook) (bool, error)
-	ExistsByIDNameAndWebhook(id BotID, name BotName, webhook BotDiscordWebhook) (bool, error)
+	ExistsByNameAndWebhookAndUserID(name BotName, webhook BotDiscordWebhook, userID UserID) (bool, error)
+	ExistsByIDNameAndWebhookAndUserID(id BotID, name BotName, webhook BotDiscordWebhook, userID UserID) (bool, error)
 	NextIdentity() (BotID, error)
 }
 

@@ -70,7 +70,7 @@ func (ctl RegularTimingController) Edit(c *fiber.Ctx) (err error) {
 		return response.Error(appError)
 	}
 
-	return response.View("admin/message/regular_post/timing", helper.DataMap{
+	return response.View("user/message/regular_post/timing", helper.DataMap{
 		"content_footer": true,
 		"day_of_weeks":   vm.ToKeyValueMap(domain.DayOfWeekToArray()),
 		"regular_post":   vm.ToRegularPostDetailMap(dto),

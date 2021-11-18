@@ -30,7 +30,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("Bot"),
+		query.db.GormDB.Preload("Bot.User"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
@@ -57,7 +57,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 func (query PostMessageQuery) FindByID(id domain.PostMessageID) (dto application.PostMessageDetailDTO, err error) {
 	model := PostMessage{}
 
-	if err = query.db.GormDB.Where("id = ?", id.Value()).Preload("Bot").First(&model).Error; err != nil {
+	if err = query.db.GormDB.Where("id = ?", id.Value()).Preload("Bot.User").First(&model).Error; err != nil {
 		return dto, err
 	}
 
@@ -105,7 +105,7 @@ func (query SentMessageQuery) Search(parameter application.SentMessageSearchPara
 	var models []SentMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("PostMessage.Bot"),
+		query.db.GormDB.Preload("PostMessage.Bot.User"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
@@ -134,12 +134,14 @@ func (query SentMessageQuery) SearchByUserID(parameter application.SentMessageSe
 
 	paging := NewGormPaging(
 		query.db.GormDB.Preload("PostMessage.Bot").Joins(
-			"PostMessage.Bot",
-			query.db.GormDB.Where(&Bot{UserID: userID.Value()}),
+			"LEFT JOIN post_messages ON post_messages.id = sent_messages.post_message_id",
+		).Joins(
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
 		),
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+		[]string{parameter.OrderByType.ToQuery("sent_messages." + parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -181,8 +183,10 @@ func (query SentMessageQuery) RecentlyListByUserID(userID domain.UserID, limit u
 	var models []SentMessage
 
 	err = query.db.GormDB.Preload("PostMessage.Bot").Joins(
-		"PostMessage",
-		query.db.GormDB.Joins("Bot", query.db.GormDB.Where(&Bot{UserID: userID.Value()})),
+		"LEFT JOIN post_messages ON post_messages.id = sent_messages.post_message_id",
+	).Joins(
+		"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+		userID.Value(),
 	).Order("sent_messages.id DESC").Limit(int(limit)).Find(&models).Error
 	if err != nil {
 		return list, err
@@ -233,7 +237,7 @@ func (query ImmediatePostQuery) Search(parameter application.ImmediatePostSearch
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("Bot").Where("message_type = ?", domain.MessageTypeImmediatePost),
+		query.db.GormDB.Preload("Bot.User").Where("message_type = ?", domain.MessageTypeImmediatePost),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
@@ -262,12 +266,15 @@ func (query ImmediatePostQuery) SearchByUserID(parameter application.ImmediatePo
 
 	paging := NewGormPaging(
 		query.db.GormDB.Preload("Bot").Joins(
-			"Bot",
-			query.db.GormDB.Where(&Bot{UserID: userID.Value()}),
-		).Where("message_type = ?", domain.MessageTypeImmediatePost),
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
+		).Where(
+			"message_type = ?",
+			domain.MessageTypeImmediatePost,
+		),
 		parameter.Page,
 		parameter.Limit,
-		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+		[]string{"post_messages." + parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -356,8 +363,8 @@ func (query SchedulePostQuery) SearchByUserID(parameter application.SchedulePost
 
 	paging := NewGormPaging(
 		query.db.GormDB.Preload("ScheduleTiming").Preload("Bot").Joins(
-			"Bot",
-			query.db.GormDB.Where(&Bot{UserID: userID.Value()}),
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
 		).Where("message_type = ?", domain.MessageTypeSchedulePost).Joins("ScheduleTiming"),
 		parameter.Page,
 		parameter.Limit,

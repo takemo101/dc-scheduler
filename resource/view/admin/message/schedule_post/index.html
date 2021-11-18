@@ -38,7 +38,7 @@
                                 更新日時
                             </th>
                             <th>
-                                対象ボット<br/>
+                                対象ボット／利用者<br/>
                                 予約日時 [配信状態]
                             </th>
                             <th>
@@ -58,18 +58,31 @@
                                 </small>
                             </td>
                             <td>
-                                <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
-                                    {{ message.bot.name }}
-                                </a><br/>
+                                {% if message.bot %}
+                                    <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
+                                        {{ message.bot.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                ／
+                                {% if message.bot.user %}
+                                    <a href="{{ url('system/user/%d/edit', message.bot.user.id) }}">
+                                        {{ message.bot.user.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                <br/>
                                 {{ message.reservation_at|date:'2006.01.02 15:04' }}
                                 {% if message.is_sended %}
-                                <span class="badge badge-primary">
-                                    配信済み
-                                </span>
+                                    <span class="badge badge-primary">
+                                        配信済み
+                                    </span>
                                 {% else %}
-                                <span class="badge badge-secondary">
-                                    未配信
-                                </span>
+                                    <span class="badge badge-secondary">
+                                        未配信
+                                    </span>
                                 {% endif %}
                             </td>
                             <td>

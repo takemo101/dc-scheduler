@@ -165,5 +165,5 @@ func (ctl ImmediatePostController) Store(c *fiber.Ctx) (err error) {
 		support.ToastrStore.Message(),
 		support.Messages{},
 	)
-	return response.Redirect(c, "system/message/immediate")
+	return response.Redirect(c, "user/message/immediate")
 }
