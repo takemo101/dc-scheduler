@@ -1,0 +1,122 @@
+{% extends 'layout/default.html' %}
+{% block title %}配信メッセージ｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':message.index.regular.edit' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：定期配信' first_link=url('system/message/regular') second_label='編集:ID '|add:regular_post.id %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+
+        <form method="post" action="{{ url('system/message/regular/%d/update', regular_post.id) }}" id="update">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">基本設定</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% include 'form/csrf.html' %}
+                    {% include 'form/method.html' with method='put' %}
+
+                    {% include 'form/textarea.html' with name='message' value=regular_post.message id="message" label='メッセージ内容' rows="20" input=inputs.message error=errors.message required=true %}
+                    {% include 'form/check.html' with name='active' id="active" label='配信をアクティブにする' value='1' checked=regular_post.active input=inputs.active error=errors.active %}
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">対象ボット情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">ボット名</div>
+                    <div class="col-12 col-sm-9">
+                        <a href="{{ url('system/bot/%d/edit', regular_post.bot.id) }}">
+                            {{ regular_post.bot.name }}
+                        </a>
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">アバター</div>
+                    <div class="col-12 col-sm-9">
+                        {% if regular_post.bot.avatar_url %}
+                            <img src="{{ regular_post.bot.avatar_url }}" style="width:200px;">
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">利用者</div>
+                    <div class="col-12 col-sm-9">
+                        {% if regular_post.bot.user %}
+                            <a href="{{ url('system/user/%d/edit', regular_post.bot.user.id) }}">
+                                {{ regular_post.bot.user.name }}
+                            </a>
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">日付情報</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row border-bottom pb-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">追加日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ regular_post.created_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+                <div class="row border-bottom py-3">
+                    <div class="col-12 col-sm-3 font-weight-bolder">更新日時</div>
+                    <div class="col-12 col-sm-9">
+                        {{ regular_post.updated_at|date:'2006.01.02 15:04:05' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <a href="{{ url('system/message/regular/%d/timing/edit', regular_post.id) }}" class="btn btn-block btn-success">
+                    配信タイミング設定
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+{% block content_footer_right %}
+<button class="btn btn-primary px-5 " type="submit" data-class="js-dialog" data-form="#update" data-type="update">
+	更新
+</button>
+{% endblock %}

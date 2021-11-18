@@ -6,7 +6,7 @@ import (
 	"github.com/takemo101/dc-scheduler/app/helper"
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
 )
 
 // SessionAuthController is session auth
@@ -35,7 +35,8 @@ func NewSessionAuthController(
 // LoginForm render login form
 func (ctl SessionAuthController) LoginForm(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
-	return response.View("auth/login", helper.DataMap{})
+
+	return response.View("admin/auth/login", helper.DataMap{})
 }
 
 // Login ログイン

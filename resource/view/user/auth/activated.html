@@ -1,0 +1,21 @@
+{% extends 'layout/login.html' %}
+{% block title %}Activation｜{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body login-card-body">
+        <p class="login-box-msg">User Activation</p>
+        <p>
+            アクティベーションが完了しました！<br/>
+            ログインフォームから設定したアカウント情報でログインして頂けます。
+        </p>
+    </div>
+    <!-- /.login-card-body -->
+    <div class="card-footer">
+        <p class="my-0">
+            <a href="{{ url('user/auth/login') }}">
+                ログインフォーム
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

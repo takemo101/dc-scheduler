@@ -1,0 +1,80 @@
+{% extends 'layout/login.html' %}
+{% block title %}SignUp｜{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body login-card-body">
+        <p class="login-box-msg">User SignUp</p>
+        <form method="post" action="{{ url('user/auth/regist') }}">
+            {% include 'form/csrf.html' %}
+            <div class="input-group mb-3">
+                <input type="text" name="name" value="{% if inputs.name %}{{ inputs.name }}{% endif %}" class="form-control {% if errors.name %}is-invalid{% endif %}" placeholder="アカウント名" required>
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-user"></span>
+                    </div>
+                </div>
+                {% if errors.name %}
+                    <div class="invalid-feedback d-block">
+                        {{ errors.email }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="input-group mb-3">
+                <input type="email" name="email" value="{% if inputs.email %}{{ inputs.email }}{% endif %}" class="form-control {% if errors.email %}is-invalid{% endif %}" placeholder="メールアドレス" required>
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-envelope"></span>
+                    </div>
+                </div>
+                {% if errors.email %}
+                    <div class="invalid-feedback d-block">
+                        {{ errors.email }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="input-group mb-3">
+                <input type="password" name="password" class="form-control {% if errors.password %}is-invalid{% endif %}" placeholder="パスワード" required>
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
+                    </div>
+                </div>
+                {% if errors.password %}
+                    <div class="invalid-feedback d-block">
+                        {{ errors.password }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="input-group mb-3">
+                <input type="password" name="password_confirm" class="form-control {% if errors.password_confirm %}is-invalid{% endif %}" placeholder="パスワード（確認）" required>
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
+                    </div>
+                </div>
+                {% if errors.password_confirm %}
+                    <div class="invalid-feedback d-block">
+                        {{ errors.password_confirm }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary btn-block">Send</button>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </form>
+    </div>
+    <!-- /.login-card-body -->
+
+    <div class="card-footer">
+        <p class="my-0">
+            <a href="{{ url('user/auth/login') }}">
+                すでに利用者登録済みの方
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

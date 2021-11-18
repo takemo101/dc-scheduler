@@ -19,3 +19,16 @@ func CreateSessionAdminAuthContext(
 
 	return infrastructure.NewAdminAuthContext(session), err
 }
+
+// CreateSessionUserAuthContext セッションによるUserAuthContextをinfrastructureから生成
+func CreateSessionUserAuthContext(
+	c *fiber.Ctx,
+	sessionStore core.SessionStore,
+) (auth domain.UserAuthContext, err error) {
+	session, err := sessionStore.GetSession(c)
+	if err != nil {
+		return auth, err
+	}
+
+	return infrastructure.NewUserAuthContext(session), err
+}

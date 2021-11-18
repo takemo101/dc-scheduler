@@ -9,7 +9,8 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 )
 
 // BotController ボットコントローラ
@@ -20,7 +21,6 @@ type BotController struct {
 	sessionStore  core.SessionStore
 	searchUseCase application.BotSearchUseCase
 	detailUseCase application.BotDetailUseCase
-	storeUseCase  application.BotStoreUseCase
 	updateUseCase application.BotUpdateUseCase
 	deleteUseCase application.BotDeleteUseCase
 }
@@ -33,7 +33,6 @@ func NewBotController(
 	sessionStore core.SessionStore,
 	searchUseCase application.BotSearchUseCase,
 	detailUseCase application.BotDetailUseCase,
-	storeUseCase application.BotStoreUseCase,
 	updateUseCase application.BotUpdateUseCase,
 	deleteUseCase application.BotDeleteUseCase,
 ) BotController {
@@ -44,7 +43,6 @@ func NewBotController(
 		sessionStore,
 		searchUseCase,
 		detailUseCase,
-		storeUseCase,
 		updateUseCase,
 		deleteUseCase,
 	}
@@ -71,99 +69,7 @@ func (ctl BotController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("bot/index", helper.DataMap(vm.ToBotIndexMap(dto)))
-}
-
-// Detail 詳細
-func (ctl BotController) Detail(c *fiber.Ctx) (err error) {
-	response := ctl.value.GetResponseHelper(c)
-
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return response.Error(err)
-	}
-
-	dto, appError := ctl.detailUseCase.Execute(uint(id))
-	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
-			return response.Error(appError, fiber.StatusNotFound)
-		}
-		return response.Error(appError)
-	}
-
-	return response.View("bot/detail", helper.DataMap{
-		"bot": vm.ToBotDetailMap(dto),
-	})
-}
-
-// Create 追加フォーム
-func (ctl BotController) Create(c *fiber.Ctx) error {
-	response := ctl.value.GetResponseHelper(c)
-
-	return response.View("bot/create", helper.DataMap{
-		"content_footer": true,
-	})
-}
-
-// Store 追加処理
-func (ctl BotController) Store(c *fiber.Ctx) (err error) {
-	var form form.BotCreateAndUpdate
-	response := ctl.value.GetResponseHelper(c)
-
-	if err := c.BodyParser(&form); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Sanitize(); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Validate(c); err != nil {
-		ctl.sessionStore.SetErrorResource(
-			c,
-			helper.ErrorsToMap(err),
-			helper.StructToFormMap(&form),
-		)
-		return response.Back(c)
-	}
-
-	// アバターファイル取得
-	file, _ := c.FormFile("avatar")
-
-	// ディレクトリー設定取得
-	directory := ctl.config.LoadToValueString(
-		"setting",
-		"directory.bot_avatar",
-		"",
-	)
-
-	_, appError := ctl.storeUseCase.Execute(application.BotStoreInput{
-		Name:            form.Name,
-		AtatarFile:      file,
-		AtatarDirectory: directory,
-		Webhook:         form.Webhook,
-		Active:          form.ActiveToBool(),
-	})
-	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.BotDuplicateError) || appError.HaveType(application.BotWebhookInvalidError) {
-			ctl.sessionStore.SetErrorResource(
-				c,
-				helper.ErrorToMap("webhook", appError),
-				helper.StructToFormMap(&form),
-			)
-			return response.Back(c)
-		}
-
-		return response.Error(appError)
-	}
-
-	ctl.toastr.SetToastr(
-		c,
-		support.ToastrStore,
-		support.ToastrStore.Message(),
-		support.Messages{},
-	)
-	return response.Redirect(c, "system/bot")
+	return response.View("admin/bot/index", helper.DataMap(vm.ToBotIndexMap(dto)))
 }
 
 // Edit 編集フォーム
@@ -177,13 +83,13 @@ func (ctl BotController) Edit(c *fiber.Ctx) (err error) {
 
 	dto, appError := ctl.detailUseCase.Execute(uint(id))
 	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
+		if appError.HaveType(common.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)
 		}
 		return response.Error(appError)
 	}
 
-	return response.View("bot/edit", helper.DataMap{
+	return response.View("admin/bot/edit", helper.DataMap{
 		"content_footer": true,
 		"bot":            vm.ToBotDetailMap(dto),
 	})

@@ -10,11 +10,12 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
-// RegularTimingController 即時配信コントローラ
+// RegularTimingController 定期タイミングコントローラ
 type RegularTimingController struct {
 	value           support.ContextValue
 	toastr          support.ToastrMessage
@@ -54,13 +55,13 @@ func (ctl RegularTimingController) Edit(c *fiber.Ctx) (err error) {
 
 	dto, appError := ctl.editFormUseCase.Execute(uint(id))
 	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
+		if appError.HaveType(common.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)
 		}
 		return response.Error(appError)
 	}
 
-	return response.View("message/regular_post/timing", helper.DataMap{
+	return response.View("admin/message/regular_post/timing", helper.DataMap{
 		"content_footer": true,
 		"day_of_weeks":   vm.ToKeyValueMap(domain.DayOfWeekToArray()),
 		"regular_post":   vm.ToRegularPostDetailMap(dto),
@@ -95,7 +96,7 @@ func (ctl RegularTimingController) Add(c *fiber.Ctx) (err error) {
 		HourTime:  form.HourTimeToTime(),
 	})
 	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.NotFoundDataError) {
+		if appError.HaveType(common.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)
 		} else if appError.HaveType(application.RegularTimingDuplicateError) {
 			ctl.sessionStore.SetErrorResource(

@@ -98,6 +98,7 @@ func (repo BotRepository) Store(entity domain.Bot) (vo domain.BotID, err error) 
 	model.Atatar = entity.Atatar().Value()
 	model.Webhook = entity.Webhook().Value()
 	model.Active = sql.NullBool{Bool: entity.IsActive(), Valid: true}
+	model.UserID = entity.UserID().Value()
 
 	if err = repo.db.GormDB.Create(&model).Error; err != nil {
 		return vo, err
@@ -138,10 +139,15 @@ func (repo BotRepository) Delete(id domain.BotID) error {
 }
 
 // ExistsByWebhook BotDiscordWebhooklが重複しているBotがあるか
-func (repo BotRepository) ExistsByNameAndWebhook(name domain.BotName, webhook domain.BotDiscordWebhook) (bool, error) {
+func (repo BotRepository) ExistsByNameAndWebhookAndUserID(name domain.BotName, webhook domain.BotDiscordWebhook, userID domain.UserID) (bool, error) {
 	count := int64(0)
 	err := repo.db.GormDB.Model(&Bot{}).
-		Where("name = ? AND webhook = ?", name.Value(), webhook.Value()).
+		Where(
+			"name = ? AND webhook = ? AND user_id = ?",
+			name.Value(),
+			webhook.Value(),
+			userID.Value(),
+		).
 		Count(&count).
 		Error
 
@@ -149,10 +155,16 @@ func (repo BotRepository) ExistsByNameAndWebhook(name domain.BotName, webhook do
 }
 
 // ExistsByIDNameAndWebhook 指定したBotIDを除きBotDiscordWebhookが重複しているBotがあるか
-func (repo BotRepository) ExistsByIDNameAndWebhook(id domain.BotID, name domain.BotName, webhook domain.BotDiscordWebhook) (bool, error) {
+func (repo BotRepository) ExistsByIDNameAndWebhookAndUserID(id domain.BotID, name domain.BotName, webhook domain.BotDiscordWebhook, userID domain.UserID) (bool, error) {
 	count := int64(0)
 	err := repo.db.GormDB.Model(&Bot{}).
-		Where("id <> ? AND name = ? AND webhook = ?", id.Value(), name.Value(), webhook.Value()).
+		Where(
+			"id <> ? AND name = ? AND webhook = ? AND user_id = ?",
+			id.Value(),
+			name.Value(),
+			webhook.Value(),
+			userID.Value(),
+		).
 		Count(&count).
 		Error
 
@@ -177,6 +189,7 @@ func CreateBotEntityFromModel(model Bot) domain.Bot {
 		model.Atatar,
 		model.Webhook,
 		model.Active.Bool,
+		model.UserID,
 	)
 }
 
@@ -248,4 +261,6 @@ type Bot struct {
 	Atatar  string       `gorm:"type:varchar(191);index"`
 	Webhook string       `gorm:"type:text"`
 	Active  sql.NullBool `gorm:"type:boolean;index"`
+	UserID  uint         `gorm:"index;not null"`
+	User    User         `gorm:"constraint:OnDelete:CASCADE;"`
 }

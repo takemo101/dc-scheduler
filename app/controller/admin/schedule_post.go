@@ -9,19 +9,18 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 )
 
-// SchedulePostController 即時配信コントローラ
+// SchedulePostController 予約配信コントローラ
 type SchedulePostController struct {
-	value             support.ContextValue
-	toastr            support.ToastrMessage
-	sessionStore      core.SessionStore
-	searchUseCase     application.SchedulePostSearchUseCase
-	createFormUseCase application.PostMessageCreateFormUseCase
-	storeUseCase      application.SchedulePostStoreUseCase
-	editFormUseCase   application.SchedulePostEditFormUseCase
-	updateUseCase     application.SchedulePostUpdateUseCase
+	value           support.ContextValue
+	toastr          support.ToastrMessage
+	sessionStore    core.SessionStore
+	searchUseCase   application.SchedulePostSearchUseCase
+	editFormUseCase application.SchedulePostEditFormUseCase
+	updateUseCase   application.SchedulePostUpdateUseCase
 }
 
 // NewSchedulePostController コンストラクタ
@@ -30,8 +29,6 @@ func NewSchedulePostController(
 	toastr support.ToastrMessage,
 	sessionStore core.SessionStore,
 	searchUseCase application.SchedulePostSearchUseCase,
-	createFormUseCase application.PostMessageCreateFormUseCase,
-	storeUseCase application.SchedulePostStoreUseCase,
 	editFormUseCase application.SchedulePostEditFormUseCase,
 	updateUseCase application.SchedulePostUpdateUseCase,
 ) SchedulePostController {
@@ -40,8 +37,6 @@ func NewSchedulePostController(
 		toastr,
 		sessionStore,
 		searchUseCase,
-		createFormUseCase,
-		storeUseCase,
 		editFormUseCase,
 		updateUseCase,
 	}
@@ -68,77 +63,7 @@ func (ctl SchedulePostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
-}
-
-// Create 追加フォーム
-func (ctl SchedulePostController) Create(c *fiber.Ctx) error {
-	response := ctl.value.GetResponseHelper(c)
-
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return response.Error(err)
-	}
-
-	dto, appError := ctl.createFormUseCase.Execute(uint(id))
-	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
-			return response.Error(appError, fiber.StatusNotFound)
-		}
-		return response.Error(appError)
-	}
-
-	return response.View("message/schedule_post/create", helper.DataMap{
-		"content_footer": true,
-		"bot":            vm.ToBotDetailMap(dto),
-	})
-}
-
-// Store 追加処理
-func (ctl SchedulePostController) Store(c *fiber.Ctx) (err error) {
-	var form form.SchedulePostCreateAndUpdate
-	response := ctl.value.GetResponseHelper(c)
-
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return response.Error(err)
-	}
-
-	if err := c.BodyParser(&form); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Sanitize(); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Validate(); err != nil {
-		ctl.sessionStore.SetErrorResource(
-			c,
-			helper.ErrorsToMap(err),
-			helper.StructToFormMap(&form),
-		)
-		return response.Back(c)
-	}
-
-	_, appError := ctl.storeUseCase.Execute(uint(id), application.SchedulePostStoreInput{
-		Message:       form.Message,
-		ReservationAt: form.ReservationAtToTime(),
-	})
-	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.NotFoundDataError) {
-			return response.Error(appError, fiber.StatusNotFound)
-		}
-		return response.Error(appError)
-	}
-
-	ctl.toastr.SetToastr(
-		c,
-		support.ToastrStore,
-		support.ToastrStore.Message(),
-		support.Messages{},
-	)
-	return response.Redirect(c, "system/message/schedule")
+	return response.View("admin/message/schedule_post/index", helper.DataMap(vm.ToSchedulePostIndexMap(dto)))
 }
 
 // Edit 編集フォーム
@@ -152,13 +77,13 @@ func (ctl SchedulePostController) Edit(c *fiber.Ctx) (err error) {
 
 	dto, appError := ctl.editFormUseCase.Execute(uint(id))
 	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
+		if appError.HaveType(common.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)
 		}
 		return response.Error(appError)
 	}
 
-	return response.View("message/schedule_post/edit", helper.DataMap{
+	return response.View("admin/message/schedule_post/edit", helper.DataMap{
 		"content_footer": true,
 		"schedule_post":  vm.ToSchedulePostDetailMap(dto),
 	})

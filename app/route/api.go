@@ -17,7 +17,7 @@ type ApiRoute struct {
 	cors              middleware.Cors
 	basicAuth         middleware.BasicAuth
 	value             support.ContextValue
-	security          middleware.SecurityToken
+	security          middleware.SecurityKey
 	messageController controller.PostMessageApiController
 }
 
@@ -26,7 +26,7 @@ func NewApiRoute(
 	logger core.Logger,
 	app core.Application,
 	cors middleware.Cors,
-	security middleware.SecurityToken,
+	security middleware.SecurityKey,
 	basicAuth middleware.BasicAuth,
 	value support.ContextValue,
 	messageController controller.PostMessageApiController,
@@ -71,13 +71,13 @@ func (r ApiRoute) Setup() {
 	api := app.Group("/api")
 	{
 		// 設定からトークン取得
-		values := r.app.Config.LoadToValueArray("setting", "security_token", []string{})
-		tokens := make([]string, len(values))
+		values := r.app.Config.LoadToValueArray("setting", "security_key", []string{})
+		keys := make([]string, len(values))
 		for i, t := range values {
-			tokens[i] = t.(string)
+			keys[i] = t.(string)
 		}
 
-		message := api.Group("/message", r.security.CreateHandler("token", tokens))
+		message := api.Group("/message", r.security.CreateHandler("key", keys))
 		{
 			message.Get("/send", r.messageController.Send)
 		}

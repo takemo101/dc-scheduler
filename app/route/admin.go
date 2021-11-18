@@ -23,6 +23,7 @@ type AdminRoute struct {
 	authController      controller.SessionAuthController
 	dashboardController controller.DashboardController
 	adminController     controller.AdminController
+	userController      controller.UserController
 	accountController   controller.AccountController
 	botController       controller.BotController
 	messageController   controller.PostMessageController
@@ -46,6 +47,7 @@ func NewAdminRoute(
 	authController controller.SessionAuthController,
 	dashboardController controller.DashboardController,
 	adminController controller.AdminController,
+	userController controller.UserController,
 	accountController controller.AccountController,
 	botController controller.BotController,
 	messageController controller.PostMessageController,
@@ -67,6 +69,7 @@ func NewAdminRoute(
 		authController:      authController,
 		dashboardController: dashboardController,
 		adminController:     adminController,
+		userController:      userController,
 		accountController:   accountController,
 		botController:       botController,
 		messageController:   messageController,
@@ -84,9 +87,11 @@ func (r AdminRoute) Setup() {
 	app := r.app.App
 
 	// root redirect
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Redirect(r.path.URL("system"))
-	})
+	/*
+		app.Get("/", func(c *fiber.Ctx) error {
+			return c.Redirect(r.path.URL("system"))
+		})
+	*/
 
 	// admin http route
 	http := app.Group(
@@ -99,6 +104,12 @@ func (r AdminRoute) Setup() {
 		auth := http.Group(
 			"/auth",
 			r.auth.CreateHandler(false, "system"),
+			// エラーページのビューパスを変更
+			func(c *fiber.Ctx) error {
+				response := r.value.GetResponseHelper(c)
+				response.SetErrorViewPath("error/auth")
+				return c.Next()
+			},
 		)
 		{
 			auth.Get("/login", r.authController.LoginForm)
@@ -134,30 +145,28 @@ func (r AdminRoute) Setup() {
 				account.Put("/update", r.accountController.Update)
 			}
 
+			// user route
+			user := system.Group("/user")
+			{
+				user.Get("/", r.userController.Index)
+				user.Get("/create", r.userController.Create)
+				user.Post("/store", r.userController.Store)
+				user.Get("/:id/edit", r.userController.Edit)
+				user.Put("/:id/update", r.userController.Update)
+				user.Delete("/:id/delete", r.userController.Delete)
+			}
+
 			// bot route
 			bot := system.Group("/bot")
 			{
 				bot.Get("/", r.botController.Index)
-				// bot.Get("/:id/detail", r.botController.Detail)
-				bot.Get("/create", r.botController.Create)
-				bot.Post("/store", r.botController.Store)
 				bot.Get("/:id/edit", r.botController.Edit)
 				bot.Put("/:id/update", r.botController.Update)
 				bot.Delete("/:id/delete", r.botController.Delete)
-
-				bot.Get("/:id/immediate/create", r.immediateController.Create)
-				bot.Post("/:id/immediate/store", r.immediateController.Store)
-
-				bot.Get("/:id/schedule/create", r.scheduleController.Create)
-				bot.Post("/:id/schedule/store", r.scheduleController.Store)
-
-				bot.Get("/:id/regular/create", r.regularController.Create)
-				bot.Post("/:id/regular/store", r.regularController.Store)
 			}
 			// message route
 			message := system.Group("/message")
 			{
-				// message.Get("/", r.messageController.Index)
 				message.Get("/immediate", r.immediateController.Index)
 
 				message.Get("/schedule", r.scheduleController.Index)
@@ -177,6 +186,12 @@ func (r AdminRoute) Setup() {
 
 			// auth logout route
 			system.Post("/logout", r.authController.Logout)
+
+			// not found
+			system.All("*", func(c *fiber.Ctx) error {
+				response := r.value.GetResponseHelper(c)
+				return response.Error(fiber.ErrNotFound)
+			})
 		}
 	}
 }
@@ -189,6 +204,7 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 		for k, v := range map[string]string{
 			"adminlte_menus":   "menus",
 			"adminlte_plugins": "plugins",
+			"adminlte_links":   "links",
 		} {
 			if value, ok := adminlte[v]; ok {
 				vr.SetData(helper.DataMap{
@@ -204,7 +220,7 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 	meta, err := r.app.Config.Load("admin-meta")
 	if err == nil {
 		vr.SetData(helper.DataMap{
-			"admin_meta": meta,
+			"site_meta": meta,
 		})
 	} else {
 		return err
@@ -240,11 +256,12 @@ func (r AdminRoute) ViewRenderCreateHandler(c *fiber.Ctx, vr *helper.ViewRender)
 	}
 
 	data := helper.DataMap{
-		"csrf_token": csrfToken,
-		"errors":     errors,
-		"inputs":     inputs,
-		"messages":   messages,
-		"auth":       auth,
+		"csrf_token":   csrfToken,
+		"errors":       errors,
+		"inputs":       inputs,
+		"messages":     messages,
+		"auth":         auth,
+		"account_link": "system/account/edit",
 	}
 
 	vr.SetData(data)

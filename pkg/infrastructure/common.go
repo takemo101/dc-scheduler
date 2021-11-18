@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"gorm.io/gorm"
 )
 

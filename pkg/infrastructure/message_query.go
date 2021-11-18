@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/query"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
@@ -30,7 +30,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("Bot"),
+		query.db.GormDB.Preload("Bot.User"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
@@ -57,7 +57,7 @@ func (query PostMessageQuery) Search(parameter application.PostMessageSearchPara
 func (query PostMessageQuery) FindByID(id domain.PostMessageID) (dto application.PostMessageDetailDTO, err error) {
 	model := PostMessage{}
 
-	if err = query.db.GormDB.Where("id = ?", id.Value()).Preload("Bot").First(&model).Error; err != nil {
+	if err = query.db.GormDB.Where("id = ?", id.Value()).Preload("Bot.User").First(&model).Error; err != nil {
 		return dto, err
 	}
 
@@ -105,10 +105,43 @@ func (query SentMessageQuery) Search(parameter application.SentMessageSearchPara
 	var models []SentMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("PostMessage.Bot"),
+		query.db.GormDB.Preload("PostMessage.Bot.User"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+	)
+
+	paginator, err := paging.Paging(&models)
+	if err != nil {
+		return dto, err
+	}
+
+	dto.Pagination = paginator
+
+	SentMessages := make([]application.SentMessageDetailDTO, len(models))
+	for i, m := range models {
+		SentMessages[i] = CreateSentMessageDetailDTOFromModel(query.upload, m)
+	}
+
+	dto.SentMessages = SentMessages
+
+	return dto, err
+}
+
+// Search UserのSentMessage一覧取得
+func (query SentMessageQuery) SearchByUserID(parameter application.SentMessageSearchParameterDTO, userID domain.UserID) (dto application.SentMessageSearchPaginatorDTO, err error) {
+	var models []SentMessage
+
+	paging := NewGormPaging(
+		query.db.GormDB.Preload("PostMessage.Bot").Joins(
+			"LEFT JOIN post_messages ON post_messages.id = sent_messages.post_message_id",
+		).Joins(
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
+		),
+		parameter.Page,
+		parameter.Limit,
+		[]string{parameter.OrderByType.ToQuery("sent_messages." + parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -133,6 +166,28 @@ func (query SentMessageQuery) RecentlyList(limit uint) (list []application.SentM
 	var models []SentMessage
 
 	err = query.db.GormDB.Preload("PostMessage.Bot").Order("id DESC").Limit(int(limit)).Find(&models).Error
+	if err != nil {
+		return list, err
+	}
+
+	list = make([]application.SentMessageDetailDTO, len(models))
+	for i, m := range models {
+		list[i] = CreateSentMessageDetailDTOFromModel(query.upload, m)
+	}
+
+	return list, err
+}
+
+// Search UserのSentMessageリスト取得
+func (query SentMessageQuery) RecentlyListByUserID(userID domain.UserID, limit uint) (list []application.SentMessageDetailDTO, err error) {
+	var models []SentMessage
+
+	err = query.db.GormDB.Preload("PostMessage.Bot").Joins(
+		"LEFT JOIN post_messages ON post_messages.id = sent_messages.post_message_id",
+	).Joins(
+		"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+		userID.Value(),
+	).Order("sent_messages.id DESC").Limit(int(limit)).Find(&models).Error
 	if err != nil {
 		return list, err
 	}
@@ -182,10 +237,44 @@ func (query ImmediatePostQuery) Search(parameter application.ImmediatePostSearch
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("Bot").Where("message_type = ?", domain.MessageTypeImmediatePost),
+		query.db.GormDB.Preload("Bot.User").Where("message_type = ?", domain.MessageTypeImmediatePost),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+	)
+
+	paginator, err := paging.Paging(&models)
+	if err != nil {
+		return dto, err
+	}
+
+	dto.Pagination = paginator
+
+	messages := make([]application.ImmediatePostDetailDTO, len(models))
+	for i, m := range models {
+		messages[i] = CreateImmediatePostDetailDTOFromModel(query.upload, m)
+	}
+
+	dto.ImmediatePosts = messages
+
+	return dto, err
+}
+
+// SearchByUserID UserのImmediatePost一覧取得
+func (query ImmediatePostQuery) SearchByUserID(parameter application.ImmediatePostSearchParameterDTO, userID domain.UserID) (dto application.ImmediatePostSearchPaginatorDTO, err error) {
+	var models []PostMessage
+
+	paging := NewGormPaging(
+		query.db.GormDB.Preload("Bot").Joins(
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
+		).Where(
+			"message_type = ?",
+			domain.MessageTypeImmediatePost,
+		),
+		parameter.Page,
+		parameter.Limit,
+		[]string{"post_messages." + parameter.OrderByType.ToQuery(parameter.OrderByKey)},
 	)
 
 	paginator, err := paging.Paging(&models)
@@ -245,7 +334,38 @@ func (query SchedulePostQuery) Search(parameter application.SchedulePostSearchPa
 	var models []PostMessage
 
 	paging := NewGormPaging(
-		query.db.GormDB.Preload("ScheduleTiming").Preload("Bot").Where("message_type = ?", domain.MessageTypeSchedulePost).Joins("ScheduleTiming"),
+		query.db.GormDB.Preload("ScheduleTiming").Preload("Bot.User").Where("message_type = ?", domain.MessageTypeSchedulePost).Joins("ScheduleTiming"),
+		parameter.Page,
+		parameter.Limit,
+		[]string{parameter.OrderByType.ToQuery("post_messages." + parameter.OrderByKey)},
+	)
+
+	paginator, err := paging.Paging(&models)
+	if err != nil {
+		return dto, err
+	}
+
+	dto.Pagination = paginator
+
+	messages := make([]application.SchedulePostDetailDTO, len(models))
+	for i, m := range models {
+		messages[i] = CreateSchedulePostDetailDTOFromModel(query.upload, m)
+	}
+
+	dto.SchedulePosts = messages
+
+	return dto, err
+}
+
+// SearchByUserID SchedulePostの一覧取得
+func (query SchedulePostQuery) SearchByUserID(parameter application.SchedulePostSearchParameterDTO, userID domain.UserID) (dto application.SchedulePostSearchPaginatorDTO, err error) {
+	var models []PostMessage
+
+	paging := NewGormPaging(
+		query.db.GormDB.Preload("ScheduleTiming").Preload("Bot").Joins(
+			"JOIN bots ON bots.id = post_messages.bot_id AND bots.user_id = ?",
+			userID.Value(),
+		).Where("message_type = ?", domain.MessageTypeSchedulePost).Joins("ScheduleTiming"),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery("post_messages." + parameter.OrderByKey)},
@@ -272,7 +392,7 @@ func (query SchedulePostQuery) Search(parameter application.SchedulePostSearchPa
 func (query SchedulePostQuery) FindByID(id domain.PostMessageID) (dto application.SchedulePostDetailDTO, err error) {
 	model := PostMessage{}
 
-	if err = query.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).Preload("ScheduleTiming").Preload("Bot").First(&model).Error; err != nil {
+	if err = query.db.GormDB.Where("id = ? AND message_type = ?", id.Value(), domain.MessageTypeSchedulePost).Preload("ScheduleTiming").Preload("Bot.User").First(&model).Error; err != nil {
 		return dto, err
 	}
 

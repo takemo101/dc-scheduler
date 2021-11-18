@@ -1,0 +1,147 @@
+{
+    "menus": [
+        {
+            "is_header": true,
+            "name": "FUNCTION"
+        },
+        {
+            "key": ":bot",
+            "name": "ボット",
+            "icon": "fas fa-robot",
+            "path": "#",
+            "menus": [
+                {
+                    "key": ":bot.index",
+                    "name": "検索",
+                    "path": "user/bot"
+                },
+                {
+                    "key": ":bot.create",
+                    "name": "追加",
+                    "path": "user/bot/create"
+                }
+            ]
+        },
+        {
+            "key": ":message",
+            "name": "配信メッセージ",
+            "icon": "far fa-paper-plane",
+            "path": "#",
+            "menus": [
+                {
+                    "key": ":message.index",
+                    "name": "検索",
+                    "path": "#",
+                    "menus": [
+                        {
+                            "key": ":message.index.immediate",
+                            "name": "即時配信",
+                            "path": "user/message/immediate"
+                        },
+                        {
+                            "key": ":message.index.schedule",
+                            "name": "予約配信",
+                            "path": "user/message/schedule"
+                        },
+                        {
+                            "key": ":message.index.regular",
+                            "name": "定期配信",
+                            "path": "user/message/regular"
+                        }
+                    ]
+                },
+                {
+                    "key": ":message.history",
+                    "name": "配信履歴",
+                    "path": "user/message/history"
+                }
+            ]
+        }
+    ],
+    "plugins": {
+        "header_css": [
+            {
+                "file": "css/app.css"
+            },
+            {
+                "file": "plugins/fontawesome-free/css/all.min.css"
+            },
+            {
+                "file": "plugins/overlayScrollbars/css/OverlayScrollbars.min.css"
+            },
+            {
+                "file": "plugins/icheck-bootstrap/icheck-bootstrap.min.css"
+            },
+            {
+                "file": "plugins/toastr/toastr.min.css"
+            },
+            {
+                "file": "plugins/daterangepicker/daterangepicker.css"
+            },
+            {
+                "file": "plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css"
+            },
+            {
+                "file": "plugins/select2/css/select2.min.css"
+            },
+            {
+                "file": "plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css"
+            },
+            {
+                "file": "plugins/summernote/summernote-bs4.css"
+            }
+        ],
+        "header_js": [
+            {
+                "file": "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js",
+                "defer": true
+            },
+            {
+                "file": "plugins/jquery/jquery.min.js"
+            },
+            {
+                "file": "plugins/bootstrap/js/bootstrap.bundle.min.js"
+            },
+            {
+                "file": "plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"
+            },
+            {
+                "file": "plugins/toastr/toastr.min.js"
+            },
+            {
+                "file": "plugins/select2/js/select2.full.min.js"
+            },
+            {
+                "file": "plugins/summernote/summernote-bs4.min.js"
+            },
+            {
+                "file": "plugins/summernote/lang/summernote-ja-JP.min.js"
+            }
+        ],
+        "footer_js": [
+            {
+                "file": "js/app.js"
+            },
+            {
+                "file": "plugins/bs-custom-file-input/bs-custom-file-input.min.js"
+            },
+            {
+                "file": "plugins/moment/moment.min.js"
+            },
+            {
+                "file": "plugins/moment/moment-with-locales.min.js"
+            },
+            {
+                "file": "plugins/daterangepicker/daterangepicker.js"
+            },
+            {
+                "file": "plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"
+            }
+        ]
+    },
+    "links": {
+        "account": "user/account/edit",
+        "home": "user",
+        "logout": "user/logout"
+    }
+}

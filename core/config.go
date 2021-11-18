@@ -27,7 +27,7 @@ type App struct {
 	URL     string `env:"APP_URL"`
 	Version string
 	Env     string `env:"APP_ENV"`
-	Secret  string
+	Secret  string `env:"APP_SECRET"`
 	Debug   bool
 	Config  string
 }

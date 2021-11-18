@@ -1,0 +1,188 @@
+@startuml class_message
+
+package domain {
+    package message {
+        class Bot {
+            id: BotID
+            userID: UserID
+            name: BotName
+            avatar: BotAtatar
+            webhook: DiscordWebbook
+            active : boolean
+            + {static} CreateBot(id: int, userID, int, name: string, avatar: string, webhook: string, active: boolean): Bot
+            + Update(name: string, avatar: string, active: boolean)
+            + ChangeActive(active: boolean)
+            + IsActive(): boolean
+            + IsOwner(userID: UserID): boolean
+        }
+
+        class BotAtatarImage {
+            header: multipart.FileHeader
+            path: string
+            + {static} NewBotAtatarImage(header :FileHeader, path string)
+        }
+
+        abstract PostMessage {
+            id: PostMessageID
+            bot: Bot
+            message: Message
+            messageType: MessageType
+            sentMessages: SentMessage[]
+            + Send(now: Datetime)
+            + ChangeMessage(message: string)
+            + HasSentMessage(): boolean
+            + CanSent(): boolean
+            + IsOwner(userID: UserID): boolean
+        }
+
+        enum MessageType {
+            SchedulePost
+            ImmediatePost
+            RegularPost
+            + String(): string
+        }
+
+        class SchedulePost {
+            reservationAt: ReservationAt
+            sended: boolean
+            + {static} CreateSchedulePost(id: int, message: string, reservationAt: Datetime, bot: Bot)
+            + IsSended(): boolean
+            + IsPassedReservationAt(now: Datetime): boolean
+        }
+
+        class RegularPost {
+            timings: RegularTiming[]
+            active: boolean
+            + {static} NewRegularPost(id: int, message: string, bot: Bot): PostMessage
+            + AddTiming(dayOfWeek: string, time: Time)
+            + IsActive(): boolean
+        }
+
+        class ImmediatePost {
+            sended: boolean
+            + {static} CreateImmediatePost(id: int, message: string, bot: Bot): PostMessage
+            + IsSended(): boolean
+        }
+
+        class RegularTiming {
+            dayOfWeek: DayOfWeek
+            time: Time
+            + {static} NewRegularTiming(messageID: int, dayOfWeek: string, time: Time): RegularTiming
+        }
+
+        enum DayOfWeek {
+            Sunday
+            Monday
+            Tuesday
+            Wednesday
+            Thursday
+            Friday
+            Saturday
+            + String(): string
+        }
+
+        class SentMessage {
+            message: Message
+            sendedAt: SendedAt
+            + {static} SendMessage(message: string, sendedAt: Datetime): SendMessage
+        }
+
+        class BotService {
+            + IsDuplicate(bot: Bot): boolean
+            + IsDuplicateWithoutSelf(bot Bot): boolean
+        }
+
+        class UserBotPolicy {
+            + Detail(bot: Bot): boolean
+            + Update(bot: Bot): boolean
+            + Delete(bot: Bot): boolean
+        }
+
+        class UserMessagePolicy {
+            + Store(bot: Bot): boolean
+            + Detail(message: PostMessage): boolean
+            + Update(message: PostMessage): boolean
+            + Delete(message: PostMessage): boolean
+        }
+
+        interface BotRepository {
+            + FindByID(id: BotID): Bot
+            + Store(bot: Bot): BotID
+            + Update(bot: Bot)
+            + Delete(id: BotID)
+            + ExistsByWebhook(webhook: DiscordWebbook)
+            + ExistsByIDWebhook(id BotID, webhook: DiscordWebbook)
+            + NextIdentity(): BotID
+        }
+
+        interface BotAtatarImageRepository {
+            + Store(avatar: BotAtatarImage)
+            + Update(avatar: BotAtatarImage)
+            + Delete(avator: BotAvator)
+        }
+
+        interface PostMessageRepository {
+            + Delete(id: PostMessageID)
+            + NextIdentity(): PostMessageID
+        }
+
+        interface ImmediatePostRepository {
+            + Store(immediate ImmediatePost): PostMessageID
+            + Update(immediate ImmediatePost)
+            + FindByID(id: PostMessageID): ImmediatePost
+        }
+
+        interface SchedulePostRepository {
+            + SendList(at SendedAt)
+            + Store(schedule SchedulePost): PostMessageID
+            + Update(schedule SchedulePost)
+            + FindByID(id: PostMessageID): SchedulePost
+        }
+
+        interface RegularPostRepository {
+            + SendList(timing RegularTiming)
+            + Store(schedule RegularPost): PostMessageID
+            + Update(schedule RegularPost)
+            + FindByID(id: PostMessageID): RegularPost
+        }
+
+        interface DiscordWebhookCheckAdapter {
+            + Check(webhook: DiscordWebbook): boolean
+        }
+
+        interface DiscordMessageAdapter {
+            + SendMessage(bot: Bot, message: Message)
+        }
+    }
+}
+
+UserBotPolicy -- Bot
+UserMessagePolicy -- Bot
+UserMessagePolicy -- PostMessage
+
+Bot -o PostMessage
+PostMessage - MessageType
+SentMessage --* PostMessage
+PostMessage <|-- ImmediatePost
+PostMessage <|-- SchedulePost
+PostMessage <|-- RegularPost
+RegularPost *-- RegularTiming
+RegularTiming - DayOfWeek
+
+BotRepository -- Bot
+BotAtatarImageRepository -- BotAtatarImage
+BotAtatarImage -- Bot
+BotService -- BotRepository
+BotService -- Bot
+DiscordWebhookCheckAdapter -- Bot
+DiscordMessageAdapter -- Bot
+DiscordMessageAdapter -- PostMessage
+PostMessageRepository -- PostMessage
+ImmediatePostRepository --|> PostMessageRepository
+SchedulePostRepository --|> PostMessageRepository
+RegularPostRepository --|> PostMessageRepository
+ImmediatePostRepository -- ImmediatePost
+SchedulePostRepository -- SchedulePost
+RegularPostRepository -- RegularPost
+
+@enduml

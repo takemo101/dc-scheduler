@@ -2,7 +2,7 @@ package vm
 
 import (
 	"github.com/takemo101/dc-scheduler/app/helper"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/query"
 )
 
 // ToBotIndexMap BotのIndexデータ
@@ -32,6 +32,7 @@ func ToBotDetailMap(
 		"avatar_path": dto.AtatarPath,
 		"webhook":     dto.Webhook,
 		"active":      dto.Active,
+		"user":        ToUserDetailMap(dto.User),
 		"created_at":  dto.CreatedAt,
 		"updated_at":  dto.UpdatedAt,
 	}

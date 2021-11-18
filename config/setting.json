@@ -5,7 +5,7 @@
     "resource": {
         "empty_avatar": "image/logo.png"
     },
-    "security_token": [
+    "security_key": [
         "xxx-xxxx"
     ],
     "information": [

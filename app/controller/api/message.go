@@ -6,7 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 )
 
 // PostMessageApiController 配信関連コントローラ
@@ -36,7 +37,7 @@ func NewPostMessageApiController(
 func (ctl PostMessageApiController) Send(c *fiber.Ctx) (err error) {
 	response := ctl.value.GetResponseHelper(c)
 
-	sends := make(chan application.AppError, 2)
+	sends := make(chan common.AppError, 2)
 	defer close(sends)
 
 	go func() {

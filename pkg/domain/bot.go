@@ -125,6 +125,7 @@ type Bot struct {
 	avatar  BotAtatar
 	webhook BotDiscordWebhook
 	active  bool
+	userID  UserID
 }
 
 // NewBot コンストラクタ
@@ -134,6 +135,7 @@ func NewBot(
 	avatar string,
 	webhook string,
 	active bool,
+	userID uint,
 ) Bot {
 	return Bot{
 		id: BotID{
@@ -143,6 +145,9 @@ func NewBot(
 		avatar:  BotAtatar(avatar),
 		webhook: BotDiscordWebhook(webhook),
 		active:  active,
+		userID: UserID{
+			ID: Identity(userID),
+		},
 	}
 }
 
@@ -153,6 +158,7 @@ func CreateBot(
 	avatar string,
 	webhook string,
 	active bool,
+	userID UserID,
 ) (entity Bot, err error) {
 
 	idVO, err := NewBotID(id)
@@ -178,6 +184,7 @@ func CreateBot(
 		avatar:  avatarVO,
 		webhook: webhookVO,
 		active:  active,
+		userID:  userID,
 	}, err
 }
 
@@ -207,6 +214,26 @@ func (entity *Bot) Update(
 	return err
 }
 
+// Update UserのBotを更新
+func (entity *Bot) UpdateUsers(
+	name string,
+	avatar string,
+	webhook string,
+	active bool,
+	userID UserID,
+) error {
+	if !entity.UserID().Equals(userID) {
+		return errors.New("対象UserのBotでは無いので更新できません")
+	}
+
+	return entity.Update(
+		name,
+		avatar,
+		webhook,
+		active,
+	)
+}
+
 func (entity Bot) ID() BotID {
 	return entity.id
 }
@@ -225,6 +252,15 @@ func (entity Bot) Webhook() BotDiscordWebhook {
 
 func (entity Bot) IsActive() bool {
 	return entity.active
+}
+
+func (entity Bot) UserID() UserID {
+	return entity.userID
+}
+
+// IsOwner User自身のBotかどうか
+func (entity Bot) IsOwner(userID UserID) bool {
+	return entity.UserID().Equals(userID)
 }
 
 // ChangeActive アクティブ状態を変更
@@ -356,12 +392,57 @@ func NewBotService(
 
 // IsDuplicate Botが重複しているか
 func (service BotService) IsDuplicate(bot Bot) (bool, error) {
-	return service.repository.ExistsByNameAndWebhook(bot.Name(), bot.Webhook())
+	return service.repository.ExistsByNameAndWebhookAndUserID(
+		bot.Name(),
+		bot.Webhook(),
+		bot.UserID(),
+	)
 }
 
 // IsDuplicate 指定のBotを除き重複しているか
 func (service BotService) IsDuplicateWithoutSelf(bot Bot) (bool, error) {
-	return service.repository.ExistsByIDNameAndWebhook(bot.ID(), bot.Name(), bot.Webhook())
+	return service.repository.ExistsByIDNameAndWebhookAndUserID(
+		bot.ID(),
+		bot.Name(),
+		bot.Webhook(),
+		bot.UserID(),
+	)
+}
+
+// --- UserBotPolicy ---
+
+// UserBotPolicy
+type UserBotPolicy struct {
+	context UserAuthContext
+}
+
+// NewUserBotPolicy コンストラクタ
+func NewUserBotPolicy(
+	context UserAuthContext,
+) UserBotPolicy {
+	return UserBotPolicy{
+		context,
+	}
+}
+
+// Detail Userが対象Botを閲覧できるか
+func (policy UserBotPolicy) Detail(bot Bot) (ok bool, err error) {
+	auth, err := policy.context.UserAuth()
+	if err != nil {
+		return ok, err
+	}
+
+	return bot.IsOwner(auth.ID()), err
+}
+
+// Update Userが対象BotをUpdateできるか
+func (policy UserBotPolicy) Update(bot Bot) (ok bool, err error) {
+	return policy.Detail(bot)
+}
+
+// Update Userが対象BotをDeleteできるか
+func (policy UserBotPolicy) Delete(bot Bot) (ok bool, err error) {
+	return policy.Detail(bot)
 }
 
 // --- BotAtatarImageRepository ---
@@ -381,8 +462,8 @@ type BotRepository interface {
 	Update(entity Bot) error
 	FindByID(id BotID) (Bot, error)
 	Delete(id BotID) error
-	ExistsByNameAndWebhook(name BotName, webhook BotDiscordWebhook) (bool, error)
-	ExistsByIDNameAndWebhook(id BotID, name BotName, webhook BotDiscordWebhook) (bool, error)
+	ExistsByNameAndWebhookAndUserID(name BotName, webhook BotDiscordWebhook, userID UserID) (bool, error)
+	ExistsByIDNameAndWebhookAndUserID(id BotID, name BotName, webhook BotDiscordWebhook, userID UserID) (bool, error)
 	NextIdentity() (BotID, error)
 }
 

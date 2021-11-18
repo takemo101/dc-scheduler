@@ -1,8 +1,8 @@
 {
-    "menus": [{
+    "menus": [
+        {
             "is_header": true,
-            "name": "USER",
-            "role": "system"
+            "name": "USER"
         },
         {
             "key": ":admin",
@@ -24,6 +24,24 @@
             ]
         },
         {
+            "key": ":user",
+            "name": "利用者",
+            "icon": "fas fa-users",
+            "path": "#",
+            "menus": [
+                {
+                    "key": ":user.index",
+                    "name": "検索",
+                    "path": "system/user"
+                },
+                {
+                    "key": ":user.create",
+                    "name": "追加",
+                    "path": "system/user/create"
+                }
+            ]
+        },
+        {
             "is_header": true,
             "name": "FUNCTION"
         },
@@ -31,19 +49,7 @@
             "key": ":bot",
             "name": "ボット",
             "icon": "fas fa-robot",
-            "path": "#",
-            "menus": [
-                {
-                    "key": ":bot.index",
-                    "name": "検索",
-                    "path": "system/bot"
-                },
-                {
-                    "key": ":bot.create",
-                    "name": "追加",
-                    "path": "system/bot/create"
-                }
-            ]
+            "path": "system/bot"
         },
         {
             "key": ":message",
@@ -82,7 +88,8 @@
         }
     ],
     "plugins": {
-        "header_css": [{
+        "header_css": [
+            {
                 "file": "css/app.css"
             },
             {
@@ -113,7 +120,8 @@
                 "file": "plugins/summernote/summernote-bs4.css"
             }
         ],
-        "header_js": [{
+        "header_js": [
+            {
                 "file": "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js",
                 "defer": true
             },
@@ -139,7 +147,8 @@
                 "file": "plugins/summernote/lang/summernote-ja-JP.min.js"
             }
         ],
-        "footer_js": [{
+        "footer_js": [
+            {
                 "file": "js/app.js"
             },
             {
@@ -158,5 +167,10 @@
                 "file": "plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"
             }
         ]
+    },
+    "links": {
+        "account": "system/account/edit",
+        "home": "system",
+        "logout": "system/logout"
     }
 }

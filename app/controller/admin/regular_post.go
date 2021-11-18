@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,21 +9,20 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 )
 
-// RegularPostController 即時配信コントローラ
+// RegularPostController 定期配信コントローラ
 type RegularPostController struct {
-	value             support.ContextValue
-	toastr            support.ToastrMessage
-	sessionStore      core.SessionStore
-	searchUseCase     application.RegularPostSearchUseCase
-	createFormUseCase application.PostMessageCreateFormUseCase
-	storeUseCase      application.RegularPostStoreUseCase
-	editFormUseCase   application.RegularPostEditFormUseCase
-	updateUseCase     application.RegularPostUpdateUseCase
-	addUseCase        application.RegularTimingAddUseCase
-	removeUseCase     application.RegularTimingRemoveUseCase
+	value           support.ContextValue
+	toastr          support.ToastrMessage
+	sessionStore    core.SessionStore
+	searchUseCase   application.RegularPostSearchUseCase
+	editFormUseCase application.RegularPostEditFormUseCase
+	updateUseCase   application.RegularPostUpdateUseCase
+	addUseCase      application.RegularTimingAddUseCase
+	removeUseCase   application.RegularTimingRemoveUseCase
 }
 
 // NewRegularPostController コンストラクタ
@@ -33,8 +31,6 @@ func NewRegularPostController(
 	toastr support.ToastrMessage,
 	sessionStore core.SessionStore,
 	searchUseCase application.RegularPostSearchUseCase,
-	createFormUseCase application.PostMessageCreateFormUseCase,
-	storeUseCase application.RegularPostStoreUseCase,
 	editFormUseCase application.RegularPostEditFormUseCase,
 	updateUseCase application.RegularPostUpdateUseCase,
 	addUseCase application.RegularTimingAddUseCase,
@@ -45,8 +41,6 @@ func NewRegularPostController(
 		toastr,
 		sessionStore,
 		searchUseCase,
-		createFormUseCase,
-		storeUseCase,
 		editFormUseCase,
 		updateUseCase,
 		addUseCase,
@@ -75,81 +69,7 @@ func (ctl RegularPostController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("message/regular_post/index", helper.DataMap(vm.ToRegularPostIndexMap(dto)))
-}
-
-// Create 追加フォーム
-func (ctl RegularPostController) Create(c *fiber.Ctx) error {
-	response := ctl.value.GetResponseHelper(c)
-
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return response.Error(err)
-	}
-
-	dto, appError := ctl.createFormUseCase.Execute(uint(id))
-	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
-			return response.Error(appError, fiber.StatusNotFound)
-		}
-		return response.Error(appError)
-	}
-
-	return response.View("message/regular_post/create", helper.DataMap{
-		"content_footer": true,
-		"bot":            vm.ToBotDetailMap(dto),
-	})
-}
-
-// Store 追加処理
-func (ctl RegularPostController) Store(c *fiber.Ctx) (err error) {
-	var form form.RegularPostCreateAndUpdate
-	response := ctl.value.GetResponseHelper(c)
-
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return response.Error(err)
-	}
-
-	if err := c.BodyParser(&form); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Sanitize(); err != nil {
-		return response.Error(err)
-	}
-
-	if err := form.Validate(); err != nil {
-		ctl.sessionStore.SetErrorResource(
-			c,
-			helper.ErrorsToMap(err),
-			helper.StructToFormMap(&form),
-		)
-		return response.Back(c)
-	}
-
-	storeID, appError := ctl.storeUseCase.Execute(uint(id), application.RegularPostStoreInput{
-		Message: form.Message,
-		Active:  form.ActiveToBool(),
-	})
-	if appError != nil && appError.HasError() {
-		if appError.HaveType(application.NotFoundDataError) {
-			return response.Error(appError, fiber.StatusNotFound)
-		}
-		return response.Error(appError)
-	}
-
-	ctl.toastr.SetToastr(
-		c,
-		support.ToastrStore,
-		support.ToastrStore.Message(),
-		support.Messages{},
-	)
-
-	return response.Redirect(
-		c,
-		fmt.Sprintf("system/message/regular/%d/timing/edit", storeID),
-	)
+	return response.View("admin/message/regular_post/index", helper.DataMap(vm.ToRegularPostIndexMap(dto)))
 }
 
 // Edit 編集フォーム
@@ -163,13 +83,13 @@ func (ctl RegularPostController) Edit(c *fiber.Ctx) (err error) {
 
 	dto, appError := ctl.editFormUseCase.Execute(uint(id))
 	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
+		if appError.HaveType(common.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)
 		}
 		return response.Error(appError)
 	}
 
-	return response.View("message/regular_post/edit", helper.DataMap{
+	return response.View("admin/message/regular_post/edit", helper.DataMap{
 		"content_footer": true,
 		"regular_post":   vm.ToRegularPostDetailMap(dto),
 	})

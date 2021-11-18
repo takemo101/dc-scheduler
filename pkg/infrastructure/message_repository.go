@@ -49,6 +49,17 @@ func (repo PostMessageRepository) SaveSendedMessage(
 	return err
 }
 
+// FindBaseByID 全てのベースとなるエンティティを取得する
+func (repo PostMessageRepository) FindBaseByID(id domain.PostMessageID) (entity domain.PostMessage, err error) {
+	model := PostMessage{}
+
+	if err = repo.db.GormDB.Where("id = ?", id.Value()).Preload("Bot").First(&model).Error; err != nil {
+		return entity, err
+	}
+
+	return CreatePostMessageEntityFromModel(model), err
+}
+
 // Delete PostMessageIDからPostMessageを削除する
 func (repo PostMessageRepository) Delete(id domain.PostMessageID) error {
 
@@ -75,6 +86,17 @@ func (repo PostMessageRepository) NextIdentity() (domain.PostMessageID, error) {
 	repo.db.GormDB.Model(&PostMessage{}).Select(sql).Scan(&max)
 
 	return domain.NewPostMessageID(max + 1)
+}
+
+// CreatePostMessageEntityFromModel PostMessageからEntityを生成する
+func CreatePostMessageEntityFromModel(model PostMessage) domain.PostMessage {
+	return domain.NewPostMessage(
+		model.ID,
+		model.Message,
+		model.MessageType,
+		CreateBotEntityFromModel(model.Bot),
+		[]domain.SentMessage{},
+	)
 }
 
 // --- ImmediatePostRepository ---

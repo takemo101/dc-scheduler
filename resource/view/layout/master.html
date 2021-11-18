@@ -7,10 +7,10 @@
     <meta http-equiv="content-style-type" content="text/css">
     <meta http-equiv="content-script-type" content="text/javascript">
     <meta name="csrf_token" content="{{ csrf_token }}">
-    <title>{% block title %}{% endblock %}{{ admin_meta.title }}</title>
-    <meta content="{% block description %}{{ admin_meta.description }}{% endblock %}" name="description">
-    <meta property="robots" content="{{ admin_meta.robots }}" >
-    <link rel="shortcut icon" href="{{ static(admin_meta.favicon) }}">
+    <title>{% block title %}{% endblock %}{{ site_meta.title }}</title>
+    <meta content="{% block description %}{{ site_meta.description }}{% endblock %}" name="description">
+    <meta property="robots" content="{{ site_meta.robots }}" >
+    <link rel="shortcut icon" href="{{ static(site_meta.favicon) }}">
     {% for link in adminlte_plugins.header_css %}
         <link rel="stylesheet" media="all" href="{{ static(link.file) }}">
     {% endfor %}

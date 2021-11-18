@@ -44,10 +44,11 @@ type JsonErrorMessagesResult struct {
 
 // ResponseHelper response helper
 type ResponseHelper struct {
-	logger core.Logger
-	config core.Config
-	path   core.Path
-	render *ViewRender
+	logger    core.Logger
+	config    core.Config
+	path      core.Path
+	render    *ViewRender
+	errorPath string
 }
 
 // NewResponseHelper response utility
@@ -58,10 +59,11 @@ func NewResponseHelper(
 	render *ViewRender,
 ) *ResponseHelper {
 	return &ResponseHelper{
-		logger: logger,
-		config: config,
-		path:   path,
-		render: render,
+		logger:    logger,
+		config:    config,
+		path:      path,
+		render:    render,
+		errorPath: "error/error",
 	}
 }
 
@@ -148,10 +150,30 @@ func (helper *ResponseHelper) Error(err error, code ...int) error {
 	statusCode := fiber.StatusInternalServerError
 	if len(code) > 0 {
 		statusCode = code[0]
+	} else {
+		// fiber error type
+		switch err.(type) {
+		case *fiber.Error:
+			e := err.(*fiber.Error)
+			return helper.render.Error(
+				helper.errorPath,
+				e.Error(),
+				e.Code,
+			)
+		}
 	}
 
 	helper.logger.Error(err)
-	return helper.render.Error(helper.CreateErrorMessage(err, statusCode), statusCode)
+	return helper.render.Error(
+		helper.errorPath,
+		helper.CreateErrorMessage(err, statusCode),
+		statusCode,
+	)
+}
+
+// SetErrorViewPath set error view path
+func (helper *ResponseHelper) SetErrorViewPath(path string) {
+	helper.errorPath = path
 }
 
 // CreateErrorMessage create error response messsage

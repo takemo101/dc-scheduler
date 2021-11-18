@@ -154,45 +154,6 @@ func AdminRoleToArray() []KeyValue {
 	}
 }
 
-// --- HashPassword ValueObject ---
-
-// HashPassword Adminのハッシュパスワード
-type HashPassword []byte
-
-// NewHashPasswordFromPlainText プレーンテキストからVOを生成するコンストラクタ
-func NewHashPasswordFromPlainText(plainText string) (vo HashPassword, err error) {
-
-	length := len(plainText)
-	// 3文字以上20文字以下のパスワードしか設定できない
-	if length < 3 || length > 20 {
-		return vo, errors.New("HashPasswordは3-20文字の間で設定してください")
-	}
-
-	// パスワードをハッシュに変換
-	hash, hashError := CreateHashPassword([]byte(plainText))
-
-	if hashError != nil {
-		return vo, hashError
-	}
-
-	return NewHashPassword(hash), err
-}
-
-// NewHashPassword コンストラクタ
-func NewHashPassword(hash []byte) HashPassword {
-	return HashPassword(hash)
-}
-
-// Value 値を返す
-func (vo HashPassword) Value() []byte {
-	return []byte(vo)
-}
-
-// Compare パスワードが一致するか
-func (vo HashPassword) Compare(plainPass string) bool {
-	return CompareHashPassword(vo.Value(), plainPass)
-}
-
 // --- AdminAuth Entity ---
 
 // AdminAuth 認証Entity

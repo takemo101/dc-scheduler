@@ -9,7 +9,11 @@
 
 ### クラス図
 
-![class diagram](class.png)
+![class diagram](class_admin.png)
+
+![class diagram](class_user.png)
+
+![class diagram](class_message.png)
 
 ### ER 図
 

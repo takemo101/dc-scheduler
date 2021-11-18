@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/query"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
@@ -30,7 +30,35 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 	var models []Bot
 
 	paging := NewGormPaging(
-		query.db.GormDB,
+		query.db.GormDB.Preload("User"),
+		parameter.Page,
+		parameter.Limit,
+		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
+	)
+
+	paginator, err := paging.Paging(&models)
+	if err != nil {
+		return dto, err
+	}
+
+	dto.Pagination = paginator
+
+	bots := make([]application.BotDetailDTO, len(models))
+	for i, m := range models {
+		bots[i] = CreateBotDetailDTOFromModel(query.upload, m)
+	}
+
+	dto.Bots = bots
+
+	return dto, err
+}
+
+// Search UserのBot一覧取得
+func (query BotQuery) SearchByUserID(parameter application.BotSearchParameterDTO, userID domain.UserID) (dto application.BotSearchPaginatorDTO, err error) {
+	var models []Bot
+
+	paging := NewGormPaging(
+		query.db.GormDB.Where("user_id = ?", userID.Value()),
 		parameter.Page,
 		parameter.Limit,
 		[]string{parameter.OrderByType.ToQuery(parameter.OrderByKey)},
@@ -57,7 +85,7 @@ func (query BotQuery) Search(parameter application.BotSearchParameterDTO) (dto a
 func (query BotQuery) FindByID(id domain.BotID) (dto application.BotDetailDTO, err error) {
 	model := Bot{}
 
-	if err = query.db.GormDB.Where("id = ?", id.Value()).First(&model).Error; err != nil {
+	if err = query.db.GormDB.Preload("User").Where("id = ?", id.Value()).First(&model).Error; err != nil {
 		return dto, err
 	}
 
@@ -82,6 +110,7 @@ func CreateBotDetailDTOFromModel(
 		AtatarPath: avatarPath,
 		Webhook:    model.Webhook,
 		Active:     model.Active.Bool,
+		User:       CreateUserDetailDTOFromModel(model.User),
 		CreatedAt:  model.CreatedAt,
 		UpdatedAt:  model.UpdatedAt,
 	}

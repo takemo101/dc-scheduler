@@ -9,7 +9,8 @@ import (
 	"github.com/takemo101/dc-scheduler/app/support"
 	"github.com/takemo101/dc-scheduler/app/vm"
 	"github.com/takemo101/dc-scheduler/core"
-	"github.com/takemo101/dc-scheduler/pkg/application"
+	application "github.com/takemo101/dc-scheduler/pkg/application/admin"
+	common "github.com/takemo101/dc-scheduler/pkg/application/common"
 	"github.com/takemo101/dc-scheduler/pkg/domain"
 )
 
@@ -69,14 +70,14 @@ func (ctl AdminController) Index(c *fiber.Ctx) (err error) {
 
 	dto.Pagination.SetURL(c.BaseURL() + c.OriginalURL())
 
-	return response.View("admin/index", helper.DataMap(vm.ToAdminIndexMap(dto)))
+	return response.View("admin/admin/index", helper.DataMap(vm.ToAdminIndexMap(dto)))
 }
 
 // Create 追加フォーム
 func (ctl AdminController) Create(c *fiber.Ctx) error {
 	response := ctl.value.GetResponseHelper(c)
 
-	return response.View("admin/create", helper.DataMap{
+	return response.View("admin/admin/create", helper.DataMap{
 		"content_footer": true,
 		"roles":          vm.ToKeyValueMap(domain.AdminRoleToArray()),
 	})
@@ -143,13 +144,13 @@ func (ctl AdminController) Edit(c *fiber.Ctx) (err error) {
 
 	dto, appError := ctl.detailUseCase.Execute(uint(id))
 	if appError != nil {
-		if appError.HaveType(application.NotFoundDataError) {
+		if appError.HaveType(common.NotFoundDataError) {
 			return response.Error(appError, fiber.StatusNotFound)
 		}
 		return response.Error(appError)
 	}
 
-	return response.View("admin/edit", helper.DataMap{
+	return response.View("admin/admin/edit", helper.DataMap{
 		"content_footer": true,
 		"admin":          vm.ToAdminDetailMap(dto),
 		"roles":          vm.ToKeyValueMap(domain.AdminRoleToArray()),
