@@ -19,3 +19,4 @@ package-lock.json
 /docker/redis/data/*
 # other
 memo.txt
+/python/*
