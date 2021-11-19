@@ -46,6 +46,8 @@ var Module = fx.Options(
 	fx.Provide(admin.NewRegularTimingAddUseCase),
 	fx.Provide(admin.NewRegularTimingRemoveUseCase),
 	fx.Provide(admin.NewRegularPostSendUseCase),
+	fx.Provide(admin.NewApiPostSearchUseCase),
+	fx.Provide(admin.NewApiPostSendUseCase),
 
 	// --- User UseCase by user --
 	fx.Provide(user.NewUserRegistUseCase),
@@ -77,4 +79,6 @@ var Module = fx.Options(
 	fx.Provide(user.NewRegularPostUpdateUseCase),
 	fx.Provide(user.NewRegularTimingAddUseCase),
 	fx.Provide(user.NewRegularTimingRemoveUseCase),
+	fx.Provide(user.NewApiPostSearchUseCase),
+	fx.Provide(user.NewApiPostStoreUseCase),
 )

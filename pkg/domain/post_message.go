@@ -57,6 +57,11 @@ func (vo Message) Value() string {
 	return string(vo)
 }
 
+// IsEmpty メッセージが空か
+func (vo Message) IsEmpty() bool {
+	return vo.Value() == ""
+}
+
 // --- MessageType ValueObject ---
 
 // MessageType メッセージタイプ
@@ -66,6 +71,7 @@ const (
 	MessageTypeSchedulePost  MessageType = "schedule"
 	MessageTypeImmediatePost MessageType = "immediate"
 	MessageTypeRegularPost   MessageType = "regular"
+	MessageTypeApiPost       MessageType = "api"
 )
 
 // NewMessageType コンストラクタ
@@ -99,6 +105,8 @@ func (vo MessageType) Name() string {
 		return "即時配信"
 	case MessageTypeRegularPost:
 		return "定期配信"
+	case MessageTypeApiPost:
+		return "Api配信"
 	}
 	return ""
 }
@@ -106,7 +114,7 @@ func (vo MessageType) Name() string {
 // Valid 定義したものに一致するか
 func (vo MessageType) Valid() bool {
 	switch vo {
-	case MessageTypeSchedulePost, MessageTypeImmediatePost, MessageTypeRegularPost:
+	case MessageTypeSchedulePost, MessageTypeImmediatePost, MessageTypeRegularPost, MessageTypeApiPost:
 		return true
 	}
 	return false
@@ -234,6 +242,32 @@ func CreatePostMessage(
 	return PostMessage{
 		id:           idVO,
 		message:      messageVO,
+		messageType:  messageTypeVO,
+		bot:          bot,
+		sentMessages: []SentMessage{},
+	}, err
+}
+
+// CreateEmptyPostMessage 空の配信メッセージを生成する（のちにメッセージ内容が確定するパターンのために）
+func CreateEmptyPostMessage(
+	id uint,
+	messageType MessageType,
+	bot Bot,
+) (entity PostMessage, err error) {
+
+	idVO, err := NewPostMessageID(id)
+	if err != nil {
+		return entity, err
+	}
+
+	messageTypeVO, err := NewMessageType(messageType.Value())
+	if err != nil {
+		return entity, err
+	}
+
+	return PostMessage{
+		id:           idVO,
+		message:      Message(""),
 		messageType:  messageTypeVO,
 		bot:          bot,
 		sentMessages: []SentMessage{},

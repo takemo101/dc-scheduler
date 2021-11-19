@@ -129,7 +129,7 @@ func (repo ImmediatePostRepository) Store(entity domain.ImmediatePost) (vo domai
 	model.MessageType = entity.MessageType()
 	model.BotID = entity.Bot().ID().Value()
 	model.Sended = sql.NullBool{Bool: entity.IsSended(), Valid: true}
-	model.Active = sql.NullBool{Bool: entity.IsSended(), Valid: true}
+	model.Active = sql.NullBool{Bool: true, Valid: true}
 
 	err = repo.db.GormDB.Transaction(func(tx *gorm.DB) (err error) {
 		// 一旦モデルを保存
@@ -413,6 +413,7 @@ type PostMessage struct {
 	SentMessages   []SentMessage      `gorm:"constraint:OnDelete:CASCADE;"`
 	ScheduleTiming ScheduleTiming     `gorm:"constraint:OnDelete:CASCADE;"`
 	RegularTimings []RegularTiming    `gorm:"constraint:OnDelete:CASCADE;"`
+	ApiKey         MessageApiKey      `gorm:"constraint:OnDelete:CASCADE;"`
 	Sended         sql.NullBool       `gorm:"type:boolean;index"`
 	Active         sql.NullBool       `gorm:"type:boolean;index"`
 }

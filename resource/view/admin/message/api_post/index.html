@@ -1,0 +1,130 @@
+{% extends 'layout/default.html' %}
+{% block title %}配信メッセージ｜{% endblock %}
+{% block content_side %}
+    {% include 'include/sidebar.html' with active_key=':message.index.api' %}
+{% endblock %}
+{% block content_header %}
+    {% include 'include/header.html' with title='配信メッセージ' function='FUNCTION' first_label='配信メッセージ：Api配信' %}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">リスト</h3>
+                <div class="card-tools">
+                    <form action="" method="get">
+
+	                    <div class="input-group input-group-sm" style="width: 200px;">
+                            <input type="text" class="form-control" data-aire-component="input" name="keyword" placeholder="Search" data-aire-for="keyword" id="__aire-0-keyword1">
+
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /.card-header -->
+            {% if api_posts|length > 0 %}
+            <div class="card-body table-responsive p-0">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>
+                                配信日時<br/>
+                                更新日時
+                            </th>
+                            <th>
+                                対象ボット／利用者<br/>
+                                Apiエンドポイント
+                            </th>
+                            <th>
+                                最終配信メッセージ内容
+                            </th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in api_posts %}
+                        <tr>
+                            <td>{{ message.id }}</td>
+                            <td>
+                                <small>
+                                    {{ message.created_at|date:'2006.01.02 15:04' }}<br/>
+                                    {{ message.updated_at|date:'2006.01.02 15:04' }}
+                                </small>
+                            </td>
+                            <td x-data="{
+                                apiKey: '{{ url('api/message/%s/send', message.api_key) }}',
+                                copy() {
+                                    navigator.clipboard.writeText(this.apiKey).then(e => {
+                                        toastr.success('コピーしました！');
+                                    });
+                                },
+                            }">
+                                {% if message.bot %}
+                                    <a href="{{ url('system/bot/%d/edit', message.bot.id) }}">
+                                        {{ message.bot.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                ／
+                                {% if message.bot.user %}
+                                    <a href="{{ url('system/user/%d/edit', message.bot.user.id) }}">
+                                        {{ message.bot.user.name }}
+                                    </a>
+                                {% else %}
+                                    --
+                                {% endif %}
+                                <br/>
+                                <div class="input-group input-group-sm">
+                                    <input class="form-control" type="text" value="{{ url('api/message/%s/send', message.api_key) }}" readonly>
+                                    <span class="input-group-append">
+                                        <button type="button" class="btn btn-info btn-flat" @click="copy()" >
+                                            <i class="far fa-copy"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if message.message %}
+                                    <small>{{ nl2br(message.message|escape) }}</small>
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button data-class="js-dialog" data-type="delete" data-form="#{{ message.id|stringformat:'delete-%d' }}" class="btn btn-danger btn-sm" name="submit">
+                                    <i class="fas fa-trash">
+                                    </i>
+                                </button>
+                                <form action="{{ url('system/message/%d/delete', message.id) }}" method="post" id="{{ message.id|stringformat:'delete-%d' }}">
+                                    {% include 'form/csrf.html' %}
+                                    {% include 'form/method.html' with method='delete' %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+            {% include 'pagination/default.html' %}
+            {% else %}
+            <div class="card-body">
+                <div class="alert alert-info alert-dismissible mb-0">
+                    <h5><i class="icon fas fa-info-circle"></i> Info</h5>
+                    その条件のリストはありません
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- /.card -->
+
+    </div>
+</div>
+{% endblock %}

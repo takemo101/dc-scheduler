@@ -68,6 +68,9 @@
                                     <i class="fas fa-calendar-alt">
                                     </i>
                                 </a>
+                                <a class="btn btn-success btn-sm" href="javascript:void(0)" data-class="js-dialog" data-type="message" data-title="STORE" data-message="配信Apiを作成しますか？"  data-form="#{{ bot.id|stringformat:'api-%d' }}">
+                                    <i class="fas fa-broadcast-tower"></i>
+                                </a>
                                 <a class="btn btn-info btn-sm" href="{{ url('user/bot/%d/edit', bot.id) }}">
                                     <i class="fas fa-pencil-alt">
                                     </i>
@@ -76,6 +79,9 @@
                                     <i class="fas fa-trash">
                                     </i>
                                 </button>
+                                <form action="{{ url('user/bot/%d/api/store', bot.id) }}" method="post" id="{{ bot.id|stringformat:'api-%d' }}">
+                                    {% include 'form/csrf.html' %}
+                                </form>
                                 <form action="{{ url('user/bot/%d/delete', bot.id) }}" method="post" id="{{ bot.id|stringformat:'delete-%d' }}">
                                     {% include 'form/csrf.html' %}
                                     {% include 'form/method.html' with method='delete' %}

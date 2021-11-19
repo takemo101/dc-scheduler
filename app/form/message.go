@@ -184,3 +184,31 @@ func (form RegularTimingAdd) HourTimeToTime() time.Time {
 	at, _ := time.ParseInLocation("15:04", form.HourTime, time.Local)
 	return at
 }
+
+// --- ApiPostSend ---
+
+// ApiPostSend ApiPost送信パラメータ
+type ApiPostSend struct {
+	Message string `json:"message" form:"message"`
+}
+
+// Validate ApiPost送信パラメータ
+func (form ApiPostSend) Validate() error {
+	messageRules := createPostMessageMessageRules()
+
+	fields := []*validation.FieldRules{
+		validation.Field(
+			&form.Message,
+			messageRules...,
+		),
+	}
+
+	return validation.ValidateStruct(&form, fields...)
+}
+
+// Sanitize ApiPostSendの変換
+func (form *ApiPostSend) Sanitize() (err error) {
+	form.Message = strings.TrimSpace(form.Message)
+
+	return err
+}
