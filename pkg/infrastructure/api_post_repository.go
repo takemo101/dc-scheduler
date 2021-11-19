@@ -106,9 +106,8 @@ func (repo ApiPostRepository) FindByApiKey(apiKey domain.MessageApiKey) (entity 
 	model := PostMessage{}
 
 	if err = repo.db.GormDB.Where("message_type = ?", domain.MessageTypeApiPost).Preload("Bot").Preload("ApiKey").Joins(
-		"LEFT JOIN message_api_keys ON message_api_keys.post_message_id = post_messages.id AND message_api_keys.key = ?",
-		apiKey.Value(),
-	).First(&model).Error; err != nil {
+		"LEFT JOIN message_api_keys ON message_api_keys.post_message_id = post_messages.id",
+	).Where("message_api_keys.key = ?", apiKey.Value()).First(&model).Error; err != nil {
 		return entity, err
 	}
 
