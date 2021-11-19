@@ -29,6 +29,7 @@ type UserRoute struct {
 	scheduleController  controller.SchedulePostController
 	regularController   controller.RegularPostController
 	timingController    controller.RegularTimingController
+	apiController       controller.ApiPostController
 }
 
 // NewUserRoute コンストラクタ
@@ -51,6 +52,7 @@ func NewUserRoute(
 	scheduleController controller.SchedulePostController,
 	regularController controller.RegularPostController,
 	timingController controller.RegularTimingController,
+	apiController controller.ApiPostController,
 ) UserRoute {
 	return UserRoute{
 		logger:              logger,
@@ -71,6 +73,7 @@ func NewUserRoute(
 		scheduleController:  scheduleController,
 		regularController:   regularController,
 		timingController:    timingController,
+		apiController:       apiController,
 	}
 }
 
@@ -145,6 +148,8 @@ func (r UserRoute) Setup() {
 
 				bot.Get("/:id/regular/create", r.regularController.Create)
 				bot.Post("/:id/regular/store", r.regularController.Store)
+
+				bot.Post("/:id/api/store", r.apiController.Store)
 			}
 
 			// message route
@@ -162,6 +167,8 @@ func (r UserRoute) Setup() {
 				message.Get("/regular/:id/timing/edit", r.timingController.Edit)
 				message.Post("/regular/:id/timing/add", r.timingController.Add)
 				message.Delete("/regular/:id/timing/remove/:day_of_week/:hour_time", r.timingController.Remove)
+
+				message.Get("/api", r.apiController.Index)
 
 				message.Get("/history", r.messageController.History)
 				message.Delete("/:id/delete", r.messageController.Delete)

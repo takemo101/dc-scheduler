@@ -47,6 +47,11 @@
                             "key": ":message.index.regular",
                             "name": "定期配信",
                             "path": "user/message/regular"
+                        },
+                        {
+                            "key": ":message.index.api",
+                            "name": "Api配信",
+                            "path": "user/message/api"
                         }
                     ]
                 },

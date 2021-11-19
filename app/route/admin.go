@@ -31,6 +31,7 @@ type AdminRoute struct {
 	scheduleController  controller.SchedulePostController
 	regularController   controller.RegularPostController
 	timingController    controller.RegularTimingController
+	apiController       controller.ApiPostController
 }
 
 // NewAdminRoute コンストラクタ
@@ -55,6 +56,7 @@ func NewAdminRoute(
 	scheduleController controller.SchedulePostController,
 	regularController controller.RegularPostController,
 	timingController controller.RegularTimingController,
+	apiController controller.ApiPostController,
 ) AdminRoute {
 	return AdminRoute{
 		logger:              logger,
@@ -77,6 +79,7 @@ func NewAdminRoute(
 		scheduleController:  scheduleController,
 		regularController:   regularController,
 		timingController:    timingController,
+		apiController:       apiController,
 	}
 }
 
@@ -179,6 +182,8 @@ func (r AdminRoute) Setup() {
 				message.Get("/regular/:id/timing/edit", r.timingController.Edit)
 				message.Post("/regular/:id/timing/add", r.timingController.Add)
 				message.Delete("/regular/:id/timing/remove/:day_of_week/:hour_time", r.timingController.Remove)
+
+				message.Get("/api", r.apiController.Index)
 
 				message.Get("/history", r.messageController.History)
 				message.Delete("/:id/delete", r.messageController.Delete)

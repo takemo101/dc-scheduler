@@ -70,6 +70,12 @@ package domain {
             + {static} NewRegularTiming(messageID: int, dayOfWeek: string, time: Time): RegularTiming
         }
 
+        class ApiPost {
+            apiKey: ApiKey
+            + (static) CreateApiPost(id: int, bot: Bot)
+            + Send(message: string, now: Datetime)
+        }
+
         enum DayOfWeek {
             Sunday
             Monday
@@ -146,6 +152,13 @@ package domain {
             + FindByID(id: PostMessageID): RegularPost
         }
 
+        interface ApiPostRepository {
+            + Store(schedule ApiPost): PostMessageID
+            + Update(schedule ApiPost)
+            + FindByID(id: PostMessageID): ApiPost
+            + FindByKey(apiKey: ApiKey): ApiPost
+        }
+
         interface DiscordWebhookCheckAdapter {
             + Check(webhook: DiscordWebbook): boolean
         }
@@ -166,6 +179,7 @@ SentMessage --* PostMessage
 PostMessage <|-- ImmediatePost
 PostMessage <|-- SchedulePost
 PostMessage <|-- RegularPost
+PostMessage <|-- ApiPost
 RegularPost *-- RegularTiming
 RegularTiming - DayOfWeek
 
@@ -181,8 +195,10 @@ PostMessageRepository -- PostMessage
 ImmediatePostRepository --|> PostMessageRepository
 SchedulePostRepository --|> PostMessageRepository
 RegularPostRepository --|> PostMessageRepository
+ApiPostRepository --|> PostMessageRepository
 ImmediatePostRepository -- ImmediatePost
 SchedulePostRepository -- SchedulePost
 RegularPostRepository -- RegularPost
+ApiPostRepository -- ApiPost
 
 @enduml

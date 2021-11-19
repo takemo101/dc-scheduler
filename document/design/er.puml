@@ -47,6 +47,13 @@ object schedule_timings {
     * reservation_at : datetime
 }
 
+object message_api_keys {
+    + id : pk <<auto_increment>>
+    --
+    # post_message_id : fk
+    * key : string unique
+}
+
 
 object admins {
     + id : pk <<auto_increment>>
@@ -74,5 +81,6 @@ users ||--o{ bots
 bots ||--o{ post_messages
 post_messages ||--o{ regular_timings
 post_messages ||--o| schedule_timings
+post_messages ||--o| message_api_keys
 post_messages ||--o{ sent_messages
 @enduml

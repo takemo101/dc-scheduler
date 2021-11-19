@@ -21,6 +21,7 @@ var Module = fx.Options(
 	fx.Provide(admin.NewSchedulePostController),
 	fx.Provide(admin.NewRegularPostController),
 	fx.Provide(admin.NewRegularTimingController),
+	fx.Provide(admin.NewApiPostController),
 
 	// user controller
 	fx.Provide(user.NewDashboardController),
@@ -33,7 +34,9 @@ var Module = fx.Options(
 	fx.Provide(user.NewSchedulePostController),
 	fx.Provide(user.NewRegularPostController),
 	fx.Provide(user.NewRegularTimingController),
+	fx.Provide(user.NewApiPostController),
 
 	// api controller
 	fx.Provide(api.NewPostMessageApiController),
+	fx.Provide(api.NewApiPostApiController),
 )

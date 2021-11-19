@@ -179,3 +179,33 @@ func ToRegularTimingMap(
 		"hour_time_text":   dto.HourTime.Format("15:04"),
 	}
 }
+
+// ToApiPostIndexMap ApiPostのIndexデータ
+func ToApiPostIndexMap(
+	dto application.ApiPostSearchPaginatorDTO,
+) helper.DataMap {
+	messages := make([]helper.DataMap, len(dto.ApiPosts))
+
+	for i, message := range dto.ApiPosts {
+		messages[i] = ToApiPostDetailMap(message)
+	}
+
+	return helper.DataMap{
+		"api_posts":  messages,
+		"pagination": helper.StructToJsonMap(&dto.Pagination),
+	}
+}
+
+// ToApiPostDetailMap ApiPostのDetailデータ
+func ToApiPostDetailMap(
+	dto application.ApiPostDetailDTO,
+) helper.DataMap {
+	return helper.DataMap{
+		"id":         dto.ID,
+		"message":    dto.Message,
+		"api_key":    dto.ApiKey,
+		"bot":        ToBotDetailMap(dto.Bot),
+		"created_at": dto.CreatedAt,
+		"updated_at": dto.UpdatedAt,
+	}
+}

@@ -88,6 +88,17 @@ func (vo UserEmail) Equals(eq UserEmail) bool {
 // UserActivationKey UserのActivationKey
 type UserActivationKey string
 
+// NewUserActivationKey コンストラクタ
+func NewUserActivationKey(key string) (vo UserActivationKey, err error) {
+	vo = UserActivationKey(key)
+
+	if vo.IsEmpty() {
+		return vo, errors.New("UserActivationKeyが空です")
+	}
+
+	return vo, err
+}
+
 // GenerateUserActivationKey ActivationKeyの生成
 func GenerateUserActivationKey() (vo UserActivationKey, err error) {
 
@@ -96,13 +107,7 @@ func GenerateUserActivationKey() (vo UserActivationKey, err error) {
 		return vo, err
 	}
 
-	vo = UserActivationKey(key)
-
-	if vo.IsEmpty() {
-		return vo, errors.New("UserActivationKeyの生成に失敗しました")
-	}
-
-	return vo, err
+	return NewUserActivationKey(key)
 }
 
 // Value 値を返す

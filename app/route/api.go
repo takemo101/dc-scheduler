@@ -19,6 +19,7 @@ type ApiRoute struct {
 	value             support.ContextValue
 	security          middleware.SecurityKey
 	messageController controller.PostMessageApiController
+	apiPostController controller.ApiPostApiController
 }
 
 // NewApiRoute create new web route
@@ -26,10 +27,11 @@ func NewApiRoute(
 	logger core.Logger,
 	app core.Application,
 	cors middleware.Cors,
-	security middleware.SecurityKey,
 	basicAuth middleware.BasicAuth,
 	value support.ContextValue,
+	security middleware.SecurityKey,
 	messageController controller.PostMessageApiController,
+	apiPostController controller.ApiPostApiController,
 ) ApiRoute {
 	return ApiRoute{
 		logger:            logger,
@@ -37,8 +39,9 @@ func NewApiRoute(
 		cors:              cors,
 		basicAuth:         basicAuth,
 		value:             value,
-		messageController: messageController,
 		security:          security,
+		messageController: messageController,
+		apiPostController: apiPostController,
 	}
 }
 
@@ -76,6 +79,8 @@ func (r ApiRoute) Setup() {
 		for i, t := range values {
 			keys[i] = t.(string)
 		}
+
+		api.Post("/message/:key/send", r.apiPostController.Send)
 
 		message := api.Group("/message", r.security.CreateHandler("key", keys))
 		{

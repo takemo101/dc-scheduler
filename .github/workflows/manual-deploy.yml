@@ -40,32 +40,9 @@ jobs:
       - name: Run TestCode
         run: go test -v ./test
 
-  preparation:
-    name: Preparation
-    needs: testing
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SSH_HOST }}
-          username: ${{ env.SSH_USERNAME }}
-          key: ${{ env.SSH_KEY }}
-          port: ${{ env.SSH_PORT }}
-          script: |
-            cd ${{ env.DEPLOY_DIRECTORY }}
-            mkdir -p ./${{ env.BINARY_DIRECTORY }}
-            git fetch origin
-            git reset --hard origin/${{ github.event.inputs.branch }}
-
-      - name: Echo DeployBranch
-        run: |
-          echo "DeployBranch: ${{ github.event.inputs.branch }}"
-
   deploy:
     name: Deploy
-    needs: preparation
+    needs: testing
     runs-on: ubuntu-latest
 
     steps:
@@ -96,3 +73,27 @@ jobs:
           port: ${{ env.SSH_PORT }}
           source: "./${{ env.BINARY_DIRECTORY }}/linux-app,./${{ env.BINARY_DIRECTORY }}/linux-app-cli"
           target: ${{ env.DEPLOY_DIRECTORY }}/
+
+  preparation:
+    name: Preparation
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USERNAME }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          script: |
+            cd ${{ env.DEPLOY_DIRECTORY }}
+            mkdir -p ./${{ env.BINARY_DIRECTORY }}
+            git fetch origin
+            git reset --hard origin/${{ github.event.inputs.branch }}
+            ${{ env.DEPLOY_DIRECTORY }}/${{ env.BINARY_DIRECTORY }}/linux-app-cli migrate:auto
+
+      - name: Echo DeployBranch
+        run: |
+          echo "DeployBranch: ${{ github.event.inputs.branch }}"
