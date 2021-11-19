@@ -121,12 +121,19 @@ type Cache struct {
 
 // Session is config
 type Session struct {
+	Type       string
 	Expiration time.Duration
 	Name       string
 	Domain     string
 	Path       string
 	Secure     bool
 	HTTPOnly   bool
+	SQLite     struct {
+		Database string
+		Table    string
+		Reset    bool
+		Interval time.Duration
+	}
 }
 
 // Cors is config

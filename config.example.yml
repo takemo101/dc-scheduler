@@ -7,7 +7,7 @@ app:
   env: "testing"
   secret: "secret"
   debug: false
-  config: "../config"
+  config: "./config"
 
 server:
   prefork: false
@@ -32,7 +32,7 @@ db:
   type: "sqlite"
   host: "localhost"
   protocol: "tcp"
-  name: "../fiber.testing.sqlite?_foreign_keys=on"
+  name: "./fiber.sqlite?_foreign_keys=on"
   user: "root"
   pass: "root"
   port: 3306
@@ -42,7 +42,7 @@ db:
     max: 10
 
 log:
-  server: "test.log"
+  server: "server.log"
 
 file:
   storage: "storage"
@@ -75,12 +75,18 @@ cache:
   control: false
 
 session:
+  type: "sqlite"
   expiration: 24
   name: "session"
   domain: ""
   path: "/"
   secure: false
   httponly: false
+  sqlite:
+    database: "./fiber.sqlite"
+    table: "storage"
+    reset: false
+    interval: 100000000000
 
 cors:
   origins: ["*"]

@@ -81,6 +81,11 @@ session:
   path: "/"
   secure: false
   httponly: false
+  sqlite:
+    database: "../fiber.testing.sqlite"
+    table: "storage"
+    reset: false
+    interval: 100000000000
 
 cors:
   origins: ["*"]

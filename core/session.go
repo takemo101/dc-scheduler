@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/fiber/v2/utils"
+	"github.com/gofiber/storage/sqlite3"
 )
 
 // SessionStore is fibar session store
@@ -22,7 +23,7 @@ func NewSessionStore(
 	gob.Register(SessionInputs{})
 	gob.Register(SessionMessages{})
 
-	store := session.New(session.Config{
+	sessionConf := session.Config{
 		Expiration:     config.Session.Expiration,
 		KeyLookup:      "cookie:" + config.Session.Name,
 		CookieDomain:   config.Session.Domain,
@@ -30,7 +31,19 @@ func NewSessionStore(
 		CookieSecure:   config.Session.Secure,
 		CookieHTTPOnly: config.Session.HTTPOnly,
 		KeyGenerator:   utils.UUID,
-	})
+	}
+
+	switch config.Session.Type {
+	case "sqlite":
+		sessionConf.Storage = sqlite3.New(sqlite3.Config{
+			Database:   config.Session.SQLite.Database,
+			Table:      config.Session.SQLite.Table,
+			Reset:      config.Session.SQLite.Reset,
+			GCInterval: config.Session.SQLite.Interval,
+		})
+	}
+
+	store := session.New(sessionConf)
 
 	return SessionStore{
 		store,
