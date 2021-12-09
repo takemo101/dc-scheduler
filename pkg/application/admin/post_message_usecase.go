@@ -406,7 +406,7 @@ func NewSchedulePostSendUseCase(
 func (uc SchedulePostSendUseCase) Execute(
 	now time.Time,
 ) (err common.AppError) {
-	messages, e := uc.repository.SendList(domain.NewMessageSendedAt(now))
+	messages, e := uc.repository.SendList(domain.NewJustMessageSendedAt(now))
 	if e != nil {
 		return common.NewByError(e)
 	}

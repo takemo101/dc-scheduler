@@ -132,7 +132,21 @@ type MessageSendedAt time.Time
 
 // NewMessageSendedAt コンストラクタ
 func NewMessageSendedAt(at time.Time) MessageSendedAt {
-	justAt := time.Date(
+	return MessageSendedAt(time.Date(
+		at.Year(),
+		at.Month(),
+		at.Day(),
+		at.Hour(),
+		at.Minute(),
+		0,
+		0,
+		at.Location(),
+	))
+}
+
+//  NewJustMessageSendedAt 予約インターバルの配信日時を生成
+func NewJustMessageSendedAt(at time.Time) MessageSendedAt {
+	return MessageSendedAt(time.Date(
 		at.Year(),
 		at.Month(),
 		at.Day(),
@@ -141,9 +155,7 @@ func NewMessageSendedAt(at time.Time) MessageSendedAt {
 		0,
 		0,
 		at.Location(),
-	)
-
-	return MessageSendedAt(justAt)
+	))
 }
 
 // Value 値を返す
@@ -163,10 +175,8 @@ type SentMessage struct {
 // SendMessage メッセージ配信をする
 func SendMessage(
 	messageVO Message,
-	now time.Time,
+	sendedAtVO MessageSendedAt,
 ) (entity SentMessage, err error) {
-	sendedAtVO := NewMessageSendedAt(now)
-
 	return SentMessage{
 		id:       GenerateUUID(),
 		message:  messageVO,
@@ -305,7 +315,10 @@ func (entity *PostMessage) Send(now time.Time) (send SentMessage, err error) {
 		return send, errors.New("Message配信可能ではありません")
 	}
 
-	send, err = SendMessage(entity.message, now)
+	send, err = SendMessage(
+		entity.message,
+		NewMessageSendedAt(now),
+	)
 
 	entity.sentMessages = append(
 		entity.sentMessages,
@@ -570,7 +583,10 @@ func (entity *SchedulePost) Send(now time.Time) (send SentMessage, err error) {
 		return send, errors.New("Message配信可能ではありません")
 	}
 
-	send, err = SendMessage(entity.message, now)
+	send, err = SendMessage(
+		entity.message,
+		NewJustMessageSendedAt(now),
+	)
 
 	entity.sentMessages = append(
 		entity.sentMessages,

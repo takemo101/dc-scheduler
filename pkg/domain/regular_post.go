@@ -428,7 +428,10 @@ func (entity *RegularPost) Send(now time.Time) (send SentMessage, err error) {
 		return send, errors.New("Message配信可能ではありません")
 	}
 
-	send, err = SendMessage(entity.message, now)
+	send, err = SendMessage(
+		entity.message,
+		NewJustMessageSendedAt(now),
+	)
 
 	entity.sentMessages = append(
 		entity.sentMessages,
