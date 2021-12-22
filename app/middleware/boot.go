@@ -27,13 +27,13 @@ type Middlewares []contract.Middleware
 // NewMiddleware is setup new middlewares
 func NewMiddleware(
 	methodOverride MethodOverride,
-	secure Secure,
+	// secure Secure,
 	value ContextValueInit,
 
 ) Middlewares {
 	return Middlewares{
 		methodOverride,
-		secure,
+		// secure,
 		value,
 	}
 }

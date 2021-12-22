@@ -94,5 +94,13 @@ app-loli-deploy-copy:
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 	scp -r -P ${LOLI_SSH_PORT} -i ${LOLI_SSH_KEY} ./${BINARY_DIRECTORY}/go-linux-app-cli ${LOLI_SSH_USER}@${LOLI_SSH_HOST}:${LOLI_PROJECT_DIRECTORY}/${BINARY_DIRECTORY}
 
+# login lolipop
 loli-login:
 	ssh -p ${LOLI_SSH_PORT} -i .ssh/id_rsa ${LOLI_SSH_USER}@${LOLI_SSH_HOST}
+
+
+#### ngrok ####
+
+# run
+ngrok-run:
+	./.ngrok/ngrok http 8000
