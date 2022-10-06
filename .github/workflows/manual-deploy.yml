@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Deploy Branch"
+        description: 'Deploy Branch'
         required: true
-        default: "develop"
+        default: 'develop'
 
 env:
-  BINARY_DIRECTORY: "bin"
-  DEPLOY_DIRECTORY: "/var/app/dc-scheduler"
+  BINARY_DIRECTORY: 'bin'
+  DEPLOY_DIRECTORY: '/var/app/dc-scheduler'
   SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
   SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
-  SSH_PORT: 43582
+  SSH_PORT: ${{ secrets.SSH_PORT }}
 
 jobs:
   testing:
@@ -71,7 +71,7 @@ jobs:
           username: ${{ env.SSH_USERNAME }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          source: "./${{ env.BINARY_DIRECTORY }}/linux-app,./${{ env.BINARY_DIRECTORY }}/linux-app-cli"
+          source: './${{ env.BINARY_DIRECTORY }}/linux-app,./${{ env.BINARY_DIRECTORY }}/linux-app-cli'
           target: ${{ env.DEPLOY_DIRECTORY }}/
 
   preparation:
