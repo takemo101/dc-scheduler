@@ -43,10 +43,10 @@ svg/%: $(DIAGRAM_DIRECTORY)/%${DIAGRAM_EXTENSION}
 
 BINARY_DIRECTORY = bin
 LOLI_SSH_KEY = .ssh/id_rsa
-LOLI_SSH_PORT = 36094
-LOLI_SSH_USER = proud-iki-7985
-LOLI_SSH_HOST = ssh-1.mc.lolipop.jp
-LOLI_PROJECT_DIRECTORY = /var/app/dc-scheduler
+LOLI_SSH_PORT = 3304
+LOLI_SSH_USER = xxx
+LOLI_SSH_HOST = xxx
+LOLI_PROJECT_DIRECTORY = /var/app/xxx
 
 # app resource setup
 app-setup:
